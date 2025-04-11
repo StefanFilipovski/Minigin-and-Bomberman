@@ -162,6 +162,7 @@
     <ClCompile Include="GameActor.cpp" />
     <ClCompile Include="GameActorCommand.cpp" />
     <ClCompile Include="LambdaCommand.cpp" />
+    <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="LivesDisplay.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MoveCommand.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="GameActorCommand.h" />
     <ClInclude Include="GameEvents.h" />
     <ClInclude Include="LambdaCommand.h" />
+    <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="LivesDisplay.h" />
     <ClInclude Include="MoveCommand.h" />
     <ClInclude Include="PlayerComponent.h" />
