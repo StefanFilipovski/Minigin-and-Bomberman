@@ -40,27 +40,56 @@
 #include "CollisionResponder.h" 
 #include "PlayerComponent.h"
 #include "LevelLoader.h"
+#include "Camera.h"
+
 
 void load()
 {
-    dae::LevelLoader loader;
-    // Adjust the relative path to where your level file is located.
-    loader.LoadLevel("../Data/level1.txt", "Level 1");
+  
+    auto& scene = dae::SceneManager::GetInstance().CreateScene("Camera Test");
+
+   
+    auto background = std::make_shared<dae::GameObject>();
+    background->AddComponent<dae::TransformComponent>().SetLocalPosition(0, 0, 0);
+    auto& bgRender = background->AddComponent<dae::RenderComponent>();
+    bgRender.SetTexture("background.tga");
+    scene.Add(background);
+
+    // Create Player Setup
+    auto player = std::make_shared<dae::GameObject>();
+    player->AddComponent<dae::TransformComponent>().SetLocalPosition(50, 10, 0);
+    auto& playerRender = player->AddComponent<dae::RenderComponent>();
+    playerRender.SetTexture("wall.tga");
+    
+    auto& playerActor = player->AddComponent<dae::GameActor>();
+    playerActor.SetHealth(3);
+    scene.Add(player);
+
+    
+    dae::Camera::GetInstance().SetTarget(player);
+
+   
+    auto& inputManager = dae::InputManager::GetInstance();
+    inputManager.BindCommand(SDL_SCANCODE_RIGHT, KeyState::Down, InputDeviceType::Keyboard,
+        std::make_unique<dae::MoveCommand>(&playerActor, dae::MoveCommand::Direction::Right, 5.0f), 1);
+    inputManager.BindCommand(SDL_SCANCODE_LEFT, KeyState::Down, InputDeviceType::Keyboard,
+        std::make_unique<dae::MoveCommand>(&playerActor, dae::MoveCommand::Direction::Left, 5.0f), 1);
 }
 
 
-
-int main(int, char* []) {
+int main(int, char* [])
+{
     try {
+       
         dae::Minigin engine("../Data/");
         engine.Run(load);
     }
     catch (const std::exception& ex) {
         std::cerr << "Exception: " << ex.what() << std::endl;
     }
-   
     dae::DebugUIManager::Shutdown();
     return 0;
 }
+
 
 

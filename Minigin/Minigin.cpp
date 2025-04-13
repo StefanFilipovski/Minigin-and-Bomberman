@@ -12,6 +12,7 @@
 #include <chrono>
 #include <thread>
 #include "CollisionManager.h"
+#include "Camera.h"
 
 SDL_Window* g_window{};
 
@@ -85,6 +86,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 	auto& renderer = Renderer::GetInstance();
 	auto& sceneManager = SceneManager::GetInstance();
 	auto& input = InputManager::GetInstance();
+	auto& camera = Camera::GetInstance();
 
 	constexpr float fixedTimeStep = 1.0f / 180.0f;  // Target 60 FPS
 	auto lastTime = std::chrono::high_resolution_clock::now();
@@ -107,6 +109,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		{
 			sceneManager.Update(fixedTimeStep);
 			dae::CollisionManager::GetInstance().CheckCollisions();
+			camera.Update(fixedTimeStep);
 			lag -= fixedTimeStep;
 		}
 
@@ -115,6 +118,10 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 		// Render the scene
 		renderer.Render();
+
+		//Camera update
+		camera.Update(deltaTime);
+
 
 		// Frame limiting (prevents high CPU usage)
 		const auto sleepTime = currentTime + std::chrono::milliseconds(16) - std::chrono::high_resolution_clock::now();
