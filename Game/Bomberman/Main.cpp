@@ -1,4 +1,4 @@
-#include <SDL.h>
+﻿#include <SDL.h>
 
 //#if _DEBUG
 //#if !defined(VLD_CUSTOM_CONFIG)
@@ -45,63 +45,61 @@
 
 void load()
 {
-    auto& scene = dae::SceneManager::GetInstance().CreateScene("Test Sprite Animation");
+    // 1) Create the scene
+    auto& scene = dae::SceneManager::GetInstance().CreateScene("Bomberman Player Test");
 
-    // Create the player object.
+    // 2) Create the player GameObject
     auto player = std::make_shared<dae::GameObject>();
-    player->AddComponent<dae::TransformComponent>().SetLocalPosition(100, 100, 0);
+    player->AddComponent<dae::TransformComponent>()
+        .SetLocalPosition(100.f, 100.f, 0.f);
     player->AddComponent<dae::RenderComponent>();
 
-    // Attach the SpriteSheetComponent.
-    auto& spriteComp = player->AddComponent<dae::SpriteSheetComponent>();
+    // 3) Add and configure the sprite‐sheet (3×6 Bomberman layout)
+    auto& sprite = player->AddComponent<dae::SpriteSheetComponent>();
+    sprite.SetSpriteSheet("BombermanSpritesheet.tga", /*rows=*/3, /*cols=*/6,
+        /*startRow=*/0, /*frameDur=*/0.15f);
+    // Idle = row 0, column 4 (zero-based index)
+    sprite.SetIdleFrame(dae::SpriteSheetComponent::AnimationState::Idle,
+        /*rows=*/3, /*cols=*/6,
+        /*row=*/0, /*idleCol=*/4);
 
-    // Load the new sprite sheet.
-    // "TestSpriteSheet.tga" is organized in 4 rows and 3 columns.
-    spriteComp.SetSpriteSheet("TestSpriteSheet.tga", 4, 3, 0, 0.15f);
+    // 4) Add the PlayerComponent (it will grab that sprite & transform internally)
+    auto& pc = player->AddComponent<dae::PlayerComponent>();
 
-    // Set the initial idle state (using Down facing: row 2, column 1).
-    spriteComp.SetIdleFrame(dae::SpriteSheetComponent::AnimationState::Idle, 4, 3, 2, 1);
-
+    // 5) Finalize the GameObject into the scene
     scene.Add(player);
 
-    auto& inputManager = dae::InputManager::GetInstance();
+    // 6) Wire up input → PlayerComponent
+    auto& input = dae::InputManager::GetInstance();
+    // Movement press
+    input.BindCommand(SDL_SCANCODE_LEFT, KeyState::Pressed, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_LEFT); }), 1);
+    input.BindCommand(SDL_SCANCODE_RIGHT, KeyState::Pressed, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_RIGHT); }), 1);
+    input.BindCommand(SDL_SCANCODE_UP, KeyState::Pressed, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_UP); }), 1);
+    input.BindCommand(SDL_SCANCODE_DOWN, KeyState::Pressed, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_DOWN); }), 1);
 
-    // Bind movement key press events.
-    inputManager.BindCommand(SDL_SCANCODE_UP, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyPressed(SDL_SCANCODE_UP);
-            }), 1);
-    inputManager.BindCommand(SDL_SCANCODE_RIGHT, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyPressed(SDL_SCANCODE_RIGHT);
-            }), 1);
-    inputManager.BindCommand(SDL_SCANCODE_DOWN, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyPressed(SDL_SCANCODE_DOWN);
-            }), 1);
-    inputManager.BindCommand(SDL_SCANCODE_LEFT, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyPressed(SDL_SCANCODE_LEFT);
-            }), 1);
+    // Movement release
+    input.BindCommand(SDL_SCANCODE_LEFT, KeyState::Up, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_LEFT); }), 1);
+    input.BindCommand(SDL_SCANCODE_RIGHT, KeyState::Up, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_RIGHT); }), 1);
+    input.BindCommand(SDL_SCANCODE_UP, KeyState::Up, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_UP); }), 1);
+    input.BindCommand(SDL_SCANCODE_DOWN, KeyState::Up, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_DOWN); }), 1);
 
-    // Bind movement key release events.
-    inputManager.BindCommand(SDL_SCANCODE_UP, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyReleased(SDL_SCANCODE_UP);
-            }), 1);
-    inputManager.BindCommand(SDL_SCANCODE_RIGHT, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyReleased(SDL_SCANCODE_RIGHT);
-            }), 1);
-    inputManager.BindCommand(SDL_SCANCODE_DOWN, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyReleased(SDL_SCANCODE_DOWN);
-            }), 1);
-    inputManager.BindCommand(SDL_SCANCODE_LEFT, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&spriteComp]() {
-            spriteComp.OnMovementKeyReleased(SDL_SCANCODE_LEFT);
+    // 7) bind D to kill the player and trigger death animation
+    input.BindCommand(SDL_SCANCODE_D, KeyState::Pressed, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() {
+            // deal enough damage to drop to zero health
+            pc.TakeDamage(pc.GetHealth());
             }), 1);
 }
+
+
 
 int main(int, char* [])
 {

@@ -65,8 +65,8 @@ namespace dae {
                     auto& collision = player->AddComponent<CollisionComponent>();
                     collision.SetSize(static_cast<float>(tileSize) * 0.8f, static_cast<float>(tileSize) * 0.8f);
                     
-                    auto& playerComp = player->AddComponent<PlayerComponent>();
-                    playerComp.SetHealth(3);
+                   /* auto& playerComp = player->AddComponent<PlayerComponent>();*/
+                   /* playerComp.SetHealth(3);*/
                     scene.Add(player);
                 }
               
