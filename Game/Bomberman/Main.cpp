@@ -41,62 +41,80 @@
 #include "PlayerComponent.h"
 #include "LevelLoader.h"
 #include "Camera.h"
+#include "ServiceLocator.h"
+#include "SDLMixerSoundSystem.h"
 
+
+struct HitLogger : public dae::Observer {
+    void OnNotify(const dae::Event& ev) override {
+        if (ev.id == GameEvents::PLAYER_HIT)
+            std::cout << "[Logger] Player was hit!\n";
+        else if (ev.id == GameEvents::PLAYER_DIED)
+            std::cout << "[Logger] Player has died.\n";
+    }
+};
 
 void load()
 {
-    // 1) Create the scene
-    auto& scene = dae::SceneManager::GetInstance().CreateScene("Bomberman Player Test");
 
-    // 2) Create the player GameObject
+    auto& scene = dae::SceneManager::GetInstance().CreateScene("Controller + Keyboard Demo");
+
+
     auto player = std::make_shared<dae::GameObject>();
-    player->AddComponent<dae::TransformComponent>()
-        .SetLocalPosition(100.f, 100.f, 0.f);
+    player->AddComponent<dae::TransformComponent>().SetLocalPosition(100.f, 100.f, 0.f);
     player->AddComponent<dae::RenderComponent>();
 
-    // 3) Add and configure the sprite‐sheet (3×6 Bomberman layout)
+
     auto& sprite = player->AddComponent<dae::SpriteSheetComponent>();
-    sprite.SetSpriteSheet("BombermanSpritesheet.tga", /*rows=*/3, /*cols=*/6,
-        /*startRow=*/0, /*frameDur=*/0.15f);
-    // Idle = row 0, column 4 (zero-based index)
-    sprite.SetIdleFrame(dae::SpriteSheetComponent::AnimationState::Idle,
-        /*rows=*/3, /*cols=*/6,
-        /*row=*/0, /*idleCol=*/4);
+    sprite.SetSpriteSheet("BombermanSpritesheet.tga", 3, 6, 0, 0.15f);
+    sprite.SetIdleFrame(
+        dae::SpriteSheetComponent::AnimationState::Idle,
+        3, 6, 0, 4
+    );
 
-    // 4) Add the PlayerComponent (it will grab that sprite & transform internally)
+
     auto& pc = player->AddComponent<dae::PlayerComponent>();
+    auto& lives = player->AddComponent<dae::LivesDisplay>(3);
+    pc.AddObserver(&lives);
 
-    // 5) Finalize the GameObject into the scene
     scene.Add(player);
 
-    // 6) Wire up input → PlayerComponent
+
     auto& input = dae::InputManager::GetInstance();
-    // Movement press
-    input.BindCommand(SDL_SCANCODE_LEFT, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_LEFT); }), 1);
-    input.BindCommand(SDL_SCANCODE_RIGHT, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_RIGHT); }), 1);
-    input.BindCommand(SDL_SCANCODE_UP, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_UP); }), 1);
-    input.BindCommand(SDL_SCANCODE_DOWN, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputPressed(SDL_SCANCODE_DOWN); }), 1);
 
-    // Movement release
-    input.BindCommand(SDL_SCANCODE_LEFT, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_LEFT); }), 1);
-    input.BindCommand(SDL_SCANCODE_RIGHT, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_RIGHT); }), 1);
-    input.BindCommand(SDL_SCANCODE_UP, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_UP); }), 1);
-    input.BindCommand(SDL_SCANCODE_DOWN, KeyState::Up, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() { pc.OnInputReleased(SDL_SCANCODE_DOWN); }), 1);
 
-    // 7) bind D to kill the player and trigger death animation
-    input.BindCommand(SDL_SCANCODE_D, KeyState::Pressed, InputDeviceType::Keyboard,
-        std::make_unique<dae::LambdaCommand>([&pc]() {
-            // deal enough damage to drop to zero health
-            pc.TakeDamage(pc.GetHealth());
-            }), 1);
+    auto bindDU = [&](int code, InputDeviceType dev, int pIdx,
+        dae::PlayerComponent::Direction dir)
+        {
+        
+            input.BindCommand(code, KeyState::Down, dev,
+                std::make_unique<dae::LambdaCommand>(
+                    [&pc, dir]() { pc.OnMovementPressed(dir); }
+                ), pIdx);
+            
+            input.BindCommand(code, KeyState::Up, dev,
+                std::make_unique<dae::LambdaCommand>(
+                    [&pc, dir]() { pc.OnMovementReleased(dir); }
+                ), pIdx);
+        };
+
+
+    bindDU(SDL_SCANCODE_LEFT, InputDeviceType::Keyboard, 1, dae::PlayerComponent::Direction::Left);
+    bindDU(SDL_SCANCODE_RIGHT, InputDeviceType::Keyboard, 1, dae::PlayerComponent::Direction::Right);
+    bindDU(SDL_SCANCODE_UP, InputDeviceType::Keyboard, 1, dae::PlayerComponent::Direction::Up);
+    bindDU(SDL_SCANCODE_DOWN, InputDeviceType::Keyboard, 1, dae::PlayerComponent::Direction::Down);
+
+  
+    bindDU(int(dae::GamepadButton::DPadLeft), InputDeviceType::Gamepad, 0, dae::PlayerComponent::Direction::Left);
+    bindDU(int(dae::GamepadButton::DPadRight), InputDeviceType::Gamepad, 0, dae::PlayerComponent::Direction::Right);
+    bindDU(int(dae::GamepadButton::DPadUp), InputDeviceType::Gamepad, 0, dae::PlayerComponent::Direction::Up);
+    bindDU(int(dae::GamepadButton::DPadDown), InputDeviceType::Gamepad, 0, dae::PlayerComponent::Direction::Down);
+
+    //test damage keys
+    input.BindCommand(SDL_SCANCODE_H, KeyState::Down, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.TakeDamage(1); }), 1);
+    input.BindCommand(SDL_SCANCODE_D, KeyState::Down, InputDeviceType::Keyboard,
+        std::make_unique<dae::LambdaCommand>([&pc]() { pc.TakeDamage(pc.GetHealth()); }), 1);
 }
 
 
@@ -106,6 +124,8 @@ int main(int, char* [])
     try {
        
         dae::Minigin engine("../Data/");
+        ServiceLocator::RegisterSoundSystem(
+            std::make_unique<SDLMixerSoundSystem>("../Data/"));
         engine.Run(load);
     }
     catch (const std::exception& ex) {

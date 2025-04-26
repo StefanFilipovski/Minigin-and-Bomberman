@@ -208,6 +208,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GamePad.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="ISoundSystem.h" />
     <ClInclude Include="Minigin.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="RenderComponent.h" />
@@ -215,6 +216,8 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="SDLMixerSoundSystem.h" />
+    <ClInclude Include="ServiceLocator.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="TextComponent.h" />
     <ClInclude Include="Texture2D.h" />
@@ -240,6 +243,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GamePad.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="ISoundSystem.cpp" />
     <ClCompile Include="Minigin.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
@@ -247,6 +251,8 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="SDLMixerSoundSystem.cpp" />
+    <ClCompile Include="ServiceLocator.cpp" />
     <ClCompile Include="TextComponent.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TransformComponent.cpp" />

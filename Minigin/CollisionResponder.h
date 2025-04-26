@@ -1,7 +1,7 @@
 #pragma once
 namespace dae {
 
-    class GameObject; // Forward declaration
+    class GameObject; 
 
     class CollisionResponder {
     public:
@@ -11,4 +11,4 @@ namespace dae {
         virtual void OnCollide(GameObject* other) = 0;
     };
 
-} // namespace dae
+} 

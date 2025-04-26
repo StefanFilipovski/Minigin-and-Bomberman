@@ -1,7 +1,7 @@
 #pragma once
 #include "Observer.h"
 #include "TextComponent.h"
-#include "GameEvents.h" // Include game-specific event definitions
+#include "GameEvents.h" 
 #include <sstream>
 #include <iostream>
 

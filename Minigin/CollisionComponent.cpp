@@ -8,7 +8,7 @@ namespace dae {
     CollisionComponent::CollisionComponent(GameObject* owner)
         : Component(owner)
     {
-        // Optionally, you might want to initialize size from the RenderComponent
+        // might want to initialize size from the RenderComponent
         // or from some default value.
 
         dae::CollisionManager::GetInstance().Register(this);
@@ -44,8 +44,8 @@ namespace dae {
     void CollisionComponent::Update(float deltaTime)
     {
         (void)deltaTime;
-        // In this basic example, the collision data (size and offset) remain constant.
-        // If needed, you could update the collision box here based on dynamic properties.
+        // In this example the collision data (size and offset) remain constant.
+        // If needed update the collision box here based on dynamic properties.
     }
     void CollisionComponent::SetResponder(std::unique_ptr<CollisionResponder> responder)
     {

@@ -1,20 +1,29 @@
 #pragma once
+#include "Component.h"
 #include "Observer.h"
+#include "GameEvents.h"
 #include <iostream>
-#include "GameEvents.h" // Include the game-specific event definitions
 
 namespace dae
 {
-    class LivesDisplay : public Observer
+    class LivesDisplay : public Component, public Observer
     {
     public:
-        LivesDisplay(int initialLives)
-            : m_Lives(initialLives) {
+       
+        LivesDisplay(GameObject* owner, int initialLives)
+            : Component(owner)
+            , m_Lives(initialLives)
+        {
         }
 
+        // Observer callback
         void OnNotify(const Event& event) override
         {
-            if (event.id == GameEvents::PLAYER_DIED)
+            if (event.id == GameEvents::PLAYER_HIT)
+            {
+                
+            }
+            else if (event.id == GameEvents::PLAYER_DIED)
             {
                 m_Lives--;
                 UpdateDisplay();
@@ -23,6 +32,7 @@ namespace dae
 
     private:
         int m_Lives;
+
         void UpdateDisplay()
         {
             std::cout << "Remaining Lives: " << m_Lives << std::endl;

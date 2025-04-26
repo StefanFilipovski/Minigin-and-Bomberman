@@ -28,26 +28,29 @@ namespace dae
         template <typename T, typename... Args>
         T& AddComponent(Args&&... args)
         {
-            static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+            static_assert(std::is_base_of<Component, T>::value,
+                "T must derive from Component");
 
             // Prevent multiple TransformComponents
             if constexpr (std::is_same_v<T, TransformComponent>)
             {
                 if (GetComponent<TransformComponent>())
-                {
                     throw std::runtime_error("Error: This GameObject already has a TransformComponent!");
-                }
             }
 
-            auto component = std::make_unique<T>(this, std::forward<Args>(args)...);
-            T& ref = *component;
+            // 1) Create the derived component
+            auto derived = std::make_unique<T>(this, std::forward<Args>(args)...);
+            // 2) Keep its raw pointer for the return value
+            T* rawPtr = derived.get();
 
-           /* std::cerr << "Component of type " << typeid(T).name()
-                << " added to GameObject: " << this
-                << " at " << &ref << std::endl;*/
+            // 3) Wrap it into a unique_ptr<Component> and store
+            std::unique_ptr<Component> basePtr{
+                static_cast<Component*>(derived.release())
+            };
+            m_pComponents.push_back(std::move(basePtr));
 
-            m_pComponents.push_back(std::move(component));
-            return ref;
+            // 4) Return a reference to the newly created component
+            return *rawPtr;
         }
 
 

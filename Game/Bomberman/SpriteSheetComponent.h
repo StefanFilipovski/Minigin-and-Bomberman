@@ -29,7 +29,7 @@ namespace dae {
         // Advance the current animation by deltaTime.
         void Update(float deltaTime);
 
-        // Draw the current frame (if visible).
+        // Draw the current frame 
         void Render() const override;
 
         // Scale and loop control.
@@ -88,4 +88,4 @@ namespace dae {
         AnimationState             m_currentState{ AnimationState::None };
     };
 
-} // namespace dae
+} 

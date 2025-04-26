@@ -5,9 +5,9 @@
 
 namespace dae {
 
-    class CollisionComponent; // Forward declaration
+    class CollisionComponent;
 
-    // Derive from Singleton<CollisionManager>
+  
     class CollisionManager final : public Singleton<CollisionManager>
     {
     public:
@@ -26,4 +26,4 @@ namespace dae {
         std::vector<CollisionComponent*> m_collisionComponents;
     };
 
-} // namespace dae
+} 

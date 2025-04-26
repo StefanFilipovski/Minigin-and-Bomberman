@@ -1,6 +1,6 @@
 #include "CollisionManager.h"
 #include "CollisionComponent.h"
-#include "CollisionUtilities.h"  // Contains AABBIntersect
+#include "CollisionUtilities.h"  
 #include <SDL.h>
 #include <iostream>
 #include "CollisionResponder.h"
@@ -23,7 +23,7 @@ namespace dae {
     void dae::CollisionManager::CheckCollisions()
     {
         /*std::cout << "CheckCollisions called" << std::endl;*/
-        std::cout << "Number of collision components: " << m_collisionComponents.size() << std::endl;
+        //std::cout << "Number of collision components: " << m_collisionComponents.size() << std::endl;
         const size_t count = m_collisionComponents.size();
         for (size_t i = 0; i < count; ++i)
         {

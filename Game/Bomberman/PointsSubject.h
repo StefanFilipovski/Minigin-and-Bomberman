@@ -1,6 +1,6 @@
 #pragma once
 #include "Observer.h"
-#include "GameEvents.h"  // For GameEvents::POINTS_ADDED
+#include "GameEvents.h"  
 
 namespace dae {
 

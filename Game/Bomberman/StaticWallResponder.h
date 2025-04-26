@@ -21,8 +21,8 @@ namespace dae {
                 player->RevertMove();
                 std::cout << "Collision with wall: movement blocked and reverted." << std::endl;
             }
-            // For other types, you could have different logic.
+            // For other types different logic.
         }
     };
 
-} // namespace dae
+}

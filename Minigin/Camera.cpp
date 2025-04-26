@@ -6,15 +6,15 @@ namespace dae {
 
     void Camera::Update(float deltaTime)
     {
-        (void)deltaTime; // You could use deltaTime for smoothing if desired.
+        (void)deltaTime; 
         if (!m_target)
             return;
 
-        // Get the target (player) position in world coordinates.
+        // Get the target position in world coordinates.
         const auto targetPos = m_target->GetTransform().GetWorldPosition();
 
         // Calculate the player's screen position given current camera offset.
-        // For a 2D screen, we use only the x and y.
+      
         glm::vec2 playerScreenPos(targetPos.x - m_offset.x, targetPos.y - m_offset.y);
 
         // Compute the center of the screen.
@@ -36,7 +36,7 @@ namespace dae {
         {
             m_offset.x = targetPos.x - rightBound;
         }
-        // Similarly, adjust vertically if needed:
+       
         if (playerScreenPos.y < topBound)
         {
             m_offset.y = targetPos.y - topBound;
@@ -47,4 +47,4 @@ namespace dae {
         }
     }
 
-} // namespace dae
+} 
