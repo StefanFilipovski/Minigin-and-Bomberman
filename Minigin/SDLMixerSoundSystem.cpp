@@ -74,6 +74,13 @@ SDLMixerSoundSystem::~SDLMixerSoundSystem() {
     delete pImpl;
 }
 
+// SDLMixerSoundSystem.cpp
+
 void SDLMixerSoundSystem::Play(sound_id id, float volume) {
+    // don’t even queue up anything if that slot is invalid or not loaded
+    if (id >= pImpl->clips.size() || pImpl->clips[id] == nullptr) {
+        return;
+    }
     pImpl->Enqueue(id, volume);
 }
+

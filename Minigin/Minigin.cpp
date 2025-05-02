@@ -116,13 +116,12 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		// Regular update (for animations, AI, etc.)
 		sceneManager.Update(deltaTime);
 
-		// Render the scene
-		renderer.Render();
-
 		//Camera update
 		camera.Update(deltaTime);
 
-
+		// Render the scene
+		renderer.Render();
+		
 		// Frame limiting (prevents high CPU usage)
 		const auto sleepTime = currentTime + std::chrono::milliseconds(16) - std::chrono::high_resolution_clock::now();
 		std::this_thread::sleep_for(sleepTime);

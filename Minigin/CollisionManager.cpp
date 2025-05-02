@@ -20,39 +20,39 @@ namespace dae {
         );
     }
 
-    void dae::CollisionManager::CheckCollisions()
+    void CollisionManager::CheckCollisions()
     {
-        /*std::cout << "CheckCollisions called" << std::endl;*/
-        //std::cout << "Number of collision components: " << m_collisionComponents.size() << std::endl;
-        const size_t count = m_collisionComponents.size();
+        const auto& comps = m_collisionComponents;
+        const size_t count = comps.size();
         for (size_t i = 0; i < count; ++i)
         {
-            SDL_Rect rectA = m_collisionComponents[i]->GetBoundingBox();
+            // Compute A’s box once
+            const SDL_Rect rectA = comps[i]->GetBoundingBox();
+
             for (size_t j = i + 1; j < count; ++j)
             {
-                SDL_Rect rectB = m_collisionComponents[j]->GetBoundingBox();
-                // Print bounding box info for debugging
-                std::cout << "Checking collision between components " << i << " and " << j << std::endl;
-                std::cout << "Component " << i << " bbox: (" << rectA.x << ", " << rectA.y << ", "
-                    << rectA.w << ", " << rectA.h << ")" << std::endl;
-                std::cout << "Component " << j << " bbox: (" << rectB.x << ", " << rectB.y << ", "
-                    << rectB.w << ", " << rectB.h << ")" << std::endl;
+                const SDL_Rect rectB = comps[j]->GetBoundingBox();
 
-                if (dae::AABBIntersect(rectA, rectB))
+                if (AABBIntersect(rectA, rectB))
                 {
-                    std::cout << "Collision detected between component " << i << " and " << j << std::endl;
-                    if (m_collisionComponents[i]->GetResponder())
-                        m_collisionComponents[i]->GetResponder()->OnCollide(m_collisionComponents[j]->GetOwner());
-                    if (m_collisionComponents[j]->GetResponder())
-                        m_collisionComponents[j]->GetResponder()->OnCollide(m_collisionComponents[i]->GetOwner());
-                }
-                else
-                {
-                    std::cout << "No collision between component " << i << " and " << j << std::endl;
+                    // Notify both responders (if present)
+                    if (auto* rA = comps[i]->GetResponder())
+                        rA->OnCollide(comps[j]->GetOwner());
+                    if (auto* rB = comps[j]->GetResponder())
+                        rB->OnCollide(comps[i]->GetOwner());
                 }
             }
         }
     }
+
+    void CollisionManager::DebugDraw(SDL_Renderer* renderer) const {
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        for (auto* comp : m_collisionComponents) {
+            SDL_Rect r = comp->GetBoundingBox();
+            SDL_RenderDrawRect(renderer, &r);
+        }
+    }
+
 
 
 

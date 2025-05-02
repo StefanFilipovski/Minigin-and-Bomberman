@@ -2,6 +2,7 @@
 #include <vector>
 #include <algorithm>
 #include "Singleton.h"
+struct SDL_Renderer;
 
 namespace dae {
 
@@ -16,6 +17,9 @@ namespace dae {
         void Unregister(CollisionComponent* comp);
         // Check collisions among all registered components.
         void CheckCollisions();
+
+        void DebugDraw(SDL_Renderer* renderer) const;
+
 
     private:
         // Private constructor/destructor provided by Singleton.

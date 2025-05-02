@@ -6,6 +6,7 @@
 #include "../3rdParty/imgui/backends/imgui_impl_sdl2.h"
 #include "../3rdParty/imgui/backends/imgui_impl_opengl3.h"
 #include "DebugUIManager.h"
+#include "CollisionManager.h"
 
 
 
@@ -55,6 +56,9 @@ void dae::Renderer::Render() const
 
 	// Render the debug UI
 	DebugUIManager::GetInstance().RenderUI();
+
+	// 2) debug‐draw all collider boxes
+	CollisionManager::GetInstance().DebugDraw(m_renderer);
 
 	ImGui::SetNextWindowPos(ImVec2(200, 20));
 	ImGui::Render();

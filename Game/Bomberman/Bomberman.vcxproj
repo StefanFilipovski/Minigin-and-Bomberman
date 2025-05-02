@@ -167,6 +167,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MoveCommand.cpp" />
     <ClCompile Include="PlayerComponent.cpp" />
+    <ClCompile Include="PlayerMoveCommand.cpp" />
     <ClCompile Include="PointsDisplay.cpp" />
     <ClCompile Include="PointsSubject.cpp" />
     <ClCompile Include="ScoreComponent.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="LivesDisplay.h" />
     <ClInclude Include="MoveCommand.h" />
     <ClInclude Include="PlayerComponent.h" />
+    <ClInclude Include="PlayerMoveCommand.h" />
     <ClInclude Include="PointsDisplay.h" />
     <ClInclude Include="PointsSubject.h" />
     <ClInclude Include="ScoreComponent.h" />

@@ -30,7 +30,7 @@ namespace dae {
         float m_deadZoneX = 0.25f * m_screenWidth; 
         float m_deadZoneY = 0.25f * m_screenHeight;
 
-        / smoothing factors, etc.
+        // smoothing factors, etc.
     };
 
 } 

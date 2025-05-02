@@ -6,6 +6,7 @@
 #include <cassert>
 #include <iostream>
 #include <ServiceLocator.h>
+#include "CollisionManager.h"
 
 namespace dae {
 
@@ -14,6 +15,7 @@ namespace dae {
     {
         m_Sprite = owner->GetComponent<SpriteSheetComponent>();
         m_Transform = &owner->GetTransform();
+        //Player component has to have these components to exist
         assert(m_Sprite && m_Transform);
     }
 
@@ -118,6 +120,8 @@ namespace dae {
 
     void PlayerComponent::MoveCurrent(float dt)
     {
+        float a;
+        a = dt;
         if (m_MovementDirs.empty()) return;
         float amt = m_speed * dt;
         BeginMove();
@@ -129,7 +133,7 @@ namespace dae {
         case Direction::Down:  Move(0, +amt); break;
         }
 
-        // if collision: RevertMove();
+        dae::CollisionManager::GetInstance().CheckCollisions();
     }
 
     void PlayerComponent::UpdateSpriteState()

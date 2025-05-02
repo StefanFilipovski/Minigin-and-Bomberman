@@ -1,4 +1,4 @@
-#include "LevelLoader.h"
+﻿#include "LevelLoader.h"
 #include "SceneManager.h"
 #include "GameObject.h"
 #include "TransformComponent.h"
@@ -10,69 +10,153 @@
 #include "Scene.h"
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
+#include <functional>
+#include "SpriteSheetComponent.h"
 
-namespace dae {
 
-    // Loads a level from the given text file.
-    // Each line is one row in the level.
-    // 'W' indicates a wall, 'P' indicates the player spawn.
-    void LevelLoader::LoadLevel(const std::string& filename, const std::string& sceneName)
+#include "LevelLoader.h"
+#include "SceneManager.h"
+#include "GameObject.h"
+#include "TransformComponent.h"
+#include "RenderComponent.h"
+#include "CollisionComponent.h"
+#include "ResourceManager.h"
+#include "StaticWallResponder.h"
+#include "PlayerComponent.h"
+#include "SpriteSheetComponent.h"
+#include "Scene.h"
+#include "InputManager.h"
+#include "LambdaCommand.h"
+#include <SDL.h>
+#include <fstream>
+#include <iostream>
+#include <unordered_map>
+#include <functional>
+#include <memory>
+#include "LivesDisplay.h"
+#include "Camera.h"
+
+namespace dae
+{
+    void LevelLoader::LoadLevel(const std::string& filename,
+        const std::string& sceneName)
     {
-        std::ifstream file(filename);
+        std::ifstream file{ filename };
         if (!file.is_open())
         {
-            std::cerr << "Failed to open level file: " << filename << std::endl;
+            std::cerr << "LevelLoader::LoadLevel - failed to open "
+                << filename << "\n";
             return;
         }
 
-        // Create (or get) the scene with the provided name.
+        // ——— Pre-load textures ONCE
+        auto& rm = ResourceManager::GetInstance();
+        rm.LoadTexture("StaticWall.tga");
+        rm.LoadTexture("BombermanSpritesheet.tga");  // only spritesheet for player
+
+        // ——— Create (or clear+get) the scene
         auto& scene = SceneManager::GetInstance().CreateScene(sceneName);
 
+        const float tileSize = 16.f;
         std::string line;
         int row = 0;
-        const int tileSize = 64; // Width and height of a tile
 
         while (std::getline(file, line))
         {
-            // For each character in the line (each column)
+            // ←— keep the OS event queue flowing
+            SDL_PumpEvents();
+            InputManager::GetInstance().ProcessInput();
+
             for (int col = 0; col < static_cast<int>(line.size()); ++col)
             {
                 char tile = line[col];
-                float posX = static_cast<float>(col * tileSize);
-                float posY = static_cast<float>(row * tileSize);
+                float x = col * tileSize;
+                float y = row * tileSize;
 
                 if (tile == 'W')
                 {
-                    // Create a wall
                     auto wall = std::make_shared<GameObject>();
-                    wall->AddComponent<TransformComponent>().SetLocalPosition(posX, posY, 0);
-                    auto& render = wall->AddComponent<RenderComponent>();
-                    render.SetTexture("wall.tga"); 
-                    auto& collision = wall->AddComponent<CollisionComponent>();
-                    collision.SetSize(static_cast<float>(tileSize), static_cast<float>(tileSize));
-                    // block movement (static wall)
-                    collision.SetResponder(std::make_unique<StaticWallResponder>());
+                    wall->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x, y, 0.f);
+                    wall->AddComponent<RenderComponent>()
+                        .SetTexture("StaticWall.tga");
+                    auto& cc = wall->AddComponent<CollisionComponent>();
+                    cc.SetSize(tileSize, tileSize);
+                    cc.SetResponder(std::make_unique<StaticWallResponder>());
                     scene.Add(wall);
                 }
                 else if (tile == 'P')
                 {
-                    // Create a player spawn point.
                     auto player = std::make_shared<GameObject>();
-                    player->AddComponent<TransformComponent>().SetLocalPosition(posX, posY, 0);
-                    auto& render = player->AddComponent<RenderComponent>();
-                    render.SetTexture("player.tga"); 
-                    
-                    auto& collision = player->AddComponent<CollisionComponent>();
-                    collision.SetSize(static_cast<float>(tileSize) * 0.8f, static_cast<float>(tileSize) * 0.8f);
-                    
-                   /* auto& playerComp = player->AddComponent<PlayerComponent>();*/
-                   /* playerComp.SetHealth(3);*/
+
+                    // Position
+                    player->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x, y, 0.f);
+
+                    // Sprite-sheet only
+                    auto& sprite = player->AddComponent<SpriteSheetComponent>();
+                    sprite.SetSpriteSheet(
+                        "BombermanSpritesheet.tga",
+                        3, 6,    // cols, rows
+                        0,       // startRow
+                        0.15f    // frameTime
+                    );
+                    sprite.SetIdleFrame(
+                        SpriteSheetComponent::AnimationState::Idle,
+                        3, 6,    // sheet dims
+                        0, 4     // frame row=0, col=4
+                    );
+
+                    // Collision: same size you had, but now centered
+                    auto& cc = player->AddComponent<CollisionComponent>();
+                    const float w = tileSize;       // your width
+                    const float h = tileSize + 3;   // your height
+                    cc.SetSize(w, h);
+
+                    // compute offsets so the box is centered in the 16×16 tile
+                    const float offsetX = (tileSize - w) * 0.5f;    // likely 0 here
+                    const float offsetY = (tileSize - h) * 0.5f;    // negative if h>tileSize
+                    cc.SetOffset(offsetX-8, offsetY-9);
+
+                    // Gameplay components
+                    auto& pc = player->AddComponent<PlayerComponent>();
+                    auto& lives = player->AddComponent<LivesDisplay>(3);
+                    pc.AddObserver(&lives);
+
                     scene.Add(player);
+
+                    // after you scene.Add(player);
+                    dae::Camera::GetInstance().SetTarget(player);
+
+                    // Bind input now that PlayerComponent exists
+                    auto& input = InputManager::GetInstance();
+                    auto bindDU = [&](int code,
+                        InputDeviceType dev,
+                        int pIdx,
+                        PlayerComponent::Direction dir)
+                        {
+                            input.BindCommand(
+                                code, KeyState::Down, dev,
+                                std::make_unique<LambdaCommand>(
+                                    [&pc, dir]() { pc.OnMovementPressed(dir); }
+                                ), pIdx
+                            );
+                            input.BindCommand(
+                                code, KeyState::Up, dev,
+                                std::make_unique<LambdaCommand>(
+                                    [&pc, dir]() { pc.OnMovementReleased(dir); }
+                                ), pIdx
+                            );
+                        };
+
+                    bindDU(SDL_SCANCODE_LEFT, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Left);
+                    bindDU(SDL_SCANCODE_RIGHT, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Right);
+                    bindDU(SDL_SCANCODE_UP, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Up);
+                    bindDU(SDL_SCANCODE_DOWN, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Down);
                 }
-              
             }
             ++row;
         }
     }
-
-} // namespace dae
+}

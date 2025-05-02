@@ -3,6 +3,7 @@
 
 namespace dae {
 
+    
     class LevelLoader {
     public:
         // Loads the level from a file and creates a scene with the specified name.
