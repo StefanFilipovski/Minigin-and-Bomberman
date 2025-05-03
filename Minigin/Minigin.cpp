@@ -58,7 +58,7 @@ dae::Minigin::Minigin(const std::string &dataPath)
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		640,
-		480,
+		272,
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr) 
@@ -109,7 +109,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		{
 			sceneManager.Update(fixedTimeStep);
 			dae::CollisionManager::GetInstance().CheckCollisions();
-			camera.Update(fixedTimeStep);
+			/*camera.Update(fixedTimeStep);*/
 			lag -= fixedTimeStep;
 		}
 

@@ -50,7 +50,9 @@ namespace dae {
         glm::vec3 m_lastValidPosition{ 0,0,0 };
 
         // movement
-        float                     m_speed{ 100.f };
+        float                     m_speed{ 36.f };
         std::vector<Direction>    m_MovementDirs;
+
+        bool      m_justSpawned{ true };
     };
 }

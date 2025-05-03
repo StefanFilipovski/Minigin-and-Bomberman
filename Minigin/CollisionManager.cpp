@@ -1,9 +1,10 @@
-#include "CollisionManager.h"
+﻿#include "CollisionManager.h"
 #include "CollisionComponent.h"
 #include "CollisionUtilities.h"  
 #include <SDL.h>
 #include <iostream>
 #include "CollisionResponder.h"
+#include "Camera.h"
 
 namespace dae {
 
@@ -26,7 +27,7 @@ namespace dae {
         const size_t count = comps.size();
         for (size_t i = 0; i < count; ++i)
         {
-            // Compute A�s box once
+            // Compute A’s box once
             const SDL_Rect rectA = comps[i]->GetBoundingBox();
 
             for (size_t j = i + 1; j < count; ++j)
@@ -45,10 +46,26 @@ namespace dae {
         }
     }
 
-    void CollisionManager::DebugDraw(SDL_Renderer* renderer) const {
+    void CollisionManager::DebugDraw(SDL_Renderer* renderer) const
+    {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        for (auto* comp : m_collisionComponents) {
+
+        // Grab the floating‐point camera offset
+        const auto camOff = Camera::GetInstance().GetOffset();
+
+        // Convert to integer *once*, using the same rule
+        const int offX = static_cast<int>(std::round(camOff.x));
+        const int offY = static_cast<int>(std::round(camOff.y));
+
+        for (auto* comp : m_collisionComponents)
+        {
+            // Get the world‐space box
             SDL_Rect r = comp->GetBoundingBox();
+
+            // Subtract the integer offset
+            r.x -= offX;
+            r.y -= offY;
+
             SDL_RenderDrawRect(renderer, &r);
         }
     }

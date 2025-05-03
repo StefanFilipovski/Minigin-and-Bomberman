@@ -45,6 +45,9 @@ namespace dae {
         {
             m_offset.y = targetPos.y - bottomBound;
         }
+
+        m_offset.x = std::max(0.f, m_offset.x);
+        m_offset.y = std::max(0.f, m_offset.y);
     }
 
 } 

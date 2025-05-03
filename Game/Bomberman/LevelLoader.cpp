@@ -52,19 +52,44 @@ namespace dae
 
         // ——— Pre-load textures ONCE
         auto& rm = ResourceManager::GetInstance();
+        rm.LoadTexture("MetalBackground.tga");
+        rm.LoadTexture("GrassBackground.tga");
         rm.LoadTexture("StaticWall.tga");
         rm.LoadTexture("BombermanSpritesheet.tga");  // only spritesheet for player
+
+        const float tileSize = 16.f;
+        constexpr int   uiRows = 4;
+        const float uiOffsetY = tileSize * uiRows;  // = 64px
+        std::string line;
+        int row = 0;
 
         // ——— Create (or clear+get) the scene
         auto& scene = SceneManager::GetInstance().CreateScene(sceneName);
 
-        const float tileSize = 16.f;
-        std::string line;
-        int row = 0;
+        {
+            // 1) Metal UI background behind everything
+            auto metalBg = std::make_shared<GameObject>();
+            metalBg->AddComponent<TransformComponent>()
+                .SetLocalPosition(0.f, 0.f, 0.f);
+            metalBg->AddComponent<RenderComponent>()
+                .SetTexture("MetalBackground.tga");
+            scene.Add(metalBg);
+        }
+
+        {
+            auto bg = std::make_shared<GameObject>();
+            bg->AddComponent<TransformComponent>()
+                .SetLocalPosition(0.f, uiOffsetY, 0.f);
+            bg->AddComponent<RenderComponent>()
+                .SetTexture("GrassBackground.tga");
+            scene.Add(bg);
+        }
+
+                     
 
         while (std::getline(file, line))
         {
-            // ←— keep the OS event queue flowing
+            // keep the OS event queue flowing
             SDL_PumpEvents();
             InputManager::GetInstance().ProcessInput();
 
@@ -72,7 +97,7 @@ namespace dae
             {
                 char tile = line[col];
                 float x = col * tileSize;
-                float y = row * tileSize;
+                float y = row * tileSize + uiOffsetY;
 
                 if (tile == 'W')
                 {
@@ -82,7 +107,7 @@ namespace dae
                     wall->AddComponent<RenderComponent>()
                         .SetTexture("StaticWall.tga");
                     auto& cc = wall->AddComponent<CollisionComponent>();
-                    cc.SetSize(tileSize, tileSize);
+                    cc.SetSize(tileSize, tileSize-3);
                     cc.SetResponder(std::make_unique<StaticWallResponder>());
                     scene.Add(wall);
                 }
@@ -110,24 +135,25 @@ namespace dae
 
                     // Collision: same size you had, but now centered
                     auto& cc = player->AddComponent<CollisionComponent>();
-                    const float w = tileSize;       // your width
-                    const float h = tileSize + 3;   // your height
+                    const float w = tileSize-4;       // your width
+                    const float h = tileSize-4;   // your height
                     cc.SetSize(w, h);
 
                     // compute offsets so the box is centered in the 16×16 tile
                     const float offsetX = (tileSize - w) * 0.5f;    // likely 0 here
                     const float offsetY = (tileSize - h) * 0.5f;    // negative if h>tileSize
-                    cc.SetOffset(offsetX-8, offsetY-9);
+                    cc.SetOffset(offsetX-8, offsetY-8);
 
                     // Gameplay components
                     auto& pc = player->AddComponent<PlayerComponent>();
+                    pc.BeginMove();
                     auto& lives = player->AddComponent<LivesDisplay>(3);
                     pc.AddObserver(&lives);
 
                     scene.Add(player);
 
-                    // after you scene.Add(player);
                     dae::Camera::GetInstance().SetTarget(player);
+                    
 
                     // Bind input now that PlayerComponent exists
                     auto& input = InputManager::GetInstance();

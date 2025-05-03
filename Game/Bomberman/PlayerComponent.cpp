@@ -133,6 +133,11 @@ namespace dae {
         case Direction::Down:  Move(0, +amt); break;
         }
 
+        if (m_justSpawned) {
+            m_justSpawned = false;
+            return;
+        }
+
         dae::CollisionManager::GetInstance().CheckCollisions();
     }
 

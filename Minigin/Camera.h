@@ -24,11 +24,11 @@ namespace dae {
         std::shared_ptr<GameObject> m_target;
         // Screen dimensions can be set from configuration or during initialization.
         int m_screenWidth{ 640 };
-        int m_screenHeight{ 480 };
+        int m_screenHeight{ 280 };
 
         // dead zone margins
-        float m_deadZoneX = 0.25f * m_screenWidth; 
-        float m_deadZoneY = 0.25f * m_screenHeight;
+        float m_deadZoneX = 0.48f * m_screenWidth; 
+        float m_deadZoneY = /*0.45f **/ float(m_screenHeight);
 
         // smoothing factors, etc.
     };
