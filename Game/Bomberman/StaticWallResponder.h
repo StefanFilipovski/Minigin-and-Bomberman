@@ -15,11 +15,11 @@ namespace dae {
         // object to react (e.g., block its movement).
         void OnCollide(GameObject* other) override {
             // For now, just output to the console.
-            std::cout << "Static wall collided with object at address: " << other << std::endl;
+           
             // Check if the other object has a PlayerComponent
             if (auto* player = other->GetComponent<PlayerComponent>()) {
                 player->RevertMove();
-                std::cout << "Collision with wall: movement blocked and reverted." << std::endl;
+                
             }
             // For other types different logic.
         }

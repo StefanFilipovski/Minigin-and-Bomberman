@@ -66,6 +66,7 @@ namespace dae {
                 m_currentFrame++;
             }
         }
+
     }
 
     void SpriteSheetComponent::Render() const

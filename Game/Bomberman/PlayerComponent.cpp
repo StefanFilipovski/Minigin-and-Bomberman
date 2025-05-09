@@ -13,22 +13,41 @@ namespace dae {
     PlayerComponent::PlayerComponent(GameObject* owner)
         : Component(owner)
     {
-        m_Sprite = owner->GetComponent<SpriteSheetComponent>();
+        // always grab the transform from the owner
         m_Transform = &owner->GetTransform();
-        //Player component has to have these components to exist
-        assert(m_Sprite && m_Transform);
+
+        // try to find the sprite on the owner…
+        m_Sprite = owner->GetComponent<SpriteSheetComponent>();
+        // …and if it’s not there, check its direct children
+        if (!m_Sprite) {
+            for (auto* child : owner->GetChildren()) {
+                m_Sprite = child->GetComponent<SpriteSheetComponent>();
+                if (m_Sprite) break;
+            }
+        }
+
+        // now we guarantee we have both
+        assert(m_Sprite &&
+            m_Transform &&
+            "PlayerComponent requires a SpriteSheetComponent on the owner or one of its children");
     }
 
     void PlayerComponent::Update(float dt)
     {
-        // invul + blink
+        // invul + blink (no Update on the sprite here)
         if (m_IsInvulnerable) {
             m_InvulTimer -= dt;
             m_FlashTimer -= dt;
             if (m_FlashTimer <= 0.f) {
                 m_FlashTimer += m_FlashInterval;
-                if (m_SpriteVisible) { m_Sprite->Hide(); m_SpriteVisible = false; }
-                else { m_Sprite->Show(); m_SpriteVisible = true; }
+                if (m_SpriteVisible) {
+                    m_Sprite->Hide();
+                    m_SpriteVisible = false;
+                }
+                else {
+                    m_Sprite->Show();
+                    m_SpriteVisible = true;
+                }
             }
             if (m_InvulTimer <= 0.f) {
                 m_IsInvulnerable = false;
@@ -48,6 +67,8 @@ namespace dae {
                 m_Sprite->Hide();
             }
         }
+
+        // — removed: m_Sprite->Update(dt); — let the global updater do that
     }
 
     int PlayerComponent::GetHealth() const { return m_health; }
@@ -82,6 +103,23 @@ namespace dae {
     void PlayerComponent::OnMovementPressed(Direction dir)
     {
         if (m_IsDead) return;
+
+        if (dir == Direction::Up || dir == Direction::Down)
+        {
+            auto& tf = GetOwner()->GetTransform();
+            auto wp = tf.GetWorldPosition();
+            wp.x = std::floor(wp.x / s_TileSize + 0.5f) * s_TileSize;
+            tf.SetLocalPosition(wp.x, wp.y, wp.z);
+        }
+        // before switching to horizontal, center Y on the grid
+        else
+        {
+            auto& tf = GetOwner()->GetTransform();
+            auto wp = tf.GetWorldPosition();
+            wp.y = std::floor(wp.y / s_TileSize + 0.5f) * s_TileSize;
+            tf.SetLocalPosition(wp.x, wp.y, wp.z);
+        }
+
         if (std::find(m_MovementDirs.begin(), m_MovementDirs.end(), dir)
             == m_MovementDirs.end())
         {

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -156,8 +156,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AddPointsCommand.cpp" />
+    <ClCompile Include="BlastResponder.cpp" />
+    <ClCompile Include="BombComponent.cpp" />
     <ClCompile Include="CharacterMoveComponent.cpp" />
     <ClCompile Include="DeathCommand.cpp" />
+    <ClCompile Include="DestructibleWallResponder.cpp" />
     <ClCompile Include="FPSCounter.cpp" />
     <ClCompile Include="GameActor.cpp" />
     <ClCompile Include="GameActorCommand.cpp" />
@@ -177,8 +180,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
+    <ClInclude Include="BlastResponder.h" />
+    <ClInclude Include="BombComponent.h" />
     <ClInclude Include="CharacterMoveComponent.h" />
     <ClInclude Include="DeathCommand.h" />
+    <ClInclude Include="DestructibleWallResponder.h" />
     <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="GameActor.h" />
     <ClInclude Include="GameActorCommand.h" />

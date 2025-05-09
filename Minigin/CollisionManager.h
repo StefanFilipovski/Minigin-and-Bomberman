@@ -20,6 +20,9 @@ namespace dae {
 
         void DebugDraw(SDL_Renderer* renderer) const;
 
+        const std::vector<CollisionComponent*>& GetComponents() const {
+            return m_collisionComponents;
+        }
 
     private:
         // Private constructor/destructor provided by Singleton.

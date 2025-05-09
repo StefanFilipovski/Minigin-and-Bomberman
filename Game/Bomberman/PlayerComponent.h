@@ -48,6 +48,7 @@ namespace dae {
 
         // collision helper
         glm::vec3 m_lastValidPosition{ 0,0,0 };
+        const float s_TileSize = 16.f;
 
         // movement
         float                     m_speed{ 36.f };
