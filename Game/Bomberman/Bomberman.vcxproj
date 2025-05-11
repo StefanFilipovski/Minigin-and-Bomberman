@@ -158,12 +158,15 @@
     <ClCompile Include="AddPointsCommand.cpp" />
     <ClCompile Include="BlastResponder.cpp" />
     <ClCompile Include="BombComponent.cpp" />
+    <ClCompile Include="BombFuseState.cpp" />
+    <ClCompile Include="BombHideState.cpp" />
     <ClCompile Include="CharacterMoveComponent.cpp" />
     <ClCompile Include="DeathCommand.cpp" />
     <ClCompile Include="DestructibleWallResponder.cpp" />
     <ClCompile Include="FPSCounter.cpp" />
     <ClCompile Include="GameActor.cpp" />
     <ClCompile Include="GameActorCommand.cpp" />
+    <ClCompile Include="IBombState.cpp" />
     <ClCompile Include="LambdaCommand.cpp" />
     <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="LivesDisplay.cpp" />
@@ -182,6 +185,8 @@
     <ClInclude Include="AddPointsCommand.h" />
     <ClInclude Include="BlastResponder.h" />
     <ClInclude Include="BombComponent.h" />
+    <ClInclude Include="BombFuseState.h" />
+    <ClInclude Include="BombHideState.h" />
     <ClInclude Include="CharacterMoveComponent.h" />
     <ClInclude Include="DeathCommand.h" />
     <ClInclude Include="DestructibleWallResponder.h" />
@@ -189,6 +194,7 @@
     <ClInclude Include="GameActor.h" />
     <ClInclude Include="GameActorCommand.h" />
     <ClInclude Include="GameEvents.h" />
+    <ClInclude Include="IBombState.h" />
     <ClInclude Include="LambdaCommand.h" />
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="LivesDisplay.h" />

@@ -81,6 +81,15 @@
     <ClCompile Include="BlastResponder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IBombState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BombFuseState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BombHideState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h">
@@ -147,6 +156,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BlastResponder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IBombState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BombFuseState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BombHideState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

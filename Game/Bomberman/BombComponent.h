@@ -1,44 +1,59 @@
-#pragma once
+﻿#pragma once
 #include "Component.h"
-#include <string>
+#include <memory>
 #include <vector>
+#include <string>
+#include "IBombState.h"
 
 namespace dae {
-    class Scene;
-    class SpriteSheetComponent;
     class GameObject;
+    class SpriteSheetComponent;
+    class Scene;
 
-
-    // Attach to any GameObject to make it a ticking bomb that
-    // after a fuse, explodes in a cross pattern using parent-child.
-    class BombComponent final : public Component {
+    class BombComponent : public Component
+    {
     public:
-        static constexpr float s_TileSize = 16.f;
 
-        BombComponent(GameObject* owner);
+         float s_TileSize = 16.f;
+
+        // match your cpp: BombComponent::BombComponent(GameObject* owner)
+        explicit BombComponent(GameObject* owner);
         ~BombComponent() override = default;
 
+        // same signature your LevelLoader/cpp uses:
         void Init(const std::string& spriteSheet,
             int cols, int rows, float frameTime,
             int range, float fuseTime,
             Scene& scene);
+
         void Update(float dt) override;
 
-    private:
+        // called by the states
         void Explode();
+        void TransitionTo(IBombState* newState);
 
-        // explosion parameters
-        int    m_Range{};
-        float  m_FuseTime{};
-        float  m_Timer{};
-        bool   m_Exploded{};
+    private:
+        // allow these two state‐classes access to private members
+        friend struct BombFuseState;
+        friend struct BombHideState;
 
-        // new: hide-timer for spawned blasts
-        bool   m_HidePending{};
-        float  m_HideTimer{};
-        std::vector<std::shared_ptr<dae::GameObject>> m_Blasts;
+        // --- state machine pointer ---
+        std::unique_ptr<IBombState>        m_State{ nullptr };
 
-        Scene* m_pScene{};
-        SpriteSheetComponent* m_pSprite{};
+        // --- explosion config ---
+        int                                m_Range{ 1 };
+        float                              m_FuseTime{ 0.f };
+
+        // --- runtime timers & flags ---
+        float                              m_Timer{ 0.f };
+        bool                               m_Exploded{ false };
+        bool                               m_HidePending{ false };
+        float                              m_HideTimer{ 0.f };
+        // --- blast storage & rendering ---
+        std::vector<std::shared_ptr<GameObject>> m_Blasts;
+        SpriteSheetComponent* m_pSprite{ nullptr };
+
+        // --- where to spawn blasts ---
+        Scene* m_pScene{ nullptr };
     };
 } // namespace dae
