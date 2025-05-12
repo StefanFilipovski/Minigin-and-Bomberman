@@ -7,6 +7,12 @@
 #include <iostream>
 #include <ServiceLocator.h>
 #include "CollisionManager.h"
+#include "BombComponent.h"
+#include "StaticWallResponder.h"
+#include <CollisionUtilities.h>
+#include "DestructibleWallResponder.h"
+#include "CollisionComponent.h"
+#include "Scene.h"
 
 namespace dae {
 
@@ -104,22 +110,41 @@ namespace dae {
     {
         if (m_IsDead) return;
 
+        // — these must match your loader —
+        constexpr float spriteOffsetX = 8.5f;
+        constexpr float spriteOffsetY = 5.f;
+
+        // 1) grab current world pos (which includes sprite offset)
+        auto& tf = GetOwner()->GetTransform();
+        auto wp = tf.GetWorldPosition();
+
+        // 2) strip out the visual offset
+        wp.x -= spriteOffsetX;
+        wp.y -= spriteOffsetY;
+
+        // 3) snap to grid on the non‐movement axis
         if (dir == Direction::Up || dir == Direction::Down)
         {
-            auto& tf = GetOwner()->GetTransform();
-            auto wp = tf.GetWorldPosition();
+            // center X in tile‐space
             wp.x = std::floor(wp.x / s_TileSize + 0.5f) * s_TileSize;
-            tf.SetLocalPosition(wp.x, wp.y, wp.z);
         }
-        // before switching to horizontal, center Y on the grid
         else
         {
-            auto& tf = GetOwner()->GetTransform();
-            auto wp = tf.GetWorldPosition();
+            // center Y
             wp.y = std::floor(wp.y / s_TileSize + 0.5f) * s_TileSize;
-            tf.SetLocalPosition(wp.x, wp.y, wp.z);
         }
 
+        // 4) re-apply the sprite offset so the art stays aligned
+        wp.x += spriteOffsetX;
+        wp.y += spriteOffsetY;
+
+        // 5) write it back to the transform
+        tf.SetLocalPosition(wp.x, wp.y, wp.z);
+
+        // now record this new valid pos for collision rollback:
+        m_lastValidPosition = tf.GetLocalPosition();
+
+        // 6) enqueue the movement direction
         if (std::find(m_MovementDirs.begin(), m_MovementDirs.end(), dir)
             == m_MovementDirs.end())
         {
@@ -216,6 +241,45 @@ namespace dae {
             );
             break;
         }
+    }
+
+    void PlayerComponent::PlaceBomb(Scene& scene)
+    {
+      
+        constexpr float bombVisOffsetX = 8.f;
+        constexpr float bombVisOffsetY = 8.f;
+
+        // A) compute true grid‐pos under your (possibly offset) transform
+        auto raw = GetOwner()->GetTransform().GetWorldPosition();
+        raw.x -= bombVisOffsetX;
+        raw.y -= bombVisOffsetY;
+        glm::vec2 gridPos{
+          std::floor(raw.x / s_TileSize + 0.5f) * s_TileSize,
+          std::floor(raw.y / s_TileSize + 0.5f) * s_TileSize
+        };
+
+        // B) collision check for walls
+        SDL_Rect bombBox{ int(gridPos.x), int(gridPos.y),
+                         int(s_TileSize),  int(s_TileSize) };
+        for (auto* c : CollisionManager::GetInstance().GetComponents()) {
+            auto* r = c->GetResponder();
+            if ((dynamic_cast<StaticWallResponder*>(r) ||
+                dynamic_cast<DestructibleWallResponder*>(r)) &&
+                AABBIntersect(bombBox, c->GetBoundingBox()))
+            {
+                return; // blocked
+            }
+        }
+
+        // C) actually spawn the bomb
+        auto bombGO = std::make_shared<GameObject>();
+        bombGO->AddComponent<TransformComponent>()
+            .SetLocalPosition(gridPos.x + bombVisOffsetX,
+                gridPos.y + bombVisOffsetY,
+                0.f);
+        auto& bc = bombGO->AddComponent<BombComponent>();
+        bc.Init("BombSpritesheet.tga", 3, 1, 0.2f, /*range=*/1, /*fuse=*/2.f, scene);
+        scene.Add(bombGO);
     }
 
 } 

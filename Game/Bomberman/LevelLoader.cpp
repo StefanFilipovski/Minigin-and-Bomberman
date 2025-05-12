@@ -92,7 +92,7 @@ namespace dae {
 
         std::string line;
         int row = 0;
-        std::shared_ptr<GameObject> playerGO;
+
 
         while (std::getline(file, line)) {
             SDL_PumpEvents();
@@ -114,60 +114,88 @@ namespace dae {
                     cc.SetResponder(std::make_unique<StaticWallResponder>());
                     scene.Add(wall);
                 }
-                else if (tile == 'B') {
-                    auto wall = std::make_shared<GameObject>();
-                    wall->AddComponent<TransformComponent>()
-                        .SetLocalPosition(x, y, 0.f);
-                    auto& sheet = wall->AddComponent<SpriteSheetComponent>();
+                else if (tile == 'B')
+                {
+                    // 1) World‐position for the tile
+                    
+                    // 2) Tweak these until the sprites line up visually
+                    constexpr float spriteOffsetX = 8.f;
+                    constexpr float spriteOffsetY = 8.f;
+
+                    // 3) Create the wall GO & nudge its transform for the art
+                    auto wallGO = std::make_shared<GameObject>();
+                    wallGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + spriteOffsetX,
+                            y + spriteOffsetY,
+                            0.f);
+
+                    // 4) Add your spritesheet on that same GO
+                    auto& sheet = wallGO->AddComponent<SpriteSheetComponent>();
                     sheet.SetSpriteSheet("BreakableWallSpritesheet.tga",
                         /*rows=*/1, /*cols=*/7,
-                        /*startRow=*/0, /*frameTime=*/0.1f);
+                        /*targetRow=*/0,
+                        /*frameTime=*/0.1f);
                     sheet.SetIdleFrame(
                         SpriteSheetComponent::AnimationState::Idle,
                         /*rows=*/1, /*cols=*/7,
                         /*frameRow=*/0, /*frameCol=*/0
                     );
-                    auto& cc = wall->AddComponent<CollisionComponent>();
+
+                    // 5) Add & offset the collider back under the tile
+                    auto& cc = wallGO->AddComponent<CollisionComponent>();
                     cc.SetSize(tileSize, tileSize);
-                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(wall.get()));
-                    scene.Add(wall);
+                    // since collider == tileSize, baseOffset == 0
+                    // we only need to counteract our spriteOffset
+                    cc.SetOffset(-spriteOffsetX, -spriteOffsetY);
+
+                    // 6) Attach the responder and add to scene
+                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(wallGO.get()));
+                    scene.Add(wallGO);
                 }
                 else if (tile == 'P')
                 {
-                    // 1) Parent GO: movement + collision
-                    auto parentGO = std::make_shared<GameObject>();
-                    parentGO->AddComponent<TransformComponent>()
-                        .SetLocalPosition(x, y, 0.f);
-                    auto& cc = parentGO->AddComponent<CollisionComponent>();
-                    const float colliderSize = tileSize * 0.8f;
-                    cc.SetSize(colliderSize, colliderSize);
-                    scene.Add(parentGO);
+                           
 
-                    // 2) Child GO: just the sprite, with its pixel offset
-                    auto spriteGO = std::make_shared<GameObject>();
-                    constexpr float pixelOffsetX = 8.f;
-                    constexpr float pixelOffsetY = 3.f;
-                    spriteGO->AddComponent<TransformComponent>()
-                        .SetLocalPosition(pixelOffsetX, pixelOffsetY, 0.f);
-                    auto& sprite = spriteGO->AddComponent<SpriteSheetComponent>();
-                    sprite.SetSpriteSheet("BombermanSpritesheet.tga", 3, 6, 0, 0.15f);
+                    // 2) Create one GO for both sprite & collision
+                    auto playerGO = std::make_shared<GameObject>();
+
+                    //  a) nudge the whole transform so the art aligns
+                    constexpr float pixelOffsetX = 7.5f;  // tweak these... positive is to the left, negative is to the right
+                    constexpr float pixelOffsetY = 5.f;
+                    playerGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + pixelOffsetX,
+                            y + pixelOffsetY,
+                            0.f);
+
+                    //  b) add the sprite
+                    auto& sprite = playerGO->AddComponent<SpriteSheetComponent>();
+                    sprite.SetSpriteSheet("BombermanSpritesheet.tga",
+                        /*rows=*/3, /*cols=*/6,
+                        /*targetRow=*/0,
+                        /*frameTime=*/0.15f);
                     sprite.SetIdleFrame(SpriteSheetComponent::AnimationState::Idle,
                         3, 6, 0, 4);
 
-                    // Parent the sprite *before* adding the PlayerComponent
-                    scene.Add(spriteGO);
-                    scene.Add(parentGO);
-                    spriteGO->SetParent(parentGO.get(), /*keepWorldTransform=*/true);
+                    //  c) add & offset the collider under that sprite
+                    auto& cc = playerGO->AddComponent<CollisionComponent>();
+                    const float colliderSize = tileSize * 0.8f;
+                    cc.SetSize(colliderSize, colliderSize+2);
+                    // center it, then nudge opposite of sprite-offset:
+                    float baseOffset = (tileSize - colliderSize) * 0.5f;
+                    cc.SetOffset(baseOffset - pixelOffsetX,
+                        baseOffset - pixelOffsetY);
 
-                    // 3) Now that the sprite exists in the hierarchy, add your PlayerComponent
-                    auto& pc = parentGO->AddComponent<PlayerComponent>();
+                    //  d) player logic
+                    auto& pc = playerGO->AddComponent<PlayerComponent>();
                     pc.BeginMove();
-                    auto& lives = parentGO->AddComponent<LivesDisplay>(3);
+                    auto& lives = playerGO->AddComponent<LivesDisplay>(3);
                     pc.AddObserver(&lives);
 
-                    // 4) Finally hook up the camera and input
-                    Camera::GetInstance().SetTarget(parentGO);
-                 
+                    // 3) Add to scene & hook camera
+                    scene.Add(playerGO);
+                    Camera::GetInstance().SetTarget(playerGO);
+
+                    // 4) Bind input (use playerGO’s PlayerComponent)
                     auto& input = InputManager::GetInstance();
                     auto bindDU = [&](int code, InputDeviceType dev, int pIdx,
                         PlayerComponent::Direction dir) {
@@ -185,39 +213,12 @@ namespace dae {
                     bindDU(SDL_SCANCODE_UP, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Up);
                     bindDU(SDL_SCANCODE_DOWN, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Down);
 
-                    const std::string levelCopy = sceneName;
-
+                    // 5) Bomb binding (capture playerGO, not parentGO)
                     input.BindCommand(
                         SDL_SCANCODE_X, KeyState::Down, InputDeviceType::Keyboard,
                         std::make_unique<LambdaCommand>(
-                            [parentGO, pScene]() {
-                                // 1) Snap parentGO’s position (which is your player) to grid
-                                constexpr float s_TileSize = 16.f;
-                                auto raw = parentGO->GetTransform().GetWorldPosition();
-                                glm::vec2 gridPos{
-                                    std::floor(raw.x / s_TileSize + 0.5f) * s_TileSize,
-                                    std::floor(raw.y / s_TileSize + 0.5f) * s_TileSize
-                                };
-
-                            // 2) Spawn bomb at grid-aligned position (no parenting)
-                            auto bombGO = std::make_shared<GameObject>();
-                            bombGO->AddComponent<TransformComponent>()
-                                .SetLocalPosition(gridPos.x, gridPos.y, 0.f);
-
-                            // 3) Initialize BombComponent
-                            auto& bc = bombGO->AddComponent<BombComponent>();
-                            bc.Init(
-                                "BombSpritesheet.tga", // fuse sheet
-                                /*cols=*/3, /*rows=*/1,
-                                /*frameTime=*/0.2f,
-                                /*range=*/1,
-                                /*fuseTime=*/2.f,
-                                *pScene
-                            );
-
-                            // 4) Add to scene root (no parent)
-                            pScene->Add(bombGO);
-                            }),
+                            [&pc, pScene]() { pc.PlaceBomb(*pScene); }
+                        ),
                         /*priority=*/1
                     );
                 }

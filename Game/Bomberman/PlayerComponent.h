@@ -4,6 +4,7 @@
 #include "GameEvents.h"
 #include <vec3.hpp>
 #include <vector>
+#include <SceneManager.h>
 
 namespace dae {
     class SpriteSheetComponent;
@@ -26,6 +27,7 @@ namespace dae {
 
         void MoveCurrent(float dt);
         void UpdateSpriteState();
+        void PlaceBomb(Scene& scene);
         void BeginMove();
         void Move(float dx, float dy);
         void RevertMove();

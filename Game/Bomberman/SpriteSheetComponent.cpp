@@ -18,7 +18,17 @@ namespace dae {
         const std::vector<SDL_Rect>& frames,
         float frameDuration)
     {
+        // Fetch the preloaded texture instead of loading again
         m_texture = ResourceManager::GetInstance().LoadTexture(filename);
+        if (!m_texture || !m_texture->GetSDLTexture())
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "SpriteSheetComponent: could not get texture \"%s\"",
+                filename.c_str());
+            return;
+        }
+
+        // Assign the frame list and reset animation state
         m_frames = frames;
         m_frameDuration = frameDuration;
         m_currentFrame = 0;
@@ -31,17 +41,34 @@ namespace dae {
         int targetRow,
         float frameDuration)
     {
+        // Fetch the preloaded texture instead of loading again
         m_texture = ResourceManager::GetInstance().LoadTexture(filename);
+        if (!m_texture || !m_texture->GetSDLTexture())
+        {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+                "SpriteSheetComponent: could not get texture \"%s\"",
+                filename.c_str());
+            return;
+        }
+
+        // Measure the full sheet and slice out one row
         int texW = 0, texH = 0;
         SDL_QueryTexture(m_texture->GetSDLTexture(),
-            nullptr, nullptr, &texW, &texH);
+            nullptr, nullptr,
+            &texW, &texH);
 
-        int fw = texW / totalColumns;
-        int fh = texH / totalRows;
+        const int fw = texW / totalColumns;
+        const int fh = texH / totalRows;
+
         m_frames.clear();
         for (int c = 0; c < totalColumns; ++c)
-            m_frames.push_back({ c * fw, targetRow * fh, fw, fh });
+        {
+            m_frames.push_back({ c * fw,
+                                 targetRow * fh,
+                                 fw, fh });
+        }
 
+        // Reset animation state
         m_frameDuration = frameDuration;
         m_currentFrame = 0;
         m_elapsedTime = 0.f;
