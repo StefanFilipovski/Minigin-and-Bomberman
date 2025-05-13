@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="AddPointsCommand.cpp" />
     <ClCompile Include="BlastResponder.cpp" />
+    <ClCompile Include="BombCommand.cpp" />
     <ClCompile Include="BombComponent.cpp" />
     <ClCompile Include="BombFuseState.cpp" />
     <ClCompile Include="BombHideState.cpp" />
@@ -172,8 +173,8 @@
     <ClCompile Include="LivesDisplay.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MoveCommand.cpp" />
+    <ClCompile Include="MoveDirCommand.cpp" />
     <ClCompile Include="PlayerComponent.cpp" />
-    <ClCompile Include="PlayerMoveCommand.cpp" />
     <ClCompile Include="PointsDisplay.cpp" />
     <ClCompile Include="PointsSubject.cpp" />
     <ClCompile Include="ScoreComponent.cpp" />
@@ -184,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
     <ClInclude Include="BlastResponder.h" />
+    <ClInclude Include="BombCommand.h" />
     <ClInclude Include="BombComponent.h" />
     <ClInclude Include="BombFuseState.h" />
     <ClInclude Include="BombHideState.h" />
@@ -199,8 +201,8 @@
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="LivesDisplay.h" />
     <ClInclude Include="MoveCommand.h" />
+    <ClInclude Include="MoveDirCommand.h" />
     <ClInclude Include="PlayerComponent.h" />
-    <ClInclude Include="PlayerMoveCommand.h" />
     <ClInclude Include="PointsDisplay.h" />
     <ClInclude Include="PointsSubject.h" />
     <ClInclude Include="ScoreComponent.h" />

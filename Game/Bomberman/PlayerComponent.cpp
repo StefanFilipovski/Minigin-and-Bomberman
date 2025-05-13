@@ -13,47 +13,33 @@
 #include "DestructibleWallResponder.h"
 #include "CollisionComponent.h"
 #include "Scene.h"
-
 namespace dae {
 
     PlayerComponent::PlayerComponent(GameObject* owner)
         : Component(owner)
     {
-        // always grab the transform from the owner
         m_Transform = &owner->GetTransform();
-
-        // try to find the sprite on the owner…
         m_Sprite = owner->GetComponent<SpriteSheetComponent>();
-        // …and if it’s not there, check its direct children
         if (!m_Sprite) {
             for (auto* child : owner->GetChildren()) {
                 m_Sprite = child->GetComponent<SpriteSheetComponent>();
                 if (m_Sprite) break;
             }
         }
-
-        // now we guarantee we have both
-        assert(m_Sprite &&
-            m_Transform &&
-            "PlayerComponent requires a SpriteSheetComponent on the owner or one of its children");
+        assert(m_Transform && m_Sprite && "PlayerComponent needs Transform + SpriteSheet");
+        m_lastValidPosition = m_Transform->GetLocalPosition();
     }
 
     void PlayerComponent::Update(float dt)
     {
-        // invul + blink (no Update on the sprite here)
+        // Invul + blink
         if (m_IsInvulnerable) {
             m_InvulTimer -= dt;
             m_FlashTimer -= dt;
             if (m_FlashTimer <= 0.f) {
                 m_FlashTimer += m_FlashInterval;
-                if (m_SpriteVisible) {
-                    m_Sprite->Hide();
-                    m_SpriteVisible = false;
-                }
-                else {
-                    m_Sprite->Show();
-                    m_SpriteVisible = true;
-                }
+                if (m_SpriteVisible) { m_Sprite->Hide(); m_SpriteVisible = false; }
+                else { m_Sprite->Show(); m_SpriteVisible = true; }
             }
             if (m_InvulTimer <= 0.f) {
                 m_IsInvulnerable = false;
@@ -66,15 +52,13 @@ namespace dae {
             MoveCurrent(dt);
         }
         else {
-            // hide when death anim finishes
+            // hide after death anim finishes
             if (m_Sprite->GetFrameCount() > 0 &&
                 m_Sprite->GetCurrentFrame() == m_Sprite->GetFrameCount() - 1)
             {
                 m_Sprite->Hide();
             }
         }
-
-        // — removed: m_Sprite->Update(dt); — let the global updater do that
     }
 
     int PlayerComponent::GetHealth() const { return m_health; }
@@ -82,14 +66,10 @@ namespace dae {
     void PlayerComponent::TakeDamage(int dmg)
     {
         if (m_IsDead || m_IsInvulnerable) return;
-
         m_health -= dmg;
-        std::cout << "Player took " << dmg
-            << " damage, health now " << m_health << "\n";
+        std::cout << "Player took " << dmg << " damage, health now " << m_health << "\n";
         ServiceLocator::GetSoundSystem().Play(0, 1.0f);
-
         Notify({ GameEvents::PLAYER_HIT });
-
         if (m_health <= 0) {
             m_IsDead = true;
             Notify({ GameEvents::PLAYER_DIED });
@@ -109,48 +89,20 @@ namespace dae {
     void PlayerComponent::OnMovementPressed(Direction dir)
     {
         if (m_IsDead) return;
-
-        // — these must match your loader —
-        constexpr float spriteOffsetX = 8.5f;
-        constexpr float spriteOffsetY = 5.f;
-
-        // 1) grab current world pos (which includes sprite offset)
-        auto& tf = GetOwner()->GetTransform();
-        auto wp = tf.GetWorldPosition();
-
-        // 2) strip out the visual offset
-        wp.x -= spriteOffsetX;
-        wp.y -= spriteOffsetY;
-
-        // 3) snap to grid on the non‐movement axis
+        constexpr float offsetX = 8.5f, offsetY = 5.f;
+        auto wp = GetOwner()->GetTransform().GetWorldPosition();
+        wp.x -= offsetX; wp.y -= offsetY;
         if (dir == Direction::Up || dir == Direction::Down)
-        {
-            // center X in tile‐space
             wp.x = std::floor(wp.x / s_TileSize + 0.5f) * s_TileSize;
-        }
         else
-        {
-            // center Y
             wp.y = std::floor(wp.y / s_TileSize + 0.5f) * s_TileSize;
-        }
-
-        // 4) re-apply the sprite offset so the art stays aligned
-        wp.x += spriteOffsetX;
-        wp.y += spriteOffsetY;
-
-        // 5) write it back to the transform
-        tf.SetLocalPosition(wp.x, wp.y, wp.z);
-
-        // now record this new valid pos for collision rollback:
-        m_lastValidPosition = tf.GetLocalPosition();
-
-        // 6) enqueue the movement direction
-        if (std::find(m_MovementDirs.begin(), m_MovementDirs.end(), dir)
-            == m_MovementDirs.end())
-        {
+        wp.x += offsetX; wp.y += offsetY;
+        GetOwner()->GetTransform().SetLocalPosition(wp.x, wp.y, wp.z);
+        m_lastValidPosition = GetOwner()->GetTransform().GetLocalPosition();
+        if (std::find(m_MovementDirs.begin(), m_MovementDirs.end(), dir) == m_MovementDirs.end()) {
             m_MovementDirs.push_back(dir);
-            UpdateSpriteState();
         }
+        UpdateSpriteState();
     }
 
     void PlayerComponent::OnMovementReleased(Direction dir)
@@ -159,8 +111,8 @@ namespace dae {
         auto it = std::find(m_MovementDirs.begin(), m_MovementDirs.end(), dir);
         if (it != m_MovementDirs.end()) {
             m_MovementDirs.erase(it);
-            UpdateSpriteState();
         }
+        UpdateSpriteState();
     }
 
     void PlayerComponent::BeginMove()
@@ -170,38 +122,36 @@ namespace dae {
 
     void PlayerComponent::Move(float dx, float dy)
     {
-        auto p = m_Transform->GetLocalPosition();
-        p.x += dx; p.y += dy;
-        m_Transform->SetLocalPosition(p.x, p.y, p.z);
+        auto pos = m_Transform->GetLocalPosition();
+        m_Transform->SetLocalPosition(pos.x + dx, pos.y + dy, pos.z);
     }
 
     void PlayerComponent::RevertMove()
     {
-        auto& p = m_lastValidPosition;
-        m_Transform->SetLocalPosition(p.x, p.y, p.z);
+        m_Transform->SetLocalPosition(
+            m_lastValidPosition.x,
+            m_lastValidPosition.y,
+            m_lastValidPosition.z
+        );
     }
 
     void PlayerComponent::MoveCurrent(float dt)
     {
-        float a;
-        a = dt;
         if (m_MovementDirs.empty()) return;
-        float amt = m_speed * dt;
+        float amount = m_speed * dt;
         BeginMove();
-
         switch (m_MovementDirs.back()) {
-        case Direction::Left:  Move(-amt, 0); break;
-        case Direction::Right: Move(+amt, 0); break;
-        case Direction::Up:    Move(0, -amt); break;
-        case Direction::Down:  Move(0, +amt); break;
+        case Direction::Left:  Move(-amount, 0.f); break;
+        case Direction::Right: Move(amount, 0.f); break;
+        case Direction::Up:    Move(0.f, -amount); break;
+        case Direction::Down:  Move(0.f, amount); break;
         }
-
         if (m_justSpawned) {
             m_justSpawned = false;
-            return;
         }
-
-        dae::CollisionManager::GetInstance().CheckCollisions();
+        else {
+            CollisionManager::GetInstance().CheckCollisions();
+        }
     }
 
     void PlayerComponent::UpdateSpriteState()
@@ -213,7 +163,6 @@ namespace dae {
             );
             return;
         }
-
         constexpr float FD = 0.15f;
         switch (m_MovementDirs.back()) {
         case Direction::Left:
@@ -245,20 +194,15 @@ namespace dae {
 
     void PlayerComponent::PlaceBomb(Scene& scene)
     {
-      
-        constexpr float bombVisOffsetX = 8.f;
-        constexpr float bombVisOffsetY = 8.f;
-
-        // A) compute true grid‐pos under your (possibly offset) transform
+        constexpr float bombOffsetX = 8.f;
+        constexpr float bombOffsetY = 8.f;
         auto raw = GetOwner()->GetTransform().GetWorldPosition();
-        raw.x -= bombVisOffsetX;
-        raw.y -= bombVisOffsetY;
+        raw.x -= bombOffsetX;
+        raw.y -= bombOffsetY;
         glm::vec2 gridPos{
-          std::floor(raw.x / s_TileSize + 0.5f) * s_TileSize,
-          std::floor(raw.y / s_TileSize + 0.5f) * s_TileSize
+            std::floor(raw.x / s_TileSize + 0.5f) * s_TileSize,
+            std::floor(raw.y / s_TileSize + 0.5f) * s_TileSize
         };
-
-        // B) collision check for walls
         SDL_Rect bombBox{ int(gridPos.x), int(gridPos.y),
                          int(s_TileSize),  int(s_TileSize) };
         for (auto* c : CollisionManager::GetInstance().GetComponents()) {
@@ -270,16 +214,15 @@ namespace dae {
                 return; // blocked
             }
         }
-
-        // C) actually spawn the bomb
         auto bombGO = std::make_shared<GameObject>();
         bombGO->AddComponent<TransformComponent>()
-            .SetLocalPosition(gridPos.x + bombVisOffsetX,
-                gridPos.y + bombVisOffsetY,
+            .SetLocalPosition(gridPos.x + bombOffsetX,
+                gridPos.y + bombOffsetY,
                 0.f);
         auto& bc = bombGO->AddComponent<BombComponent>();
         bc.Init("BombSpritesheet.tga", 3, 1, 0.2f, /*range=*/1, /*fuse=*/2.f, scene);
         scene.Add(bombGO);
     }
 
-} 
+} // namespace dae
+

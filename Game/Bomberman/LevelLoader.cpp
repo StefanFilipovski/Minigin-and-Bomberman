@@ -38,6 +38,8 @@
 #include "Camera.h"
 #include "BombComponent.h"
 #include "DestructibleWallResponder.h"
+#include "MoveDirCommand.h"
+#include "BombCommand.h"
 
 namespace dae {
 
@@ -68,7 +70,7 @@ namespace dae {
 
         // Create or clear scene
         auto& scene = SceneManager::GetInstance().CreateScene(sceneName);
-        Scene* pScene = &scene;
+
 
 
         // Metal UI background
@@ -154,13 +156,11 @@ namespace dae {
                 }
                 else if (tile == 'P')
                 {
-                           
-
                     // 2) Create one GO for both sprite & collision
                     auto playerGO = std::make_shared<GameObject>();
 
                     //  a) nudge the whole transform so the art aligns
-                    constexpr float pixelOffsetX = 7.5f;  // tweak these... positive is to the left, negative is to the right
+                    constexpr float pixelOffsetX = 7.5f;
                     constexpr float pixelOffsetY = 5.f;
                     playerGO->AddComponent<TransformComponent>()
                         .SetLocalPosition(x + pixelOffsetX,
@@ -176,11 +176,10 @@ namespace dae {
                     sprite.SetIdleFrame(SpriteSheetComponent::AnimationState::Idle,
                         3, 6, 0, 4);
 
-                    //  c) add & offset the collider under that sprite
+                    //  c) add & offset the collider
                     auto& cc = playerGO->AddComponent<CollisionComponent>();
                     const float colliderSize = tileSize * 0.8f;
-                    cc.SetSize(colliderSize, colliderSize+2);
-                    // center it, then nudge opposite of sprite-offset:
+                    cc.SetSize(colliderSize, colliderSize + 2);
                     float baseOffset = (tileSize - colliderSize) * 0.5f;
                     cc.SetOffset(baseOffset - pixelOffsetX,
                         baseOffset - pixelOffsetY);
@@ -195,31 +194,56 @@ namespace dae {
                     scene.Add(playerGO);
                     Camera::GetInstance().SetTarget(playerGO);
 
-                    // 4) Bind input (use playerGO’s PlayerComponent)
+                    // 4) Bind input via MoveDirCommand
                     auto& input = InputManager::GetInstance();
-                    auto bindDU = [&](int code, InputDeviceType dev, int pIdx,
-                        PlayerComponent::Direction dir) {
-                            input.BindCommand(code, KeyState::Down, dev,
-                                std::make_unique<LambdaCommand>(
-                                    [&pc, dir]() { pc.OnMovementPressed(dir); }
-                                ), pIdx);
-                            input.BindCommand(code, KeyState::Up, dev,
-                                std::make_unique<LambdaCommand>(
-                                    [&pc, dir]() { pc.OnMovementReleased(dir); }
-                                ), pIdx);
-                        };
-                    bindDU(SDL_SCANCODE_LEFT, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Left);
-                    bindDU(SDL_SCANCODE_RIGHT, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Right);
-                    bindDU(SDL_SCANCODE_UP, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Up);
-                    bindDU(SDL_SCANCODE_DOWN, InputDeviceType::Keyboard, 1, PlayerComponent::Direction::Down);
+                    constexpr int playerIdx = 0;  // single-player uses controller 0
 
-                    // 5) Bomb binding (capture playerGO, not parentGO)
+                    // simplify bindDir to only take key/button, device, and direction
+                    auto bindDir = [&](int code, InputDeviceType dev,
+                        PlayerComponent::Direction dir)
+                        {
+                            // on press
+                            input.BindCommand(
+                                code, KeyState::Down, dev,
+                                std::make_unique<MoveDirCommand>(&pc, dir, true),
+                                playerIdx
+                            );
+                            // on release
+                            input.BindCommand(
+                                code, KeyState::Up, dev,
+                                std::make_unique<MoveDirCommand>(&pc, dir, false),
+                                playerIdx
+                            );
+                        };
+
+                    // — Keyboard arrows —
+                    bindDir(SDL_SCANCODE_LEFT, InputDeviceType::Keyboard, PlayerComponent::Direction::Left);
+                    bindDir(SDL_SCANCODE_RIGHT, InputDeviceType::Keyboard, PlayerComponent::Direction::Right);
+                    bindDir(SDL_SCANCODE_UP, InputDeviceType::Keyboard, PlayerComponent::Direction::Up);
+                    bindDir(SDL_SCANCODE_DOWN, InputDeviceType::Keyboard, PlayerComponent::Direction::Down);
+
+                    // — Gamepad D-Pad —
+                    bindDir(static_cast<int>(GamepadButton::DPadLeft),
+                        InputDeviceType::Gamepad, PlayerComponent::Direction::Left);
+                    bindDir(static_cast<int>(GamepadButton::DPadRight),
+                        InputDeviceType::Gamepad, PlayerComponent::Direction::Right);
+                    bindDir(static_cast<int>(GamepadButton::DPadUp),
+                        InputDeviceType::Gamepad, PlayerComponent::Direction::Up);
+                    bindDir(static_cast<int>(GamepadButton::DPadDown),
+                        InputDeviceType::Gamepad, PlayerComponent::Direction::Down);
+
+                    // 5) Bomb binding via BombCommand
+                    // — Keyboard “X” key
                     input.BindCommand(
                         SDL_SCANCODE_X, KeyState::Down, InputDeviceType::Keyboard,
-                        std::make_unique<LambdaCommand>(
-                            [&pc, pScene]() { pc.PlaceBomb(*pScene); }
-                        ),
-                        /*priority=*/1
+                        std::make_unique<BombCommand>(&pc, &scene),
+                        playerIdx
+                    );
+                    // — Gamepad “A” button
+                    input.BindCommand(
+                        static_cast<int>(GamepadButton::A), KeyState::Down, InputDeviceType::Gamepad,
+                        std::make_unique<BombCommand>(&pc, &scene),
+                        playerIdx
                     );
                 }
             }
