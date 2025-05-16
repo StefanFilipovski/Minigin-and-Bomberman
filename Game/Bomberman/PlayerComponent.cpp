@@ -149,9 +149,7 @@ namespace dae {
         if (m_justSpawned) {
             m_justSpawned = false;
         }
-        else {
-            CollisionManager::GetInstance().CheckCollisions();
-        }
+       
     }
 
     void PlayerComponent::UpdateSpriteState()

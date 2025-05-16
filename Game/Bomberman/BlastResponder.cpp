@@ -1,6 +1,8 @@
 ﻿#include "BlastResponder.h"
 #include "GameObject.h"
 #include "DestructibleWallResponder.h"
+#include "BalloonComponent.h"
+#include "PlayerComponent.h"
 
 namespace dae {
 
@@ -19,6 +21,19 @@ namespace dae {
         {
             dwr->OnCollide(other);
         }
+
+        if (auto* balloon = other->GetComponent<BalloonComponent>())
+        {
+            balloon->Die();
+            // (no return, if you want the blast to keep propagating you can omit)
+        }
+      
+        // 3) Player takes damage (no invulnerability here)
+        if (auto* player = other->GetComponent<PlayerComponent>())
+        {
+            player->TakeDamage(1);
+        }
+
         // Static walls will simply block further explosion raycasts
     }
 

@@ -13,8 +13,6 @@
 #include <unordered_map>
 #include <functional>
 #include "SpriteSheetComponent.h"
-
-
 #include "LevelLoader.h"
 #include "SceneManager.h"
 #include "GameObject.h"
@@ -40,20 +38,28 @@
 #include "DestructibleWallResponder.h"
 #include "MoveDirCommand.h"
 #include "BombCommand.h"
+#include "BalloonComponent.h"
+#include "EnemyCollisionResponder.h" 
 
 namespace dae {
 
     void LevelLoader::LoadLevel(const std::string& filename,
         const std::string& sceneName)
     {
-        // Open level file
+        // 1) Read entire level file into memory
         std::ifstream file{ filename };
         if (!file.is_open()) {
             std::cerr << "LevelLoader::LoadLevel - failed to open " << filename << "\n";
             return;
         }
+        std::vector<std::string> mapRows;
+        std::string line;
+        while (std::getline(file, line)) {
+            mapRows.push_back(line);
+        }
+        file.close();
 
-        // Preload textures
+        // 2) Preload textures
         auto& rm = ResourceManager::GetInstance();
         rm.LoadTexture("MetalBackground.tga");
         rm.LoadTexture("GrassBackground.tga");
@@ -62,193 +68,148 @@ namespace dae {
         rm.LoadTexture("BombSpritesheet.tga");
         rm.LoadTexture("RedSquare.tga");
         rm.LoadTexture("BombermanSpritesheet.tga");
+        rm.LoadTexture("BalloomSpritesheet.tga");
 
-        // Constants
+        // 3) Constants and grid dimensions
         const float tileSize = 16.f;
         constexpr int uiRows = 4;
         const float uiOffsetY = tileSize * uiRows;
+        int rows = static_cast<int>(mapRows.size());
+        int cols = rows > 0 ? static_cast<int>(mapRows[0].size()) : 0;
 
-        // Create or clear scene
+        // 4) Build walkability grid: true=free, false=blocked
+        std::vector<std::vector<bool>> walkable(rows, std::vector<bool>(cols, true));
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < cols; ++c) {
+                char t = mapRows[r][c];
+                if (t == 'W' || t == 'B') walkable[r][c] = false;
+            }
+        }
+
+        // 5) Create or clear scene
         auto& scene = SceneManager::GetInstance().CreateScene(sceneName);
 
-
-
-        // Metal UI background
+        // 6) Add UI & background
         {
             auto metalBg = std::make_shared<GameObject>();
-            metalBg->AddComponent<TransformComponent>()
-                .SetLocalPosition(0.f, 0.f, 0.f);
-            metalBg->AddComponent<RenderComponent>()
-                .SetTexture("MetalBackground.tga");
+            metalBg->AddComponent<TransformComponent>().SetLocalPosition(0.f, 0.f, 0.f);
+            metalBg->AddComponent<RenderComponent>().SetTexture("MetalBackground.tga");
             scene.Add(metalBg);
         }
-        // Grass world background
         {
             auto grassBg = std::make_shared<GameObject>();
-            grassBg->AddComponent<TransformComponent>()
-                .SetLocalPosition(0.f, uiOffsetY, 0.f);
-            grassBg->AddComponent<RenderComponent>()
-                .SetTexture("GrassBackground.tga");
+            grassBg->AddComponent<TransformComponent>().SetLocalPosition(0.f, uiOffsetY, 0.f);
+            grassBg->AddComponent<RenderComponent>().SetTexture("GrassBackground.tga");
             scene.Add(grassBg);
         }
 
-        std::string line;
-        int row = 0;
+        //static ScoreObserver scoreObserver; // tracks kills & score
 
+        // 7) Spawn map objects
+        for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < cols; ++c) {
+                char tile = mapRows[r][c];
+                float x = c * tileSize;
+                float y = r * tileSize + uiOffsetY;
 
-        while (std::getline(file, line)) {
-            SDL_PumpEvents();
-            InputManager::GetInstance().ProcessInput();
-
-            for (int col = 0; col < static_cast<int>(line.size()); ++col) {
-                char tile = line[col];
-                float x = col * tileSize;
-                float y = row * tileSize + uiOffsetY;
-
-                if (tile == 'W') {
+                switch (tile) {
+                case 'W': {
                     auto wall = std::make_shared<GameObject>();
-                    wall->AddComponent<TransformComponent>()
-                        .SetLocalPosition(x, y, 0.f);
-                    wall->AddComponent<RenderComponent>()
-                        .SetTexture("StaticWall.tga");
+                    wall->AddComponent<TransformComponent>().SetLocalPosition(x, y, 0.f);
+                    wall->AddComponent<RenderComponent>().SetTexture("StaticWall.tga");
                     auto& cc = wall->AddComponent<CollisionComponent>();
                     cc.SetSize(tileSize, tileSize);
                     cc.SetResponder(std::make_unique<StaticWallResponder>());
                     scene.Add(wall);
+                    break;
                 }
-                else if (tile == 'B')
-                {
-                    // 1) World‐position for the tile
-                    
-                    // 2) Tweak these until the sprites line up visually
-                    constexpr float spriteOffsetX = 8.f;
-                    constexpr float spriteOffsetY = 8.f;
-
-                    // 3) Create the wall GO & nudge its transform for the art
-                    auto wallGO = std::make_shared<GameObject>();
-                    wallGO->AddComponent<TransformComponent>()
-                        .SetLocalPosition(x + spriteOffsetX,
-                            y + spriteOffsetY,
+                case 'B': {
+                    constexpr float spriteOffset = 8.f;
+                    auto brick = std::make_shared<GameObject>();
+                    brick->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + spriteOffset,
+                            y + spriteOffset,
                             0.f);
-
-                    // 4) Add your spritesheet on that same GO
-                    auto& sheet = wallGO->AddComponent<SpriteSheetComponent>();
-                    sheet.SetSpriteSheet("BreakableWallSpritesheet.tga",
-                        /*rows=*/1, /*cols=*/7,
-                        /*targetRow=*/0,
-                        /*frameTime=*/0.1f);
+                    auto& sheet = brick->AddComponent<SpriteSheetComponent>();
+                    sheet.SetSpriteSheet("BreakableWallSpritesheet.tga", 1, 7, 0, 0.1f);
                     sheet.SetIdleFrame(
                         SpriteSheetComponent::AnimationState::Idle,
-                        /*rows=*/1, /*cols=*/7,
-                        /*frameRow=*/0, /*frameCol=*/0
-                    );
-
-                    // 5) Add & offset the collider back under the tile
-                    auto& cc = wallGO->AddComponent<CollisionComponent>();
+                        1, 7, 0, 0);
+                    auto& cc = brick->AddComponent<CollisionComponent>();
                     cc.SetSize(tileSize, tileSize);
-                    // since collider == tileSize, baseOffset == 0
-                    // we only need to counteract our spriteOffset
-                    cc.SetOffset(-spriteOffsetX, -spriteOffsetY);
-
-                    // 6) Attach the responder and add to scene
-                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(wallGO.get()));
-                    scene.Add(wallGO);
+                    cc.SetOffset(-spriteOffset, -spriteOffset);
+                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(brick.get()));
+                    scene.Add(brick);
+                    break;
                 }
-                else if (tile == 'P')
-                {
-                    // 2) Create one GO for both sprite & collision
-                    auto playerGO = std::make_shared<GameObject>();
-
-                    //  a) nudge the whole transform so the art aligns
-                    constexpr float pixelOffsetX = 7.5f;
-                    constexpr float pixelOffsetY = 5.f;
-                    playerGO->AddComponent<TransformComponent>()
-                        .SetLocalPosition(x + pixelOffsetX,
-                            y + pixelOffsetY,
+                case 'E': {
+                    constexpr float spriteOffset = 8.f;
+                    auto enemyGO = std::make_shared<GameObject>();
+                    enemyGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + spriteOffset,
+                            y + spriteOffset,
                             0.f);
-
-                    //  b) add the sprite
-                    auto& sprite = playerGO->AddComponent<SpriteSheetComponent>();
-                    sprite.SetSpriteSheet("BombermanSpritesheet.tga",
-                        /*rows=*/3, /*cols=*/6,
-                        /*targetRow=*/0,
-                        /*frameTime=*/0.15f);
-                    sprite.SetIdleFrame(SpriteSheetComponent::AnimationState::Idle,
-                        3, 6, 0, 4);
-
-                    //  c) add & offset the collider
-                    auto& cc = playerGO->AddComponent<CollisionComponent>();
-                    const float colliderSize = tileSize * 0.8f;
-                    cc.SetSize(colliderSize, colliderSize + 2);
-                    float baseOffset = (tileSize - colliderSize) * 0.5f;
-                    cc.SetOffset(baseOffset - pixelOffsetX,
-                        baseOffset - pixelOffsetY);
-
-                    //  d) player logic
+                    enemyGO->AddComponent<SpriteSheetComponent>()
+                        .SetSpriteSheet("BalloomSpritesheet.tga", 1, 11, 0, 0.2f);
+                    auto& bc = enemyGO->AddComponent<BalloonComponent>(
+                        13.f, 1.f,
+                        walkable,
+                        glm::ivec2(cols, rows),
+                        tileSize, uiOffsetY);
+                    /*bc.AddObserver(&scoreObserver);*/
+                    auto& cc = enemyGO->AddComponent<CollisionComponent>();
+                    float collSize = tileSize * 0.8f;
+                    float baseOff = (tileSize - collSize) * 0.5f;
+                    cc.SetSize(collSize, collSize);
+                    cc.SetOffset(-spriteOffset + baseOff,
+                        -spriteOffset + baseOff);
+                    cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&bc));
+                    scene.Add(enemyGO);
+                    break;
+                }
+                case 'P': {
+                    constexpr float pxOff = 7.5f, pyOff = 5.f;
+                    auto playerGO = std::make_shared<GameObject>();
+                    playerGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + pxOff, y + pyOff, 0.f);
+                    auto& spr = playerGO->AddComponent<SpriteSheetComponent>();
+                    spr.SetSpriteSheet("BombermanSpritesheet.tga", 3, 6, 0, 0.15f);
+                    spr.SetIdleFrame(
+                        SpriteSheetComponent::AnimationState::Idle, 3, 6, 0, 4);
+                    auto& pcc = playerGO->AddComponent<CollisionComponent>();
+                    float cSize = tileSize * 0.8f;
+                    pcc.SetSize(cSize, cSize + 2);
+                    float off = (tileSize - cSize) * 0.5f;
+                    pcc.SetOffset(off - pxOff, off - pyOff);
                     auto& pc = playerGO->AddComponent<PlayerComponent>();
                     pc.BeginMove();
                     auto& lives = playerGO->AddComponent<LivesDisplay>(3);
                     pc.AddObserver(&lives);
-
-                    // 3) Add to scene & hook camera
                     scene.Add(playerGO);
                     Camera::GetInstance().SetTarget(playerGO);
-
-                    // 4) Bind input via MoveDirCommand
                     auto& input = InputManager::GetInstance();
-                    constexpr int playerIdx = 0;  // single-player uses controller 0
-
-                    // simplify bindDir to only take key/button, device, and direction
-                    auto bindDir = [&](int code, InputDeviceType dev,
-                        PlayerComponent::Direction dir)
-                        {
-                            // on press
-                            input.BindCommand(
-                                code, KeyState::Down, dev,
-                                std::make_unique<MoveDirCommand>(&pc, dir, true),
-                                playerIdx
-                            );
-                            // on release
-                            input.BindCommand(
-                                code, KeyState::Up, dev,
-                                std::make_unique<MoveDirCommand>(&pc, dir, false),
-                                playerIdx
-                            );
+                    constexpr int pid = 0;
+                    auto bindKey = [&](SDL_Scancode k, PlayerComponent::Direction d) {
+                        input.BindCommand(k, KeyState::Down, InputDeviceType::Keyboard,
+                            std::make_unique<MoveDirCommand>(&pc, d, true), pid);
+                        input.BindCommand(k, KeyState::Up, InputDeviceType::Keyboard,
+                            std::make_unique<MoveDirCommand>(&pc, d, false), pid);
                         };
-
-                    // — Keyboard arrows —
-                    bindDir(SDL_SCANCODE_LEFT, InputDeviceType::Keyboard, PlayerComponent::Direction::Left);
-                    bindDir(SDL_SCANCODE_RIGHT, InputDeviceType::Keyboard, PlayerComponent::Direction::Right);
-                    bindDir(SDL_SCANCODE_UP, InputDeviceType::Keyboard, PlayerComponent::Direction::Up);
-                    bindDir(SDL_SCANCODE_DOWN, InputDeviceType::Keyboard, PlayerComponent::Direction::Down);
-
-                    // — Gamepad D-Pad —
-                    bindDir(static_cast<int>(GamepadButton::DPadLeft),
-                        InputDeviceType::Gamepad, PlayerComponent::Direction::Left);
-                    bindDir(static_cast<int>(GamepadButton::DPadRight),
-                        InputDeviceType::Gamepad, PlayerComponent::Direction::Right);
-                    bindDir(static_cast<int>(GamepadButton::DPadUp),
-                        InputDeviceType::Gamepad, PlayerComponent::Direction::Up);
-                    bindDir(static_cast<int>(GamepadButton::DPadDown),
-                        InputDeviceType::Gamepad, PlayerComponent::Direction::Down);
-
-                    // 5) Bomb binding via BombCommand
-                    // — Keyboard “X” key
+                    bindKey(SDL_SCANCODE_LEFT, PlayerComponent::Direction::Left);
+                    bindKey(SDL_SCANCODE_RIGHT, PlayerComponent::Direction::Right);
+                    bindKey(SDL_SCANCODE_UP, PlayerComponent::Direction::Up);
+                    bindKey(SDL_SCANCODE_DOWN, PlayerComponent::Direction::Down);
                     input.BindCommand(
                         SDL_SCANCODE_X, KeyState::Down, InputDeviceType::Keyboard,
-                        std::make_unique<BombCommand>(&pc, &scene),
-                        playerIdx
-                    );
-                    // — Gamepad “A” button
-                    input.BindCommand(
-                        static_cast<int>(GamepadButton::A), KeyState::Down, InputDeviceType::Gamepad,
-                        std::make_unique<BombCommand>(&pc, &scene),
-                        playerIdx
-                    );
+                        std::make_unique<BombCommand>(&pc, &scene), pid);
+                    break;
+                }
+                default:
+                    break;
                 }
             }
-            ++row;
         }
     }
 
 } // namespace dae
+

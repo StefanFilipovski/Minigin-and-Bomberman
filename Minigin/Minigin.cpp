@@ -109,12 +109,13 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		{
 			sceneManager.Update(fixedTimeStep);
 			dae::CollisionManager::GetInstance().CheckCollisions();
-			/*camera.Update(fixedTimeStep);*/
 			lag -= fixedTimeStep;
 		}
 
 		// Regular update (for animations, AI, etc.)
 		sceneManager.Update(deltaTime);
+
+		dae::CollisionManager::GetInstance().CheckCollisions();
 
 		//Camera update
 		camera.Update(deltaTime);

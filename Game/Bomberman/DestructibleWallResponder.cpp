@@ -4,6 +4,7 @@
 #include "CollisionComponent.h"
 #include "PlayerComponent.h"
 #include "BlastResponder.h"
+#include "BalloonComponent.h"
 
 namespace dae {
 
@@ -61,6 +62,11 @@ namespace dae {
             // normal blocking behavior (e.g. player walking into it)
             if (auto* pc = other->GetComponent<PlayerComponent>()) {
                 pc->RevertMove();
+            }
+
+            if (auto* balloon = other->GetComponent<BalloonComponent>()) {
+                balloon->RevertMove();
+                return;
             }
         }
     }

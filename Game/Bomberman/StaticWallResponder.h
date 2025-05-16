@@ -3,12 +3,14 @@
 #include <iostream>
 #include "PlayerComponent.h"
 #include "GameObject.h"
+#include "BalloonComponent.h"
 namespace dae {
     
 
     class StaticWallResponder : public CollisionResponder {
     public:
         ~StaticWallResponder() override = default;
+
 
         // Called when another object collides with this static wall.
         // In a full implementation, this function would typically cause the dynamic
@@ -21,6 +23,12 @@ namespace dae {
                 player->RevertMove();
                 
             }
+
+            if(auto * balloon = other->GetComponent<BalloonComponent>()) {
+                balloon->RevertMove();
+                return;
+            }
+
             // For other types different logic.
         }
     };
