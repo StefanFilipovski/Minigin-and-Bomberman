@@ -3,18 +3,20 @@
 #include "BaseEnemyComponent.h"
 
 namespace dae {
+    class GameObject;
 
-    class BalloonComponent : public BaseEnemyComponent {
+    class OnealComponent : public BaseEnemyComponent {
     public:
-        BalloonComponent(GameObject* owner,
+        OnealComponent(GameObject* owner,
             float speed,
             float moveInterval,
+            float chaseRange,
             std::vector<std::vector<bool>> grid,
             glm::ivec2 gridSize,
             float tileSize,
             float gridOffsetY);
 
-        ~BalloonComponent() override = default;
+        ~OnealComponent() override = default;
 
     protected:
         void UpdateAI(float dt) override;
@@ -22,7 +24,12 @@ namespace dae {
         void PlayDeathAnimation() override;
 
     private:
-        void ChooseRandomDirection();
-        std::uniform_int_distribution<int> m_DirDist;
+        void ChooseDirection();
+        bool IsPlayerInSight(Direction& outDirection) const;
+
+        float m_ChaseRange;
+        float m_DeathTimer{ 0.f };
+        const float m_DeathDisplayTime{ 1.0f };
+        bool m_ShowingDeath{ false };
     };
 }

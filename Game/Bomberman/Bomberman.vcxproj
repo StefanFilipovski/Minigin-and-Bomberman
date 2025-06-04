@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="AddPointsCommand.cpp" />
     <ClCompile Include="BalloonComponent.cpp" />
+    <ClCompile Include="BaseEnemyComponent.cpp" />
     <ClCompile Include="BlastResponder.cpp" />
     <ClCompile Include="BombCommand.cpp" />
     <ClCompile Include="BombComponent.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="CharacterMoveComponent.cpp" />
     <ClCompile Include="DeathCommand.cpp" />
     <ClCompile Include="DestructibleWallResponder.cpp" />
+    <ClCompile Include="DollComponent.cpp" />
     <ClCompile Include="EnemyCollisionResponder.cpp" />
     <ClCompile Include="FPSCounter.cpp" />
     <ClCompile Include="GameActor.cpp" />
@@ -176,7 +178,9 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MoveCommand.cpp" />
     <ClCompile Include="MoveDirCommand.cpp" />
+    <ClCompile Include="OnealComponent.cpp" />
     <ClCompile Include="PlayerComponent.cpp" />
+    <ClCompile Include="PlayerManager.cpp" />
     <ClCompile Include="PointsDisplay.cpp" />
     <ClCompile Include="PointsSubject.cpp" />
     <ClCompile Include="ScoreComponent.cpp" />
@@ -187,6 +191,7 @@
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
     <ClInclude Include="BalloonComponent.h" />
+    <ClInclude Include="BaseEnemyComponent.h" />
     <ClInclude Include="BlastResponder.h" />
     <ClInclude Include="BombCommand.h" />
     <ClInclude Include="BombComponent.h" />
@@ -195,6 +200,7 @@
     <ClInclude Include="CharacterMoveComponent.h" />
     <ClInclude Include="DeathCommand.h" />
     <ClInclude Include="DestructibleWallResponder.h" />
+    <ClInclude Include="DollComponent.h" />
     <ClInclude Include="EnemyCollisionResponder.h" />
     <ClInclude Include="FPSCounter.h" />
     <ClInclude Include="GameActor.h" />
@@ -206,7 +212,9 @@
     <ClInclude Include="LivesDisplay.h" />
     <ClInclude Include="MoveCommand.h" />
     <ClInclude Include="MoveDirCommand.h" />
+    <ClInclude Include="OnealComponent.h" />
     <ClInclude Include="PlayerComponent.h" />
+    <ClInclude Include="PlayerManager.h" />
     <ClInclude Include="PointsDisplay.h" />
     <ClInclude Include="PointsSubject.h" />
     <ClInclude Include="ScoreComponent.h" />

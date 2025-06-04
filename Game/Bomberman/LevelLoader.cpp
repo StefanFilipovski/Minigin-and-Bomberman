@@ -13,24 +13,9 @@
 #include <unordered_map>
 #include <functional>
 #include "SpriteSheetComponent.h"
-#include "LevelLoader.h"
-#include "SceneManager.h"
-#include "GameObject.h"
-#include "TransformComponent.h"
-#include "RenderComponent.h"
-#include "CollisionComponent.h"
-#include "ResourceManager.h"
-#include "StaticWallResponder.h"
-#include "PlayerComponent.h"
-#include "SpriteSheetComponent.h"
-#include "Scene.h"
 #include "InputManager.h"
 #include "LambdaCommand.h"
 #include <SDL.h>
-#include <fstream>
-#include <iostream>
-#include <unordered_map>
-#include <functional>
 #include <memory>
 #include "LivesDisplay.h"
 #include "Camera.h"
@@ -40,6 +25,9 @@
 #include "BombCommand.h"
 #include "BalloonComponent.h"
 #include "EnemyCollisionResponder.h" 
+#include "OnealComponent.h"
+#include "PlayerManager.h"  // Add this include
+#include "DollComponent.h"
 
 namespace dae {
 
@@ -69,6 +57,7 @@ namespace dae {
         rm.LoadTexture("RedSquare.tga");
         rm.LoadTexture("BombermanSpritesheet.tga");
         rm.LoadTexture("BalloomSpritesheet.tga");
+        rm.LoadTexture("OnealSpritesheet.tga");
 
         // 3) Constants and grid dimensions
         const float tileSize = 16.f;
@@ -142,31 +131,6 @@ namespace dae {
                     scene.Add(brick);
                     break;
                 }
-                case 'E': {
-                    constexpr float spriteOffset = 8.f;
-                    auto enemyGO = std::make_shared<GameObject>();
-                    enemyGO->AddComponent<TransformComponent>()
-                        .SetLocalPosition(x + spriteOffset,
-                            y + spriteOffset,
-                            0.f);
-                    enemyGO->AddComponent<SpriteSheetComponent>()
-                        .SetSpriteSheet("BalloomSpritesheet.tga", 1, 11, 0, 0.2f);
-                    auto& bc = enemyGO->AddComponent<BalloonComponent>(
-                        13.f, 1.f,
-                        walkable,
-                        glm::ivec2(cols, rows),
-                        tileSize, uiOffsetY);
-                    /*bc.AddObserver(&scoreObserver);*/
-                    auto& cc = enemyGO->AddComponent<CollisionComponent>();
-                    float collSize = tileSize * 0.8f;
-                    float baseOff = (tileSize - collSize) * 0.5f;
-                    cc.SetSize(collSize, collSize);
-                    cc.SetOffset(-spriteOffset + baseOff,
-                        -spriteOffset + baseOff);
-                    cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&bc));
-                    scene.Add(enemyGO);
-                    break;
-                }
                 case 'P': {
                     constexpr float pxOff = 7.5f, pyOff = 5.f;
                     auto playerGO = std::make_shared<GameObject>();
@@ -185,10 +149,14 @@ namespace dae {
                     pc.BeginMove();
                     auto& lives = playerGO->AddComponent<LivesDisplay>(3);
                     pc.AddObserver(&lives);
+
+                    // Register player with PlayerManager
+                    constexpr int pid = 0;
+                    PlayerManager::GetInstance().RegisterPlayer(playerGO.get(), pid);
+
                     scene.Add(playerGO);
                     Camera::GetInstance().SetTarget(playerGO);
                     auto& input = InputManager::GetInstance();
-                    constexpr int pid = 0;
                     auto bindKey = [&](SDL_Scancode k, PlayerComponent::Direction d) {
                         input.BindCommand(k, KeyState::Down, InputDeviceType::Keyboard,
                             std::make_unique<MoveDirCommand>(&pc, d, true), pid);
@@ -204,6 +172,83 @@ namespace dae {
                         std::make_unique<BombCommand>(&pc, &scene), pid);
                     break;
                 }
+                case 'O': { // Oneal enemy
+                    constexpr float spriteOffset = 8.f;
+                    auto enemyGO = std::make_shared<GameObject>();
+                    enemyGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
+
+                    enemyGO->AddComponent<SpriteSheetComponent>()
+                        .SetSpriteSheet("OnealSpritesheet.tga", 1, 7, 0, 0.2f);
+
+                    auto& oc = enemyGO->AddComponent<OnealComponent>(
+                        20.f,     // faster speed than balloon (13.f)
+                        0.8f,     // slightly faster move interval
+                        100.f,     // chase range in world units
+                        walkable, glm::ivec2(cols, rows),
+                        tileSize, uiOffsetY);
+
+                    // No need to set player target anymore - OnealComponent uses PlayerManager
+
+                    auto& cc = enemyGO->AddComponent<CollisionComponent>();
+                    float collSize = tileSize * 0.8f;
+                    float baseOff = (tileSize - collSize) * 0.5f;
+                    cc.SetSize(collSize, collSize);
+                    cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
+                    cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&oc));
+
+                    scene.Add(enemyGO);
+                    break;
+                }
+                case 'D': { // Doll enemy
+                    constexpr float spriteOffset = 8.f;
+                    auto enemyGO = std::make_shared<GameObject>();
+                    enemyGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
+
+                    enemyGO->AddComponent<SpriteSheetComponent>()
+                        .SetSpriteSheet("DollSpritesheet.tga", 1, 11, 0, 0.2f);
+
+                    auto& dc = enemyGO->AddComponent<DollComponent>(
+                        18.f,     // faster than balloon (13.f) but slower than Oneal (20.f)
+                        0.9f,     // slightly faster decision making than balloon
+                        walkable, glm::ivec2(cols, rows),
+                        tileSize, uiOffsetY);
+
+                    auto& cc = enemyGO->AddComponent<CollisionComponent>();
+                    float collSize = tileSize * 0.8f;
+                    float baseOff = (tileSize - collSize) * 0.5f;
+                    cc.SetSize(collSize, collSize);
+                    cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
+                    cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&dc));
+
+                    scene.Add(enemyGO);
+                    break;
+                }
+                case 'E': {
+                    constexpr float spriteOffset = 8.f;
+                    auto enemyGO = std::make_shared<GameObject>();
+                    enemyGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
+
+                    enemyGO->AddComponent<SpriteSheetComponent>()
+                        .SetSpriteSheet("BalloomSpritesheet.tga", 1, 11, 0, 0.2f);
+
+                    auto& bc = enemyGO->AddComponent<BalloonComponent>(
+                        13.f, 1.f,
+                        walkable, glm::ivec2(cols, rows),
+                        tileSize, uiOffsetY);
+
+                    auto& cc = enemyGO->AddComponent<CollisionComponent>();
+                    float collSize = tileSize * 0.8f;
+                    float baseOff = (tileSize - collSize) * 0.5f;
+                    cc.SetSize(collSize, collSize);
+                    cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
+                    cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&bc));
+
+                    scene.Add(enemyGO);
+                    break;
+                }
                 default:
                     break;
                 }
@@ -212,4 +257,3 @@ namespace dae {
     }
 
 } // namespace dae
-

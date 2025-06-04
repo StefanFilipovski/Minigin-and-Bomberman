@@ -1,7 +1,7 @@
 ﻿#include "BlastResponder.h"
 #include "GameObject.h"
 #include "DestructibleWallResponder.h"
-#include "BalloonComponent.h"
+#include "BaseEnemyComponent.h"
 #include "PlayerComponent.h"
 
 namespace dae {
@@ -22,13 +22,13 @@ namespace dae {
             dwr->OnCollide(other);
         }
 
-        if (auto* balloon = other->GetComponent<BalloonComponent>())
+        // Check for any enemy component derived from BaseEnemyComponent
+        if (auto* enemy = other->GetComponent<BaseEnemyComponent>())
         {
-            balloon->Die();
-            // (no return, if you want the blast to keep propagating you can omit)
+            enemy->Die();
         }
-      
-        // 3) Player takes damage (no invulnerability here)
+
+        // Player takes damage (no invulnerability here)
         if (auto* player = other->GetComponent<PlayerComponent>())
         {
             player->TakeDamage(1);
@@ -38,4 +38,3 @@ namespace dae {
     }
 
 } // namespace dae
-

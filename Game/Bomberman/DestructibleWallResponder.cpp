@@ -4,7 +4,7 @@
 #include "CollisionComponent.h"
 #include "PlayerComponent.h"
 #include "BlastResponder.h"
-#include "BalloonComponent.h"
+#include "BaseEnemyComponent.h"
 
 namespace dae {
 
@@ -46,9 +46,6 @@ namespace dae {
             constexpr Uint32 hideDelayMs = static_cast<Uint32>(5 * 0.1f * 1000);
             SDL_AddTimer(hideDelayMs,
                 [](Uint32 /*interval*/, void* param)->Uint32 {
-                    // runs on the SDL timer thread, so only call the API that is threadsafe
-                    // or use a user-event if you need to push to main thread.
-                    // Here we assume Hide() is safe:
                     static_cast<SpriteSheetComponent*>(param)->Hide();
                     return 0;
                 },
@@ -59,13 +56,15 @@ namespace dae {
         }
         else
         {
-            // normal blocking behavior (e.g. player walking into it)
+            // normal blocking behavior
             if (auto* pc = other->GetComponent<PlayerComponent>()) {
                 pc->RevertMove();
+                return;
             }
 
-            if (auto* balloon = other->GetComponent<BalloonComponent>()) {
-                balloon->RevertMove();
+            // Check for ANY enemy type
+            if (auto* enemy = other->GetComponent<BaseEnemyComponent>()) {
+                enemy->RevertMove();
                 return;
             }
         }

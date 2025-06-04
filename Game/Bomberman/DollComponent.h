@@ -4,9 +4,9 @@
 
 namespace dae {
 
-    class BalloonComponent : public BaseEnemyComponent {
+    class DollComponent : public BaseEnemyComponent {
     public:
-        BalloonComponent(GameObject* owner,
+        DollComponent(GameObject* owner,
             float speed,
             float moveInterval,
             std::vector<std::vector<bool>> grid,
@@ -14,7 +14,7 @@ namespace dae {
             float tileSize,
             float gridOffsetY);
 
-        ~BalloonComponent() override = default;
+        ~DollComponent() override = default;
 
     protected:
         void UpdateAI(float dt) override;
@@ -23,6 +23,5 @@ namespace dae {
 
     private:
         void ChooseRandomDirection();
-        std::uniform_int_distribution<int> m_DirDist;
     };
 }
