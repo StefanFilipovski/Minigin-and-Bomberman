@@ -61,6 +61,10 @@ namespace dae
         if (m_Exploded) return;
         m_Exploded = true;
 
+        // Notify observers that this bomb has exploded
+        Event bombEvent{ GameEvents::BOMB_EXPLODED };
+        Notify(bombEvent);
+
         // 0) undo the visual offset you applied at placement
         constexpr float bombVisOffsetX = 8.f;  // must match your placement
         constexpr float bombVisOffsetY = 8.f;

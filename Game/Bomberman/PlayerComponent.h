@@ -5,13 +5,14 @@
 #include <vec3.hpp>
 #include <vector>
 #include <SceneManager.h>
+#include "BombComponent.h"
 
 namespace dae {
 
     class TransformComponent;
     class SpriteSheetComponent;
 
-    class PlayerComponent : public Component, public Subject {
+    class PlayerComponent : public Component, public Subject, public Observer {
     public:
         enum class Direction { Left, Right, Up, Down };
 
@@ -36,6 +37,24 @@ namespace dae {
         void BeginMove();
         void Move(float dx, float dy);
         void RevertMove();
+
+        // Observer interface
+        void OnNotify(const Event& event) override;
+
+        // Bomb management
+        bool CanPlaceBomb() const { return m_ActiveBombCount < m_MaxActiveBombs; }
+        void SetMaxBombs(int count) { m_MaxActiveBombs = count; }
+        int GetActiveBombCount() const { return m_ActiveBombCount; }
+
+        // Power-up methods
+        void IncreaseBombCapacity() { m_MaxActiveBombs++; }
+        void EnableDetonator() { m_HasDetonator = true; }
+        void IncreaseBombRange() { m_BombRange++; }
+        int GetBombRange() const { return m_BombRange; }
+        bool HasDetonator() const { return m_HasDetonator; }
+
+        // Detonator functionality
+        void DetonateOldestBomb();
 
     private:
         // Core loop
@@ -62,5 +81,15 @@ namespace dae {
         glm::vec3                 m_lastValidPosition{ 0,0,0 };
         bool                      m_justSpawned{ true };
         const float               s_TileSize = 16.f;
+
+        // Bomb management
+        int m_MaxActiveBombs{ 1 };
+        int m_ActiveBombCount{ 0 };
+
+        // Power-up states
+        bool m_HasDetonator{ false };
+        int m_BombRange{ 1 };
+        std::vector<BombComponent*> m_ActiveBombs; // Track bombs for detonator
+
     };
 }

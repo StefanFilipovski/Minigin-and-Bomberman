@@ -166,6 +166,7 @@
     <ClCompile Include="CharacterMoveComponent.cpp" />
     <ClCompile Include="DeathCommand.cpp" />
     <ClCompile Include="DestructibleWallResponder.cpp" />
+    <ClCompile Include="DetonatorCommand.cpp" />
     <ClCompile Include="DollComponent.cpp" />
     <ClCompile Include="EnemyCollisionResponder.cpp" />
     <ClCompile Include="FPSCounter.cpp" />
@@ -176,6 +177,7 @@
     <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="LivesDisplay.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MinvoComponent.cpp" />
     <ClCompile Include="MoveCommand.cpp" />
     <ClCompile Include="MoveDirCommand.cpp" />
     <ClCompile Include="OnealComponent.cpp" />
@@ -183,6 +185,8 @@
     <ClCompile Include="PlayerManager.cpp" />
     <ClCompile Include="PointsDisplay.cpp" />
     <ClCompile Include="PointsSubject.cpp" />
+    <ClCompile Include="PowerUpCollisionResponder.cpp" />
+    <ClCompile Include="PowerUpComponent.cpp" />
     <ClCompile Include="ScoreComponent.cpp" />
     <ClCompile Include="SpriteSheetComponent.cpp" />
     <ClCompile Include="StaticWallResponder.cpp" />
@@ -200,6 +204,7 @@
     <ClInclude Include="CharacterMoveComponent.h" />
     <ClInclude Include="DeathCommand.h" />
     <ClInclude Include="DestructibleWallResponder.h" />
+    <ClInclude Include="DetonatorCommand.h" />
     <ClInclude Include="DollComponent.h" />
     <ClInclude Include="EnemyCollisionResponder.h" />
     <ClInclude Include="FPSCounter.h" />
@@ -210,6 +215,7 @@
     <ClInclude Include="LambdaCommand.h" />
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="LivesDisplay.h" />
+    <ClInclude Include="MinvoComponent.h" />
     <ClInclude Include="MoveCommand.h" />
     <ClInclude Include="MoveDirCommand.h" />
     <ClInclude Include="OnealComponent.h" />
@@ -217,6 +223,9 @@
     <ClInclude Include="PlayerManager.h" />
     <ClInclude Include="PointsDisplay.h" />
     <ClInclude Include="PointsSubject.h" />
+    <ClInclude Include="PowerUpCollisionResponder.h" />
+    <ClInclude Include="PowerUpComponent.h" />
+    <ClInclude Include="PowerUpType.h" />
     <ClInclude Include="ScoreComponent.h" />
     <ClInclude Include="SpriteSheetComponent.h" />
     <ClInclude Include="StaticWallResponder.h" />

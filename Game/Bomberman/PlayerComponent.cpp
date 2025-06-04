@@ -189,9 +189,15 @@ namespace dae {
             break;
         }
     }
+   
 
     void PlayerComponent::PlaceBomb(Scene& scene)
     {
+        // Check if we can place a bomb
+        if (!CanPlaceBomb()) {
+            return; // Already at max bombs
+        }
+
         constexpr float bombOffsetX = 8.f;
         constexpr float bombOffsetY = 8.f;
         auto raw = GetOwner()->GetTransform().GetWorldPosition();
@@ -218,8 +224,48 @@ namespace dae {
                 gridPos.y + bombOffsetY,
                 0.f);
         auto& bc = bombGO->AddComponent<BombComponent>();
-        bc.Init("BombSpritesheet.tga", 3, 1, 0.2f, /*range=*/1, /*fuse=*/2.f, scene);
+        bc.Init("BombSpritesheet.tga", 3, 1, 0.2f, m_BombRange, /*fuse=*/2.f, scene);
+
+        // Subscribe to bomb events
+        bc.AddObserver(this);
+
+        // Track bomb for detonator
+        m_ActiveBombs.push_back(&bc);
+
+        m_ActiveBombCount++;
+
         scene.Add(bombGO);
+    }
+
+    void PlayerComponent::DetonateOldestBomb()
+    {
+        if (!m_HasDetonator || m_ActiveBombs.empty()) {
+            return;
+        }
+
+        // Detonate the oldest bomb
+        BombComponent* oldestBomb = m_ActiveBombs.front();
+        if (oldestBomb && !oldestBomb->IsExploded()) {
+            oldestBomb->ForceExplode();
+        }
+    }
+
+    void PlayerComponent::OnNotify(const Event& event)
+    {
+        if (event.id == GameEvents::BOMB_EXPLODED) {
+            if (m_ActiveBombCount > 0) {
+                m_ActiveBombCount--;
+            }
+
+            // Remove exploded bomb from tracking
+            // The bomb component pointer should be passed in the event
+            // For now, we'll clean up null/exploded bombs
+            m_ActiveBombs.erase(
+                std::remove_if(m_ActiveBombs.begin(), m_ActiveBombs.end(),
+                    [](BombComponent* bomb) { return !bomb || bomb->IsExploded(); }),
+                m_ActiveBombs.end()
+            );
+        }
     }
 
 } // namespace dae

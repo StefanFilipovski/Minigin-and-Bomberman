@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include "Observer.h"
 #include "IBombState.h"
 
 namespace dae {
@@ -10,17 +11,14 @@ namespace dae {
     class SpriteSheetComponent;
     class Scene;
 
-    class BombComponent : public Component
+    class BombComponent : public Component, public Subject
     {
     public:
+        float s_TileSize = 16.f;
 
-         float s_TileSize = 16.f;
-
-        // match your cpp: BombComponent::BombComponent(GameObject* owner)
         explicit BombComponent(GameObject* owner);
         ~BombComponent() override = default;
 
-        // same signature your LevelLoader/cpp uses:
         void Init(const std::string& spriteSheet,
             int cols, int rows, float frameTime,
             int range, float fuseTime,
@@ -31,6 +29,9 @@ namespace dae {
         // called by the states
         void Explode();
         void TransitionTo(IBombState* newState);
+
+        bool IsExploded() const { return m_Exploded; }
+        void ForceExplode() { Explode(); } // For detonator
 
     private:
         // allow these two state‐classes access to private members

@@ -9,5 +9,6 @@ namespace GameEvents {
     constexpr dae::EventID POINTS_ADDED = 0x03;
     constexpr dae::EventID BOMB_EXPLODED = 0x04;
     constexpr dae::EventID ENEMY_DIED = 0x05;
+    constexpr dae::EventID POWERUP_COLLECTED = 0x06;
   
 }

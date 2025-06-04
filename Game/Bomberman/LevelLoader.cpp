@@ -28,6 +28,7 @@
 #include "OnealComponent.h"
 #include "PlayerManager.h"  // Add this include
 #include "DollComponent.h"
+#include "MinvoComponent.h"
 
 namespace dae {
 
@@ -58,6 +59,7 @@ namespace dae {
         rm.LoadTexture("BombermanSpritesheet.tga");
         rm.LoadTexture("BalloomSpritesheet.tga");
         rm.LoadTexture("OnealSpritesheet.tga");
+        rm.LoadTexture("MinvoSpritesheet.tga");
 
         // 3) Constants and grid dimensions
         const float tileSize = 16.f;
@@ -129,6 +131,32 @@ namespace dae {
                     cc.SetOffset(-spriteOffset, -spriteOffset);
                     cc.SetResponder(std::make_unique<DestructibleWallResponder>(brick.get()));
                     scene.Add(brick);
+                    break;
+                }
+                case 'M': { // Minvo enemy
+                    constexpr float spriteOffset = 8.f;
+                    auto enemyGO = std::make_shared<GameObject>();
+                    enemyGO->AddComponent<TransformComponent>()
+                        .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
+
+                    enemyGO->AddComponent<SpriteSheetComponent>()
+                        .SetSpriteSheet("MinvoSpritesheet.tga", 1, 7, 0, 0.2f);
+
+                    auto& mc = enemyGO->AddComponent<MinvoComponent>(
+                        25.f,     // fastest enemy
+                        0.6f,     // makes decisions very frequently
+                        144.f,    // large chase range (9 tiles)
+                        walkable, glm::ivec2(cols, rows),
+                        tileSize, uiOffsetY);
+
+                    auto& cc = enemyGO->AddComponent<CollisionComponent>();
+                    float collSize = tileSize * 0.8f;
+                    float baseOff = (tileSize - collSize) * 0.5f;
+                    cc.SetSize(collSize, collSize);
+                    cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
+                    cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&mc));
+
+                    scene.Add(enemyGO);
                     break;
                 }
                 case 'P': {

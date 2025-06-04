@@ -1,5 +1,6 @@
 #pragma once
 #include "CollisionResponder.h"
+#include <vec3.hpp>
 
 namespace dae {
     class GameObject;
@@ -16,6 +17,9 @@ namespace dae {
 
         // Called on any overlap: reverts movement or triggers crumble on blasts
         void OnCollide(GameObject* other) override;
+        void SpawnPowerUpAt(const glm::vec3& position);
+       
+
 
     private:
         GameObject* m_pOwner;
