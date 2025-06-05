@@ -22,7 +22,6 @@ namespace dae {
         m_pCollider = owner->GetComponent<CollisionComponent>();
     }
        
-
     void DestructibleWallResponder::OnCollide(GameObject* other)
     {
         if (m_Started) return;
@@ -48,7 +47,7 @@ namespace dae {
                 m_pSheet->SetLoop(false);
             }
 
-            // Hide sprite after delay
+            // Hide sprite after animation
             constexpr Uint32 hideDelayMs = 500;
             SDL_AddTimer(hideDelayMs,
                 [](Uint32, void* param)->Uint32 {
@@ -59,14 +58,14 @@ namespace dae {
                 },
                 m_pSheet);
 
-            // Disable collision
+            // Disable collision so players can walk through
             if (m_pCollider) {
                 m_pCollider->SetResponder(nullptr);
             }
         }
         else
         {
-            // normal blocking behavior
+            // Block movement
             if (auto* pc = other->GetComponent<PlayerComponent>()) {
                 pc->RevertMove();
                 return;

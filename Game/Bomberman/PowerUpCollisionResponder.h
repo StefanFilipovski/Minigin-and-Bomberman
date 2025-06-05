@@ -6,13 +6,13 @@ namespace dae {
 
     class PowerUpCollisionResponder : public CollisionResponder {
     public:
-        explicit PowerUpCollisionResponder(PowerUpComponent* powerUp)
-            : m_PowerUp(powerUp) {
-        }
+        explicit PowerUpCollisionResponder(PowerUpComponent* powerUp);
+        ~PowerUpCollisionResponder() override = default;
 
         void OnCollide(GameObject* other) override;
 
     private:
         PowerUpComponent* m_PowerUp;
+        bool m_Active{ true };
     };
 }

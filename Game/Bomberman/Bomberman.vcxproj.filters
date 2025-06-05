@@ -37,8 +37,6 @@
     <ClCompile Include="SpriteSheetComponent.cpp" />
     <ClCompile Include="StaticWallResponder.cpp" />
     <ClCompile Include="UpDownMoveComponent.cpp" />
-    <ClCompile Include="PowerUpFactory.cpp" />
-    <ClCompile Include="PowerUpSpawnQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -78,7 +76,5 @@
     <ClInclude Include="SpriteSheetComponent.h" />
     <ClInclude Include="StaticWallResponder.h" />
     <ClInclude Include="UpDownMoveComponent.h" />
-    <ClInclude Include="PowerUpFactory.h" />
-    <ClInclude Include="PowerUpSpawnQueue.h" />
   </ItemGroup>
 </Project>

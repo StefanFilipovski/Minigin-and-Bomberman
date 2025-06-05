@@ -49,7 +49,7 @@ namespace dae {
         // Power-up methods
         void IncreaseBombCapacity() { m_MaxActiveBombs++; }
         void EnableDetonator() { m_HasDetonator = true; }
-        void IncreaseBombRange() { m_BombRange++; }
+        void IncreaseBombRange() { ++m_BombRange; }
         int GetBombRange() const { return m_BombRange; }
         bool HasDetonator() const { return m_HasDetonator; }
 

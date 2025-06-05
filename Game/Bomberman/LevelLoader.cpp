@@ -123,22 +123,24 @@ namespace dae {
                 case 'B': {
                     constexpr float spriteOffset = 8.f;
 
-                    // First, randomly decide if this wall should have a power-up behind it
+                    // Random power-up generation
                     static std::random_device rd;
                     static std::mt19937 gen(rd());
                     static std::uniform_real_distribution<> chance(0.0, 1.0);
                     static std::uniform_int_distribution<> typeGen(0, 2);
 
-                    // 30% chance for a power-up
+                    // 30% chance for a power-up behind this wall
                     if (chance(gen) <= 0.3f) {
-                        // Create power-up FIRST (so it renders behind the wall)
+                        // Create power-up at grid position (no offset)
                         auto powerUp = std::make_shared<GameObject>();
                         powerUp->AddComponent<TransformComponent>()
-                            .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
+                            .SetLocalPosition(x, y, 0.f);
 
+                        // Determine power-up type
                         PowerUpType type = static_cast<PowerUpType>(typeGen(gen));
-                        auto& rc = powerUp->AddComponent<RenderComponent>();
 
+                        // Add render component
+                        auto& rc = powerUp->AddComponent<RenderComponent>();
                         switch (type) {
                         case PowerUpType::ExtraBomb:
                             rc.SetTexture("PowerUpBomb.tga");
@@ -151,16 +153,19 @@ namespace dae {
                             break;
                         }
 
+                        // Add power-up component
                         auto& puc = powerUp->AddComponent<PowerUpComponent>(type);
+
+                        // Add collision
                         auto& cc = powerUp->AddComponent<CollisionComponent>();
                         cc.SetSize(tileSize, tileSize);
-                        cc.SetOffset(-spriteOffset, -spriteOffset);
                         cc.SetResponder(std::make_unique<PowerUpCollisionResponder>(&puc));
 
+                        // Add to scene
                         scene.Add(powerUp);
                     }
 
-                    // Then create the wall on top
+                    // Create the destructible wall on top
                     auto brick = std::make_shared<GameObject>();
                     brick->AddComponent<TransformComponent>()
                         .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
@@ -172,7 +177,7 @@ namespace dae {
                     auto& cc = brick->AddComponent<CollisionComponent>();
                     cc.SetSize(tileSize, tileSize);
                     cc.SetOffset(-spriteOffset, -spriteOffset);
-                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(brick.get(), &scene));
+                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(brick.get(),&scene));
 
                     scene.Add(brick);
                     break;
@@ -328,4 +333,4 @@ namespace dae {
         }
     }
 
-} // namespace dae
+}; // namespace dae

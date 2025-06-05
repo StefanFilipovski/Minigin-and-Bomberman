@@ -2,6 +2,8 @@
 #include "PlayerComponent.h"
 #include "GameObject.h"
 #include "GameEvents.h"
+#include "RenderComponent.h"
+#include "TransformComponent.h"
 
 namespace dae {
     PowerUpComponent::PowerUpComponent(GameObject* owner, PowerUpType type)
@@ -9,8 +11,11 @@ namespace dae {
     {
     }
 
-    void PowerUpComponent::OnPickup(PlayerComponent* player)
+    void PowerUpComponent::Collect(PlayerComponent* player)
     {
+        if (m_IsCollected) return;
+        m_IsCollected = true;
+
         // Apply power-up to player
         switch (m_Type) {
         case PowerUpType::ExtraBomb:
@@ -28,7 +33,17 @@ namespace dae {
         Event powerUpEvent{ GameEvents::POWERUP_COLLECTED };
         Notify(powerUpEvent);
 
-        // Remove the power-up
-        GetOwner()->MarkForDeletion();
+        // Hide the visual
+        if (auto* renderer = GetOwner()->GetComponent<RenderComponent>()) {
+            renderer->SetScale(0.0f, 0.0f);
+        }
+
+        // Move off-screen as backup
+        if (auto* transform = &GetOwner()->GetTransform()) {
+            transform->SetLocalPosition(-1000.f, -1000.f, 0.f);
+        }
+
+        // Mark for cleanup
+       /* GetOwner()->MarkForDeletion();*/
     }
 }

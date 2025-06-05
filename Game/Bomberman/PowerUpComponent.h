@@ -13,9 +13,11 @@ namespace dae {
         ~PowerUpComponent() override = default;
 
         PowerUpType GetType() const { return m_Type; }
-        void OnPickup(PlayerComponent* player);
+        void Collect(PlayerComponent* player);
+        bool IsCollected() const { return m_IsCollected; }
 
     private:
         PowerUpType m_Type;
+        bool m_IsCollected{ false };
     };
 }
