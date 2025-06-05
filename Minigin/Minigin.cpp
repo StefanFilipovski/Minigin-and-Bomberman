@@ -14,6 +14,7 @@
 #include "CollisionManager.h"
 #include "Camera.h"
 
+
 SDL_Window* g_window{};
 
 void PrintSDLVersion()

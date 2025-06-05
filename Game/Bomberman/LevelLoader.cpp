@@ -26,9 +26,12 @@
 #include "BalloonComponent.h"
 #include "EnemyCollisionResponder.h" 
 #include "OnealComponent.h"
-#include "PlayerManager.h"  // Add this include
+#include "PlayerManager.h"  
 #include "DollComponent.h"
 #include "MinvoComponent.h"
+#include "PowerUpType.h"
+#include "PowerUpComponent.h"
+#include "PowerUpCollisionResponder.h"
 
 namespace dae {
 
@@ -60,6 +63,9 @@ namespace dae {
         rm.LoadTexture("BalloomSpritesheet.tga");
         rm.LoadTexture("OnealSpritesheet.tga");
         rm.LoadTexture("MinvoSpritesheet.tga");
+        rm.LoadTexture("PowerUpBomb.tga");
+        rm.LoadTexture("PowerUpDetonator.tga");
+        rm.LoadTexture("PowerUpFlame.tga");
 
         // 3) Constants and grid dimensions
         const float tileSize = 16.f;
@@ -116,20 +122,58 @@ namespace dae {
                 }
                 case 'B': {
                     constexpr float spriteOffset = 8.f;
+
+                    // First, randomly decide if this wall should have a power-up behind it
+                    static std::random_device rd;
+                    static std::mt19937 gen(rd());
+                    static std::uniform_real_distribution<> chance(0.0, 1.0);
+                    static std::uniform_int_distribution<> typeGen(0, 2);
+
+                    // 30% chance for a power-up
+                    if (chance(gen) <= 0.3f) {
+                        // Create power-up FIRST (so it renders behind the wall)
+                        auto powerUp = std::make_shared<GameObject>();
+                        powerUp->AddComponent<TransformComponent>()
+                            .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
+
+                        PowerUpType type = static_cast<PowerUpType>(typeGen(gen));
+                        auto& rc = powerUp->AddComponent<RenderComponent>();
+
+                        switch (type) {
+                        case PowerUpType::ExtraBomb:
+                            rc.SetTexture("PowerUpBomb.tga");
+                            break;
+                        case PowerUpType::Detonator:
+                            rc.SetTexture("PowerUpDetonator.tga");
+                            break;
+                        case PowerUpType::FlameRange:
+                            rc.SetTexture("PowerUpFlame.tga");
+                            break;
+                        }
+
+                        auto& puc = powerUp->AddComponent<PowerUpComponent>(type);
+                        auto& cc = powerUp->AddComponent<CollisionComponent>();
+                        cc.SetSize(tileSize, tileSize);
+                        cc.SetOffset(-spriteOffset, -spriteOffset);
+                        cc.SetResponder(std::make_unique<PowerUpCollisionResponder>(&puc));
+
+                        scene.Add(powerUp);
+                    }
+
+                    // Then create the wall on top
                     auto brick = std::make_shared<GameObject>();
                     brick->AddComponent<TransformComponent>()
-                        .SetLocalPosition(x + spriteOffset,
-                            y + spriteOffset,
-                            0.f);
+                        .SetLocalPosition(x + spriteOffset, y + spriteOffset, 0.f);
+
                     auto& sheet = brick->AddComponent<SpriteSheetComponent>();
                     sheet.SetSpriteSheet("BreakableWallSpritesheet.tga", 1, 7, 0, 0.1f);
-                    sheet.SetIdleFrame(
-                        SpriteSheetComponent::AnimationState::Idle,
-                        1, 7, 0, 0);
+                    sheet.SetIdleFrame(SpriteSheetComponent::AnimationState::Idle, 1, 7, 0, 0);
+
                     auto& cc = brick->AddComponent<CollisionComponent>();
                     cc.SetSize(tileSize, tileSize);
                     cc.SetOffset(-spriteOffset, -spriteOffset);
-                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(brick.get()));
+                    cc.SetResponder(std::make_unique<DestructibleWallResponder>(brick.get(), &scene));
+
                     scene.Add(brick);
                     break;
                 }

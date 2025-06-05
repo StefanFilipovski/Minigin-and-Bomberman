@@ -110,14 +110,20 @@ namespace dae
                 cursor += s_TileSize * dir;
                 SDL_Rect box{ int(cursor.x), int(cursor.y),
                               int(s_TileSize), int(s_TileSize) };
-
                 CollisionComponent* hit = nullptr;
                 for (auto* c : CollisionManager::GetInstance().GetComponents())
                 {
                     auto* resp = c->GetResponder();
+
+                    // Check if responder is null (destroyed wall)
+                    if (!resp) {
+                        continue;
+                    }
+
                     if (!dynamic_cast<StaticWallResponder*>(resp) &&
                         !dynamic_cast<DestructibleWallResponder*>(resp))
                         continue;
+
                     if (AABBIntersect(box, c->GetBoundingBox()))
                     {
                         hit = c;
@@ -125,10 +131,10 @@ namespace dae
                     }
                 }
 
-                if (hit && dynamic_cast<StaticWallResponder*>(hit->GetResponder()))
+                if (hit && hit->GetResponder() && dynamic_cast<StaticWallResponder*>(hit->GetResponder()))
                     break;
 
-                if (hit)
+                if (hit && hit->GetResponder())
                 {
                     if (auto* d = dynamic_cast<DestructibleWallResponder*>(hit->GetResponder()))
                         d->OnCollide(nullptr);
@@ -141,6 +147,7 @@ namespace dae
                 spawnBlastAt(cursor, seg);
             }
         }
+        
 
         TransitionTo(new BombHideState());
         CollisionManager::GetInstance().CheckCollisions();

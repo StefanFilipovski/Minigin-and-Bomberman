@@ -1,240 +1,84 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="AddPointsCommand.cpp" />
+    <ClCompile Include="BalloonComponent.cpp" />
+    <ClCompile Include="BaseEnemyComponent.cpp" />
+    <ClCompile Include="BlastResponder.cpp" />
+    <ClCompile Include="BombCommand.cpp" />
+    <ClCompile Include="BombComponent.cpp" />
+    <ClCompile Include="BombFuseState.cpp" />
+    <ClCompile Include="BombHideState.cpp" />
+    <ClCompile Include="CharacterMoveComponent.cpp" />
+    <ClCompile Include="DeathCommand.cpp" />
+    <ClCompile Include="DestructibleWallResponder.cpp" />
+    <ClCompile Include="DetonatorCommand.cpp" />
+    <ClCompile Include="DollComponent.cpp" />
+    <ClCompile Include="EnemyCollisionResponder.cpp" />
+    <ClCompile Include="FPSCounter.cpp" />
+    <ClCompile Include="GameActor.cpp" />
+    <ClCompile Include="GameActorCommand.cpp" />
+    <ClCompile Include="IBombState.cpp" />
+    <ClCompile Include="LambdaCommand.cpp" />
+    <ClCompile Include="LevelLoader.cpp" />
+    <ClCompile Include="LivesDisplay.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MinvoComponent.cpp" />
+    <ClCompile Include="MoveCommand.cpp" />
+    <ClCompile Include="MoveDirCommand.cpp" />
+    <ClCompile Include="OnealComponent.cpp" />
+    <ClCompile Include="PlayerComponent.cpp" />
+    <ClCompile Include="PlayerManager.cpp" />
+    <ClCompile Include="PointsDisplay.cpp" />
+    <ClCompile Include="PointsSubject.cpp" />
+    <ClCompile Include="PowerUpCollisionResponder.cpp" />
+    <ClCompile Include="PowerUpComponent.cpp" />
+    <ClCompile Include="ScoreComponent.cpp" />
+    <ClCompile Include="SpriteSheetComponent.cpp" />
+    <ClCompile Include="StaticWallResponder.cpp" />
+    <ClCompile Include="UpDownMoveComponent.cpp" />
+    <ClCompile Include="PowerUpFactory.cpp" />
+    <ClCompile Include="PowerUpSpawnQueue.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AddPointsCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CharacterMoveComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DeathCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FPSCounter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameActor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GameActorCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LivesDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MoveCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PointsDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PointsSubject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ScoreComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UpDownMoveComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteSheetComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LambdaCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="StaticWallResponder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LevelLoader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DestructibleWallResponder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BombComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BlastResponder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IBombState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BombFuseState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BombHideState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MoveDirCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BombCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BalloonComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EnemyCollisionResponder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseEnemyComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OnealComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DollComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MinvoComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PowerUpComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PowerUpCollisionResponder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DetonatorCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="AddPointsCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CharacterMoveComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DeathCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FPSCounter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameActor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameActorCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LivesDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MoveCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PointsDisplay.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PointsSubject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScoreComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UpDownMoveComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GameEvents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteSheetComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LambdaCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StaticWallResponder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LevelLoader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BombComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DestructibleWallResponder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BlastResponder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IBombState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BombFuseState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BombHideState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MoveDirCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BombCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BalloonComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EnemyCollisionResponder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseEnemyComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OnealComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DollComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MinvoComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUpType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUpComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerUpCollisionResponder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DetonatorCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClInclude Include="AddPointsCommand.h" />
+    <ClInclude Include="BalloonComponent.h" />
+    <ClInclude Include="BaseEnemyComponent.h" />
+    <ClInclude Include="BlastResponder.h" />
+    <ClInclude Include="BombCommand.h" />
+    <ClInclude Include="BombComponent.h" />
+    <ClInclude Include="BombFuseState.h" />
+    <ClInclude Include="BombHideState.h" />
+    <ClInclude Include="CharacterMoveComponent.h" />
+    <ClInclude Include="DeathCommand.h" />
+    <ClInclude Include="DestructibleWallResponder.h" />
+    <ClInclude Include="DetonatorCommand.h" />
+    <ClInclude Include="DollComponent.h" />
+    <ClInclude Include="EnemyCollisionResponder.h" />
+    <ClInclude Include="FPSCounter.h" />
+    <ClInclude Include="GameActor.h" />
+    <ClInclude Include="GameActorCommand.h" />
+    <ClInclude Include="GameEvents.h" />
+    <ClInclude Include="IBombState.h" />
+    <ClInclude Include="LambdaCommand.h" />
+    <ClInclude Include="LevelLoader.h" />
+    <ClInclude Include="LivesDisplay.h" />
+    <ClInclude Include="MinvoComponent.h" />
+    <ClInclude Include="MoveCommand.h" />
+    <ClInclude Include="MoveDirCommand.h" />
+    <ClInclude Include="OnealComponent.h" />
+    <ClInclude Include="PlayerComponent.h" />
+    <ClInclude Include="PlayerManager.h" />
+    <ClInclude Include="PointsDisplay.h" />
+    <ClInclude Include="PointsSubject.h" />
+    <ClInclude Include="PowerUpCollisionResponder.h" />
+    <ClInclude Include="PowerUpComponent.h" />
+    <ClInclude Include="PowerUpType.h" />
+    <ClInclude Include="ScoreComponent.h" />
+    <ClInclude Include="SpriteSheetComponent.h" />
+    <ClInclude Include="StaticWallResponder.h" />
+    <ClInclude Include="UpDownMoveComponent.h" />
+    <ClInclude Include="PowerUpFactory.h" />
+    <ClInclude Include="PowerUpSpawnQueue.h" />
   </ItemGroup>
 </Project>

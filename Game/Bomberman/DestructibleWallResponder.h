@@ -1,5 +1,6 @@
 #pragma once
 #include "CollisionResponder.h"
+#include "Scene.h"
 #include <vec3.hpp>
 
 namespace dae {
@@ -12,19 +13,20 @@ namespace dae {
     // A wall that blocks movement until destroyed by a blast
     class DestructibleWallResponder final : public CollisionResponder {
     public:
-        explicit DestructibleWallResponder(GameObject* owner);
+        explicit DestructibleWallResponder(GameObject* owner, Scene* scene);
         ~DestructibleWallResponder() override = default;
 
-        // Called on any overlap: reverts movement or triggers crumble on blasts
         void OnCollide(GameObject* other) override;
-        void SpawnPowerUpAt(const glm::vec3& position);
-       
-
+     
 
     private:
         GameObject* m_pOwner;
+        Scene* m_pScene;  // Store scene reference
         SpriteSheetComponent* m_pSheet{ nullptr };
         CollisionComponent* m_pCollider{ nullptr };
-        bool                    m_Started{ false };
+        bool m_Started{ false };
+
+        glm::vec3 m_SpawnPosition{};
+        bool m_ShouldSpawnPowerUp{ false };
     };
 }

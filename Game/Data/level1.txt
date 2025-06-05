@@ -7,7 +7,7 @@ W........................E..............................W
 W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W
 W.......................................................W
 W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W
-W......P.............D..................................W
-W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W
-W.......................................................W
+W......P.....BBBB....D..................................W
+W.W.W.W.W.W.WBW.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W.W
+W............B..........................................W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW

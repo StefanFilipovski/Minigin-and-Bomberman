@@ -187,6 +187,8 @@
     <ClCompile Include="PointsSubject.cpp" />
     <ClCompile Include="PowerUpCollisionResponder.cpp" />
     <ClCompile Include="PowerUpComponent.cpp" />
+    <ClCompile Include="PowerUpFactory.cpp" />
+    <ClCompile Include="PowerUpSpawnQueue.cpp" />
     <ClCompile Include="ScoreComponent.cpp" />
     <ClCompile Include="SpriteSheetComponent.cpp" />
     <ClCompile Include="StaticWallResponder.cpp" />
@@ -225,6 +227,8 @@
     <ClInclude Include="PointsSubject.h" />
     <ClInclude Include="PowerUpCollisionResponder.h" />
     <ClInclude Include="PowerUpComponent.h" />
+    <ClInclude Include="PowerUpFactory.h" />
+    <ClInclude Include="PowerUpSpawnQueue.h" />
     <ClInclude Include="PowerUpType.h" />
     <ClInclude Include="ScoreComponent.h" />
     <ClInclude Include="SpriteSheetComponent.h" />
