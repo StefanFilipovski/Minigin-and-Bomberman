@@ -31,7 +31,7 @@ namespace dae {
         void TransitionTo(IBombState* newState);
 
         bool IsExploded() const { return m_Exploded; }
-        void ForceExplode() { Explode(); } // For detonator
+        void ForceExplode();
 
     private:
         // allow these two state‐classes access to private members

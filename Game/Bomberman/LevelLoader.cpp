@@ -32,6 +32,7 @@
 #include "PowerUpType.h"
 #include "PowerUpComponent.h"
 #include "PowerUpCollisionResponder.h"
+#include "DetonatorCommand.h"
 
 namespace dae {
 
@@ -247,6 +248,10 @@ namespace dae {
                     input.BindCommand(
                         SDL_SCANCODE_X, KeyState::Down, InputDeviceType::Keyboard,
                         std::make_unique<BombCommand>(&pc, &scene), pid);
+                    // Add detonator command on C key
+                    input.BindCommand(
+                        SDL_SCANCODE_C, KeyState::Down, InputDeviceType::Keyboard,
+                        std::make_unique<DetonatorCommand>(&pc), pid);
                     break;
                 }
                 case 'O': { // Oneal enemy

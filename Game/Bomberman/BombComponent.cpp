@@ -50,6 +50,8 @@ namespace dae
         m_State.reset(newState);
     }
 
+  
+
     void BombComponent::Update(float dt)
     {
         if (m_State)
@@ -60,6 +62,10 @@ namespace dae
     {
         if (m_Exploded) return;
         m_Exploded = true;
+
+        if (m_pSprite) {
+            m_pSprite->Hide();
+        }
 
         // Notify observers that this bomb has exploded
         Event bombEvent{ GameEvents::BOMB_EXPLODED };
@@ -151,6 +157,13 @@ namespace dae
 
         TransitionTo(new BombHideState());
         CollisionManager::GetInstance().CheckCollisions();
+    }
+
+    void BombComponent::ForceExplode()
+    {
+        if (!m_Exploded) {
+            Explode();  // This should hide the sprite
+        }
     }
 
 }

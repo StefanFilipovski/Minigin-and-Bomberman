@@ -16,16 +16,23 @@ namespace dae {
         if (m_IsCollected) return;
         m_IsCollected = true;
 
+        std::cout << "Collecting power-up type: " << static_cast<int>(m_Type) << std::endl;
+
+
         // Apply power-up to player
         switch (m_Type) {
         case PowerUpType::ExtraBomb:
             player->IncreaseBombCapacity();
+            std::cout << "Increasing bomb capacity" << std::endl;
             break;
         case PowerUpType::Detonator:
             player->EnableDetonator();
+            std::cout << "Enabling detonator" << std::endl;
             break;
         case PowerUpType::FlameRange:
             player->IncreaseBombRange();
+            std::cout << "Increasing bomb range" << std::endl;
+
             break;
         }
 

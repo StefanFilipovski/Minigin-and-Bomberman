@@ -243,10 +243,19 @@ namespace dae {
             return;
         }
 
-        // Detonate the oldest bomb
-        BombComponent* oldestBomb = m_ActiveBombs.front();
-        if (oldestBomb && !oldestBomb->IsExploded()) {
-            oldestBomb->ForceExplode();
+        // Find the first bomb that hasn't exploded yet
+        BombComponent* bombToDetonate = nullptr;
+        for (auto* bomb : m_ActiveBombs) {
+            if (bomb && !bomb->IsExploded()) {
+                bombToDetonate = bomb;
+                break;
+            }
+        }
+
+        // Detonate outside the loop to avoid iterator issues
+        if (bombToDetonate) {
+            bombToDetonate->ForceExplode();
+            // Don't remove from vector here - let OnNotify handle it
         }
     }
 
@@ -257,14 +266,16 @@ namespace dae {
                 m_ActiveBombCount--;
             }
 
-            // Remove exploded bomb from tracking
-            // The bomb component pointer should be passed in the event
-            // For now, we'll clean up null/exploded bombs
-            m_ActiveBombs.erase(
-                std::remove_if(m_ActiveBombs.begin(), m_ActiveBombs.end(),
-                    [](BombComponent* bomb) { return !bomb || bomb->IsExploded(); }),
-                m_ActiveBombs.end()
-            );
+            // Create a new vector with only valid bombs
+            std::vector<BombComponent*> validBombs;
+            for (auto* bomb : m_ActiveBombs) {
+                if (bomb && !bomb->IsExploded()) {
+                    validBombs.push_back(bomb);
+                }
+            }
+
+            // Replace the old vector
+            m_ActiveBombs = std::move(validBombs);
         }
     }
 

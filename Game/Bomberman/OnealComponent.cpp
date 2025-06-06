@@ -19,7 +19,7 @@ namespace dae {
         , m_ChaseRange(chaseRange)
     {
         InitializeAnimation();
-        std::cout << "Oneal created with chase range: " << m_ChaseRange << std::endl;
+       
     }
 
     void OnealComponent::InitializeAnimation()
@@ -121,7 +121,7 @@ namespace dae {
         GameObject* targetPlayer = PlayerManager::GetInstance().GetClosestPlayer(myPos);
 
         if (!targetPlayer) {
-            std::cout << "No player found in PlayerManager!" << std::endl;
+           /* std::cout << "No player found in PlayerManager!" << std::endl;*/
             return false;
         }
 
@@ -130,8 +130,8 @@ namespace dae {
         auto playerPos = playerTransform->GetLocalPosition();
 
         // Debug output
-        std::cout << "Oneal at grid: " << myGridPos.x << ", " << myGridPos.y
-            << " world: " << myPos.x << ", " << myPos.y << std::endl;
+      /*  std::cout << "Oneal at grid: " << myGridPos.x << ", " << myGridPos.y
+            << " world: " << myPos.x << ", " << myPos.y << std::endl;*/
 
         // Convert player position to grid coordinates
         // Player has offset of 7.5, 5 added to its position (from LevelLoader)
@@ -140,15 +140,14 @@ namespace dae {
         int playerCol = static_cast<int>(playerLocalX / m_TileSize);
         int playerRow = static_cast<int>(playerLocalY / m_TileSize);
 
-        std::cout << "Player at grid: " << playerCol << ", " << playerRow
-            << " world: " << playerPos.x << ", " << playerPos.y << std::endl;
+       
 
         // Check if player is within chase range
         float dx = static_cast<float>(playerCol - myGridPos.x);
         float dy = static_cast<float>(playerRow - myGridPos.y);
         float distance = std::sqrt(dx * dx + dy * dy) * m_TileSize;
 
-        std::cout << "Distance to player: " << distance << " (chase range: " << m_ChaseRange << ")" << std::endl;
+        /*std::cout << "Distance to player: " << distance << " (chase range: " << m_ChaseRange << ")" << std::endl;*/
 
         if (distance > m_ChaseRange) {
             return false;
@@ -159,23 +158,23 @@ namespace dae {
             if (playerCol < myGridPos.x) { // Player is to the left
                 for (int c = myGridPos.x - 1; c >= playerCol; --c) {
                     if (!IsGridPositionWalkable(myGridPos.y, c)) {
-                        std::cout << "Path blocked at col " << c << std::endl;
+                        
                         return false;
                     }
                 }
                 outDirection = Direction::Left;
-                std::cout << "Player detected to the left!" << std::endl;
+               
                 return true;
             }
             else if (playerCol > myGridPos.x) { // Player is to the right
                 for (int c = myGridPos.x + 1; c <= playerCol; ++c) {
                     if (!IsGridPositionWalkable(myGridPos.y, c)) {
-                        std::cout << "Path blocked at col " << c << std::endl;
+                       
                         return false;
                     }
                 }
                 outDirection = Direction::Right;
-                std::cout << "Player detected to the right!" << std::endl;
+                
                 return true;
             }
         }
@@ -183,23 +182,23 @@ namespace dae {
             if (playerRow < myGridPos.y) { // Player is above
                 for (int r = myGridPos.y - 1; r >= playerRow; --r) {
                     if (!IsGridPositionWalkable(r, myGridPos.x)) {
-                        std::cout << "Path blocked at row " << r << std::endl;
+                     
                         return false;
                     }
                 }
                 outDirection = Direction::Up;
-                std::cout << "Player detected above!" << std::endl;
+              
                 return true;
             }
             else if (playerRow > myGridPos.y) { // Player is below
                 for (int r = myGridPos.y + 1; r <= playerRow; ++r) {
                     if (!IsGridPositionWalkable(r, myGridPos.x)) {
-                        std::cout << "Path blocked at row " << r << std::endl;
+                        
                         return false;
                     }
                 }
                 outDirection = Direction::Down;
-                std::cout << "Player detected below!" << std::endl;
+               
                 return true;
             }
         }

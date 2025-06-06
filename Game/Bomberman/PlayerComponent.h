@@ -47,14 +47,27 @@ namespace dae {
         int GetActiveBombCount() const { return m_ActiveBombCount; }
 
         // Power-up methods
-        void IncreaseBombCapacity() { m_MaxActiveBombs++; }
         void EnableDetonator() { m_HasDetonator = true; }
-        void IncreaseBombRange() { ++m_BombRange; }
         int GetBombRange() const { return m_BombRange; }
         bool HasDetonator() const { return m_HasDetonator; }
 
         // Detonator functionality
         void DetonateOldestBomb();
+
+        bool HasMaxBombs() const { return m_MaxActiveBombs >= 4; } // Set a reasonable max
+        bool HasMaxRange() const { return m_BombRange >= 2; } // Set a reasonable max
+
+        // Update the increase methods to check limits
+        void IncreaseBombCapacity() {
+            if (!HasMaxBombs()) {
+                m_MaxActiveBombs++;
+            }
+        }
+        void IncreaseBombRange() {
+            if (!HasMaxRange()) {
+                m_BombRange++;
+            }
+        }
 
     private:
         // Core loop
