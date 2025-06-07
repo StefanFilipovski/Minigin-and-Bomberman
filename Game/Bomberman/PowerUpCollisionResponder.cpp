@@ -31,7 +31,7 @@ namespace dae {
                 cc->SetResponder(nullptr);
             }
 
-            ServiceLocator::GetSoundSystem().Play(SOUND_POWERUP_PICKUP, 0.9f);
+            ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_POWERUP_PICKUP, 0.9f);
 
 
             // 4) (Optional) You can also hide the sprite or disable rendering here,

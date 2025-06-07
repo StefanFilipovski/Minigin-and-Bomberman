@@ -104,5 +104,10 @@ namespace dae {
         int m_BombRange{ 1 };
         std::vector<BombComponent*> m_ActiveBombs; // Track bombs for detonator
 
+        // Footstep timing
+        float m_FootstepTimer{ 0.0f };
+        float m_FootstepInterval{ 0.5f }; // Adjust this value to change speed
+        int m_FootstepChannel{ -1 };
+
     };
 }

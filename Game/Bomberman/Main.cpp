@@ -44,6 +44,7 @@
 #include "ServiceLocator.h"
 #include "SDLMixerSoundSystem.h"
 #include "LevelManager.h"
+#include "SoundIds.h"
 
 
 struct HitLogger : public dae::Observer {
@@ -84,14 +85,17 @@ int main(int, char* [])
 
         auto soundSystem = std::make_unique<SDLMixerSoundSystem>("../Data/");
         // Load all sound effects
-        soundSystem->Load(SOUND_PLAYER_HIT, "PlayerHit.wav");
-        soundSystem->Load(SOUND_BOMB_PLACE, "BombPlace.wav");
-        soundSystem->Load(SOUND_BOMB_EXPLODE, "BombExplode.wav");
-        soundSystem->Load(SOUND_WALL_DESTROY, "WallDestroy.wav");
-        soundSystem->Load(SOUND_ENEMY_DIE, "EnemyDie.wav");
-        soundSystem->Load(SOUND_POWERUP_PICKUP, "PowerUp.wav");
-        soundSystem->Load(SOUND_PLAYER_DIE, "PlayerDie.wav");
-        soundSystem->Load(SOUND_LEVEL_COMPLETE, "LevelComplete.wav");
+        soundSystem->Load(dae::SoundId::SOUND_PLAYER_HIT, "PlayerHit.wav");
+        soundSystem->Load(dae::SoundId::SOUND_BOMB_PLACE, "placebomb.wav");
+        soundSystem->Load(dae::SoundId::SOUND_BOMB_EXPLODE, "explode.wav");
+        soundSystem->Load(dae::SoundId::SOUND_WALL_DESTROY, "WallDestroy.wav");
+        soundSystem->Load(dae::SoundId::SOUND_ENEMY_DIE, "EnemyDie.wav");
+        soundSystem->Load(dae::SoundId::SOUND_POWERUP_PICKUP, "power.wav");
+        soundSystem->Load(dae::SoundId::SOUND_PLAYER_DIE, "PlayerDie.wav");
+        soundSystem->Load(dae::SoundId::SOUND_LEVEL_COMPLETE, "completedlevel.wav");
+        soundSystem->Load(dae::SoundId::SOUND_FOOTSTEPS, "bombermanwalk.wav");
+
+
 
         ServiceLocator::RegisterSoundSystem(std::move(soundSystem));
         engine.Run(load);

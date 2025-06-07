@@ -60,6 +60,20 @@ namespace dae {
                 m_Sprite->Hide();
             }
         }
+
+        if (!m_MovementDirs.empty()) {
+            m_FootstepTimer += dt;
+            if (m_FootstepTimer >= m_FootstepInterval) {
+                m_FootstepTimer = 0.0f;
+                // Play footstep sound once
+                ServiceLocator::GetSoundSystem().Play(
+                    dae::SoundId::SOUND_FOOTSTEPS, 0.5f
+                );
+            }
+        }
+        else {
+            m_FootstepTimer = 0.0f;
+        }
     }
 
     int PlayerComponent::GetHealth() const { return m_health; }
@@ -69,7 +83,7 @@ namespace dae {
         if (m_IsDead || m_IsInvulnerable) return;
         m_health -= dmg;
         std::cout << "Player took " << dmg << " damage, health now " << m_health << "\n";
-        ServiceLocator::GetSoundSystem().Play(SOUND_PLAYER_HIT, 1.0f);
+        ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_PLAYER_HIT, 1.0f);
         Notify({ GameEvents::PLAYER_HIT });
         if (m_health <= 0) {
             m_IsDead = true;
@@ -78,6 +92,11 @@ namespace dae {
                 SpriteSheetComponent::AnimationState::Death,
                 3, 6, 2, 0, 6, 0.15f, false
             );
+
+            if (m_FootstepChannel >= 0) {
+                ServiceLocator::GetSoundSystem().StopChannel(m_FootstepChannel);
+                m_FootstepChannel = -1;
+            }
         }
         else {
             m_IsInvulnerable = true;
@@ -156,12 +175,20 @@ namespace dae {
     void PlayerComponent::UpdateSpriteState()
     {
         if (m_MovementDirs.empty()) {
+            // Stop footsteps when not moving
+            if (m_FootstepChannel >= 0) {
+                ServiceLocator::GetSoundSystem().StopChannel(m_FootstepChannel);
+                m_FootstepChannel = -1;
+            }
+
             m_Sprite->SetIdleFrame(
                 SpriteSheetComponent::AnimationState::Idle,
                 3, 6, 0, 4
             );
             return;
         }
+            
+
         constexpr float FD = 0.15f;
         switch (m_MovementDirs.back()) {
         case Direction::Left:
@@ -237,7 +264,7 @@ namespace dae {
 
         scene.Add(bombGO);
 
-        ServiceLocator::GetSoundSystem().Play(SOUND_BOMB_PLACE, 0.8f);
+        ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_BOMB_PLACE, 0.8f);
 
     }
 

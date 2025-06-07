@@ -35,6 +35,7 @@
 #include "DetonatorCommand.h"
 #include "EnemyManager.h"
 #include "GameController.h"
+#include <ServiceLocator.h>
 
 namespace dae {
 
@@ -73,6 +74,7 @@ namespace dae {
         rm.LoadTexture("PowerUpDetonator.tga");
         rm.LoadTexture("PowerUpFlame.tga");
         rm.LoadTexture("Exit.tga");
+        ServiceLocator::GetSoundSystem().PlayMusic("Bomberman (NES) Music - Stage Theme.ogg", 0.7f);
 
 
         // 3) Constants and grid dimensions

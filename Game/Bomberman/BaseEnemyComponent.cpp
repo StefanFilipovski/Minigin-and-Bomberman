@@ -175,7 +175,7 @@ namespace dae {
         if (m_IsDead) return;
         m_IsDead = true;
 
-        ServiceLocator::GetSoundSystem().Play(SOUND_ENEMY_DIE, 0.6f);
+        ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_ENEMY_DIE, 0.6f);
 
         // Call derived class death animation
         PlayDeathAnimation();

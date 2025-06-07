@@ -49,7 +49,7 @@ namespace dae {
                 m_pSheet->SetLoop(false);
             }
 
-            ServiceLocator::GetSoundSystem().Play(SOUND_WALL_DESTROY, 0.7f);
+            ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_WALL_DESTROY, 0.7f);
 
             // Hide sprite after animation
             constexpr Uint32 hideDelayMs = 500;

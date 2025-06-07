@@ -14,7 +14,7 @@ namespace dae {
         if (other && other->GetComponent<PlayerComponent>()) {
             m_Triggered = true;
 
-            ServiceLocator::GetSoundSystem().Play(SOUND_LEVEL_COMPLETE, 1.0f);
+            ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_LEVEL_COMPLETE, 1.0f);
 
             // Queue the transition instead of doing it immediately
             LevelManager::GetInstance().QueueLevelTransition();

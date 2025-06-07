@@ -69,7 +69,7 @@ namespace dae
             m_pSprite->Hide();
         }
 
-        ServiceLocator::GetSoundSystem().Play(SOUND_BOMB_EXPLODE, 1.0f);
+        ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_BOMB_EXPLODE, 1.0f);
 
         // Notify observers that this bomb has exploded
         Event bombEvent{ GameEvents::BOMB_EXPLODED };
