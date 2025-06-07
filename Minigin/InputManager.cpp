@@ -34,6 +34,14 @@ void dae::InputManager::UnbindCommand(int key, KeyState state, InputDeviceType d
     }
 }
 
+void dae::InputManager::ClearAllBindings()
+{
+    m_PlayerBindings.clear();
+    m_Gamepads.clear();
+    m_PreviousGamepadState.clear();
+    m_GamepadEdgeTriggered.clear();
+}
+
 bool dae::InputManager::ProcessInput()
 {
     SDL_Event e;

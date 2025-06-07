@@ -37,6 +37,10 @@
     <ClCompile Include="SpriteSheetComponent.cpp" />
     <ClCompile Include="StaticWallResponder.cpp" />
     <ClCompile Include="UpDownMoveComponent.cpp" />
+    <ClCompile Include="EnemyManager.cpp" />
+    <ClCompile Include="ExitResponder.cpp" />
+    <ClCompile Include="LevelManager.cpp" />
+    <ClCompile Include="GameController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -76,5 +80,9 @@
     <ClInclude Include="SpriteSheetComponent.h" />
     <ClInclude Include="StaticWallResponder.h" />
     <ClInclude Include="UpDownMoveComponent.h" />
+    <ClInclude Include="EnemyManager.h" />
+    <ClInclude Include="ExitResponder.h" />
+    <ClInclude Include="LevelManager.h" />
+    <ClInclude Include="GameController.h" />
   </ItemGroup>
 </Project>

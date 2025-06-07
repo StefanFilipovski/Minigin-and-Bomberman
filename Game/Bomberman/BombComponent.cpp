@@ -18,6 +18,8 @@
 #include "Scene.h"
 #include <SDL.h>
 #include "BlastResponder.h"
+#include <SoundIds.h>
+#include <ServiceLocator.h>
 
 namespace dae
 {
@@ -66,6 +68,8 @@ namespace dae
         if (m_pSprite) {
             m_pSprite->Hide();
         }
+
+        ServiceLocator::GetSoundSystem().Play(SOUND_BOMB_EXPLODE, 1.0f);
 
         // Notify observers that this bomb has exploded
         Event bombEvent{ GameEvents::BOMB_EXPLODED };

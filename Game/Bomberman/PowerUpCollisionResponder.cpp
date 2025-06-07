@@ -3,6 +3,8 @@
 #include "PlayerComponent.h"
 #include "GameObject.h"
 #include <CollisionComponent.h>
+#include <SoundIds.h>
+#include <ServiceLocator.h>
 
 namespace dae {
     PowerUpCollisionResponder::PowerUpCollisionResponder(PowerUpComponent* powerUp)
@@ -28,6 +30,9 @@ namespace dae {
             {
                 cc->SetResponder(nullptr);
             }
+
+            ServiceLocator::GetSoundSystem().Play(SOUND_POWERUP_PICKUP, 0.9f);
+
 
             // 4) (Optional) You can also hide the sprite or disable rendering here,
             //    if Collect(...) doesn't already do that.

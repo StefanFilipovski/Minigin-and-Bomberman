@@ -10,5 +10,6 @@ namespace GameEvents {
     constexpr dae::EventID BOMB_EXPLODED = 0x04;
     constexpr dae::EventID ENEMY_DIED = 0x05;
     constexpr dae::EventID POWERUP_COLLECTED = 0x06;
+    constexpr dae::EventID LEVEL_COMPLETE = 0x07;
   
 }

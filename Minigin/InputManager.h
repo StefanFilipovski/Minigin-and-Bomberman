@@ -45,7 +45,7 @@ namespace dae
 
         
         void UnbindCommand(int key, KeyState state, InputDeviceType device, int player);
-
+        void ClearAllBindings();
         bool ProcessInput();
 
     private:

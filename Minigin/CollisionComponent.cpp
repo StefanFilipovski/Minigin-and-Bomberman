@@ -14,6 +14,11 @@ namespace dae {
         dae::CollisionManager::GetInstance().Register(this);
     }
 
+    CollisionComponent::~CollisionComponent()
+    {
+        CollisionManager::GetInstance().Unregister(this);
+    }
+
     void CollisionComponent::SetSize(float width, float height)
     {
         m_width = width;

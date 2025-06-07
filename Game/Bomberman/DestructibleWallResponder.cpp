@@ -10,6 +10,8 @@
 #include "PowerUpCollisionResponder.h"
 #include "PowerUpType.h"
 #include "Scene.h"
+#include <SoundIds.h>
+#include <ServiceLocator.h>
 
 
 
@@ -46,6 +48,8 @@ namespace dae {
                 m_pSheet->ChangeAnimationRow(1, 7, 0, 0.1f);
                 m_pSheet->SetLoop(false);
             }
+
+            ServiceLocator::GetSoundSystem().Play(SOUND_WALL_DESTROY, 0.7f);
 
             // Hide sprite after animation
             constexpr Uint32 hideDelayMs = 500;

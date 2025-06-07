@@ -13,6 +13,7 @@
 #include "DestructibleWallResponder.h"
 #include "CollisionComponent.h"
 #include "Scene.h"
+#include <SoundIds.h>
 namespace dae {
 
     PlayerComponent::PlayerComponent(GameObject* owner)
@@ -68,7 +69,7 @@ namespace dae {
         if (m_IsDead || m_IsInvulnerable) return;
         m_health -= dmg;
         std::cout << "Player took " << dmg << " damage, health now " << m_health << "\n";
-        ServiceLocator::GetSoundSystem().Play(0, 1.0f);
+        ServiceLocator::GetSoundSystem().Play(SOUND_PLAYER_HIT, 1.0f);
         Notify({ GameEvents::PLAYER_HIT });
         if (m_health <= 0) {
             m_IsDead = true;
@@ -235,6 +236,9 @@ namespace dae {
         m_ActiveBombCount++;
 
         scene.Add(bombGO);
+
+        ServiceLocator::GetSoundSystem().Play(SOUND_BOMB_PLACE, 0.8f);
+
     }
 
     void PlayerComponent::DetonateOldestBomb()

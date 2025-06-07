@@ -70,7 +70,10 @@ namespace dae {
         }
     }
 
-
+    void CollisionManager::Clear()
+    {
+        m_collisionComponents.clear();
+    }
 
 
 } // namespace dae

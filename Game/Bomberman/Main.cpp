@@ -43,6 +43,7 @@
 #include "Camera.h"
 #include "ServiceLocator.h"
 #include "SDLMixerSoundSystem.h"
+#include "LevelManager.h"
 
 
 struct HitLogger : public dae::Observer {
@@ -57,15 +58,21 @@ struct HitLogger : public dae::Observer {
 void load()
 {
 
-    dae::LevelLoader loader;
+  /*  dae::LevelLoader loader;*/
     // Adjust the relative path to where your level file is located.
-    loader.LoadLevel("../Data/level1.txt", "Level 1");
+    /*loader.LoadLevel("../Data/level1.txt", "Level 1");*/
 
     ////test damage keys
     //input.BindCommand(SDL_SCANCODE_H, KeyState::Down, InputDeviceType::Keyboard,
     //    std::make_unique<dae::LambdaCommand>([&pc]() { pc.TakeDamage(1); }), 1);
     //input.BindCommand(SDL_SCANCODE_D, KeyState::Down, InputDeviceType::Keyboard,
     //    std::make_unique<dae::LambdaCommand>([&pc]() { pc.TakeDamage(pc.GetHealth()); }), 1);
+
+    dae::LevelManager::GetInstance().Initialize();
+
+    // Load first level
+    dae::LevelManager::GetInstance().LoadLevel(0);
+  
 }
 
 
@@ -74,8 +81,19 @@ int main(int, char* [])
 {
     try {
         dae::Minigin engine("../Data/");
-        ServiceLocator::RegisterSoundSystem(
-            std::make_unique<SDLMixerSoundSystem>("../Data/"));
+
+        auto soundSystem = std::make_unique<SDLMixerSoundSystem>("../Data/");
+        // Load all sound effects
+        soundSystem->Load(SOUND_PLAYER_HIT, "PlayerHit.wav");
+        soundSystem->Load(SOUND_BOMB_PLACE, "BombPlace.wav");
+        soundSystem->Load(SOUND_BOMB_EXPLODE, "BombExplode.wav");
+        soundSystem->Load(SOUND_WALL_DESTROY, "WallDestroy.wav");
+        soundSystem->Load(SOUND_ENEMY_DIE, "EnemyDie.wav");
+        soundSystem->Load(SOUND_POWERUP_PICKUP, "PowerUp.wav");
+        soundSystem->Load(SOUND_PLAYER_DIE, "PlayerDie.wav");
+        soundSystem->Load(SOUND_LEVEL_COMPLETE, "LevelComplete.wav");
+
+        ServiceLocator::RegisterSoundSystem(std::move(soundSystem));
         engine.Run(load);
     }
     catch (const std::exception& ex) {

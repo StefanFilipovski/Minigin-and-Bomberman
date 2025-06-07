@@ -4,6 +4,8 @@
 #include <cassert>
 #include <cmath>
 #include <CollisionComponent.h>
+#include <ServiceLocator.h>
+#include <SoundIds.h>
 
 namespace dae {
 
@@ -172,6 +174,8 @@ namespace dae {
     {
         if (m_IsDead) return;
         m_IsDead = true;
+
+        ServiceLocator::GetSoundSystem().Play(SOUND_ENEMY_DIE, 0.6f);
 
         // Call derived class death animation
         PlayDeathAnimation();

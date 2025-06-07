@@ -1,6 +1,5 @@
 ﻿#include "Scene.h"
 #include "GameObject.h"
-
 #include <algorithm>
 
 using namespace dae;
@@ -37,6 +36,7 @@ void Scene::Update(float deltaTime)
 			}),
 		m_objects.end()
 	);
+
 }
 
 void Scene::Render() const

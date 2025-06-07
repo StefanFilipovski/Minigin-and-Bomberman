@@ -20,6 +20,8 @@ namespace dae
 		void SetActiveScene(Scene* scene);
 		Scene* GetActiveScene() const { return m_ActiveScene; }
 		Scene* GetScene(const std::string& name) const;
+		void RemoveScene(const std::string& name);
+
 
 	private:
 		friend class Singleton<SceneManager>;

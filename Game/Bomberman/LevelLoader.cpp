@@ -33,6 +33,8 @@
 #include "PowerUpComponent.h"
 #include "PowerUpCollisionResponder.h"
 #include "DetonatorCommand.h"
+#include "EnemyManager.h"
+#include "GameController.h"
 
 namespace dae {
 
@@ -52,6 +54,9 @@ namespace dae {
         }
         file.close();
 
+
+
+
         // 2) Preload textures
         auto& rm = ResourceManager::GetInstance();
         rm.LoadTexture("MetalBackground.tga");
@@ -67,6 +72,8 @@ namespace dae {
         rm.LoadTexture("PowerUpBomb.tga");
         rm.LoadTexture("PowerUpDetonator.tga");
         rm.LoadTexture("PowerUpFlame.tga");
+        rm.LoadTexture("Exit.tga");
+
 
         // 3) Constants and grid dimensions
         const float tileSize = 16.f;
@@ -86,6 +93,13 @@ namespace dae {
 
         // 5) Create or clear scene
         auto& scene = SceneManager::GetInstance().CreateScene(sceneName);
+
+        EnemyManager::GetInstance().SetCurrentScene(&scene);
+
+        // Add game controller object
+        auto gameController = std::make_shared<GameObject>();
+        gameController->AddComponent<GameController>();
+        scene.Add(gameController);
 
         // 6) Add UI & background
         {
@@ -157,9 +171,17 @@ namespace dae {
                         // Add power-up component
                         auto& puc = powerUp->AddComponent<PowerUpComponent>(type);
 
-                        // Add collision
+                        // Add collision - MAKE IT SMALLER
                         auto& cc = powerUp->AddComponent<CollisionComponent>();
-                        cc.SetSize(tileSize, tileSize);
+
+                        // Make the collision box smaller than the tile
+                        float powerUpCollisionSize = tileSize * 0.6f; // 60% of tile size
+                        cc.SetSize(powerUpCollisionSize, powerUpCollisionSize);
+
+                        // Center the collision box
+                        float collisionOffset = (tileSize - powerUpCollisionSize) * 0.5f;
+                        cc.SetOffset(collisionOffset, collisionOffset);
+
                         cc.SetResponder(std::make_unique<PowerUpCollisionResponder>(&puc));
 
                         // Add to scene
@@ -198,6 +220,7 @@ namespace dae {
                         144.f,    // large chase range (9 tiles)
                         walkable, glm::ivec2(cols, rows),
                         tileSize, uiOffsetY);
+                    EnemyManager::GetInstance().RegisterEnemy(&mc);
 
                     auto& cc = enemyGO->AddComponent<CollisionComponent>();
                     float collSize = tileSize * 0.8f;
@@ -205,6 +228,7 @@ namespace dae {
                     cc.SetSize(collSize, collSize);
                     cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
                     cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&mc));
+
 
                     scene.Add(enemyGO);
                     break;
@@ -269,6 +293,7 @@ namespace dae {
                         100.f,     // chase range in world units
                         walkable, glm::ivec2(cols, rows),
                         tileSize, uiOffsetY);
+                    EnemyManager::GetInstance().RegisterEnemy(&oc);
 
                     // No need to set player target anymore - OnealComponent uses PlayerManager
 
@@ -296,6 +321,8 @@ namespace dae {
                         0.9f,     // slightly faster decision making than balloon
                         walkable, glm::ivec2(cols, rows),
                         tileSize, uiOffsetY);
+                    EnemyManager::GetInstance().RegisterEnemy(&dc);
+
 
                     auto& cc = enemyGO->AddComponent<CollisionComponent>();
                     float collSize = tileSize * 0.8f;
@@ -322,6 +349,7 @@ namespace dae {
                         tileSize, uiOffsetY);
 
                     auto& cc = enemyGO->AddComponent<CollisionComponent>();
+                    EnemyManager::GetInstance().RegisterEnemy(&bc);
                     float collSize = tileSize * 0.8f;
                     float baseOff = (tileSize - collSize) * 0.5f;
                     cc.SetSize(collSize, collSize);

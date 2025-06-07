@@ -17,6 +17,7 @@ namespace dae {
         void Unregister(CollisionComponent* comp);
         // Check collisions among all registered components.
         void CheckCollisions();
+        void Clear();
 
         void DebugDraw(SDL_Renderer* renderer) const;
 

@@ -12,7 +12,7 @@ namespace dae {
     class CollisionComponent : public Component {
     public:
         explicit CollisionComponent(GameObject* owner);
-        virtual ~CollisionComponent() = default;
+        virtual ~CollisionComponent();
 
         void SetSize(float width, float height);
         void SetOffset(float offsetX, float offsetY);
