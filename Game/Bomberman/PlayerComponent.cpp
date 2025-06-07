@@ -274,19 +274,21 @@ namespace dae {
             return;
         }
 
-        // Find the first bomb that hasn't exploded yet
-        BombComponent* bombToDetonate = nullptr;
-        for (auto* bomb : m_ActiveBombs) {
-            if (bomb && !bomb->IsExploded()) {
-                bombToDetonate = bomb;
-                break;
-            }
-        }
+        // Clean up any null or deleted bombs first
+        m_ActiveBombs.erase(
+            std::remove_if(m_ActiveBombs.begin(), m_ActiveBombs.end(),
+                [](BombComponent* bomb) {
+                    return !bomb || bomb->IsMarkedForDeletion() || bomb->IsExploded();
+                }),
+            m_ActiveBombs.end()
+        );
 
-        // Detonate outside the loop to avoid iterator issues
-        if (bombToDetonate) {
-            bombToDetonate->ForceExplode();
-            // Don't remove from vector here - let OnNotify handle it
+        // Find and detonate the first valid bomb
+        for (auto* bomb : m_ActiveBombs) {
+            if (bomb && !bomb->IsExploded() && !bomb->IsMarkedForDeletion()) {
+                bomb->ForceExplode();
+                break;  // Only detonate one bomb
+            }
         }
     }
 
@@ -305,8 +307,14 @@ namespace dae {
                 }
             }
 
-            // Replace the old vector
-            m_ActiveBombs = std::move(validBombs);
+            m_ActiveBombs.erase(
+                std::remove_if(m_ActiveBombs.begin(), m_ActiveBombs.end(),
+                    [](BombComponent* bomb) {
+                        return !bomb || bomb->IsMarkedForDeletion() || bomb->IsExploded();
+                    }),
+                m_ActiveBombs.end()
+            );
+        
         }
     }
 

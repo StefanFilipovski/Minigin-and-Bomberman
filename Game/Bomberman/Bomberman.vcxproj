@@ -184,6 +184,7 @@
     <ClCompile Include="MinvoComponent.cpp" />
     <ClCompile Include="MoveCommand.cpp" />
     <ClCompile Include="MoveDirCommand.cpp" />
+    <ClCompile Include="MuteCommand.cpp" />
     <ClCompile Include="OnealComponent.cpp" />
     <ClCompile Include="PlayerComponent.cpp" />
     <ClCompile Include="PlayerManager.cpp" />
@@ -226,6 +227,7 @@
     <ClInclude Include="MinvoComponent.h" />
     <ClInclude Include="MoveCommand.h" />
     <ClInclude Include="MoveDirCommand.h" />
+    <ClInclude Include="MuteCommand.h" />
     <ClInclude Include="OnealComponent.h" />
     <ClInclude Include="PlayerComponent.h" />
     <ClInclude Include="PlayerManager.h" />

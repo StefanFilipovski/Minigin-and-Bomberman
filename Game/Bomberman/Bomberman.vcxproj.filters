@@ -41,6 +41,7 @@
     <ClCompile Include="ExitResponder.cpp" />
     <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="MuteCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -84,5 +85,6 @@
     <ClInclude Include="ExitResponder.h" />
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="GameController.h" />
+    <ClInclude Include="MuteCommand.h" />
   </ItemGroup>
 </Project>

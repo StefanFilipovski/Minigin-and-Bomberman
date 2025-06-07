@@ -35,7 +35,8 @@
 #include "DetonatorCommand.h"
 #include "EnemyManager.h"
 #include "GameController.h"
-#include <ServiceLocator.h>
+#include "ServiceLocator.h"
+#include "MuteCommand.h"
 
 namespace dae {
 
@@ -74,7 +75,7 @@ namespace dae {
         rm.LoadTexture("PowerUpDetonator.tga");
         rm.LoadTexture("PowerUpFlame.tga");
         rm.LoadTexture("Exit.tga");
-        ServiceLocator::GetSoundSystem().PlayMusic("Bomberman (NES) Music - Stage Theme.ogg", 0.7f);
+       
 
 
         // 3) Constants and grid dimensions
@@ -97,6 +98,9 @@ namespace dae {
         auto& scene = SceneManager::GetInstance().CreateScene(sceneName);
 
         EnemyManager::GetInstance().SetCurrentScene(&scene);
+
+        ServiceLocator::GetSoundSystem().PlayMusic("Bomberman (NES) Music - Stage Theme.ogg", 0.7f);
+
 
         // Add game controller object
         auto gameController = std::make_shared<GameObject>();
@@ -261,6 +265,8 @@ namespace dae {
                     scene.Add(playerGO);
                     Camera::GetInstance().SetTarget(playerGO);
                     auto& input = InputManager::GetInstance();
+                    input.BindCommand(SDL_SCANCODE_F2, KeyState::Down, InputDeviceType::Keyboard,
+                        std::make_unique<dae::MuteCommand>(), -1);
                     auto bindKey = [&](SDL_Scancode k, PlayerComponent::Direction d) {
                         input.BindCommand(k, KeyState::Down, InputDeviceType::Keyboard,
                             std::make_unique<MoveDirCommand>(&pc, d, true), pid);

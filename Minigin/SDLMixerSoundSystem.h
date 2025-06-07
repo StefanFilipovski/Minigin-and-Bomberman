@@ -17,6 +17,10 @@ public:
     void ResumeMusic() override;
     void StopMusic() override;
     void SetMusicVolume(float volume) override;
+
+    // Mute functions
+    void ToggleMute() override;
+    bool IsMuted() const override;
 private:
     struct Impl;
     Impl* pImpl;

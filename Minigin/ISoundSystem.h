@@ -14,4 +14,8 @@ struct ISoundSystem {
 	virtual void ResumeMusic() = 0;
 	virtual void StopMusic() = 0;
 	virtual void SetMusicVolume(float volume) = 0;
+
+	// Mute functions
+	virtual void ToggleMute() = 0;
+	virtual bool IsMuted() const = 0;
 };

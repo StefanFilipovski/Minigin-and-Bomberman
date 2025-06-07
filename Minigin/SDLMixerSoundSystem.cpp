@@ -25,6 +25,10 @@ struct SDLMixerSoundSystem::Impl {
     std::queue<PlayRequest>  requests;
     std::queue<int>          stopRequests;
     Mix_Music* currentMusic{ nullptr };
+    bool isMuted{ false };
+    float previousMusicVolume{ 1.0f };
+    float previousEffectVolume{ 1.0f };
+    float savedMusicVolume{ 1.0f };
 
     Impl(const std::string& dp)
         : dataPath(dp)
@@ -113,7 +117,9 @@ struct SDLMixerSoundSystem::Impl {
 
                 // Check if sound is loaded
                 if (req.id < clips.size() && clips[req.id]) {
-                    Mix_VolumeChunk(clips[req.id], int(req.volume * MIX_MAX_VOLUME));
+                    // Apply mute state here
+                    float finalVolume = isMuted ? 0.0f : req.volume;
+                    Mix_VolumeChunk(clips[req.id], int(finalVolume * MIX_MAX_VOLUME));
                     int channel = Mix_PlayChannel(-1, clips[req.id], req.loop ? -1 : 0);
                     if (req.channelOut) {
                         *req.channelOut = channel;
@@ -138,7 +144,8 @@ void SDLMixerSoundSystem::Play(sound_id id, float volume) {
     if (id >= pImpl->clips.size() || pImpl->clips[id] == nullptr) {
         return;
     }
-    pImpl->EnqueuePlay(id, volume, false, nullptr);
+    float actualVolume = pImpl->isMuted ? 0.0f : volume;
+    pImpl->EnqueuePlay(id, actualVolume, false, nullptr);
 }
 
 int SDLMixerSoundSystem::PlayLoop(sound_id id, float volume) {
@@ -146,11 +153,10 @@ int SDLMixerSoundSystem::PlayLoop(sound_id id, float volume) {
         return -1;
     }
 
-    // We need to wait for the channel to be assigned
+    float actualVolume = pImpl->isMuted ? 0.0f : volume;
     int channel = -1;
-    pImpl->EnqueuePlay(id, volume, true, &channel);
+    pImpl->EnqueuePlay(id, actualVolume, true, &channel);
 
-    // Give the worker thread time to process
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     return channel;
@@ -185,6 +191,10 @@ void SDLMixerSoundSystem::PlayMusic(const std::string& filename, float volume) {
 
     Mix_VolumeMusic(int(volume * MIX_MAX_VOLUME));
     Mix_PlayMusic(pImpl->currentMusic, -1); // -1 for infinite loop
+
+    float actualVolume = pImpl->isMuted ? 0.0f : volume;
+    Mix_VolumeMusic(int(actualVolume * MIX_MAX_VOLUME));
+    Mix_PlayMusic(pImpl->currentMusic, -1);
 }
 
 void SDLMixerSoundSystem::PauseMusic() {
@@ -205,4 +215,25 @@ void SDLMixerSoundSystem::StopMusic() {
 
 void SDLMixerSoundSystem::SetMusicVolume(float volume) {
     Mix_VolumeMusic(int(volume * MIX_MAX_VOLUME));
+}
+
+void SDLMixerSoundSystem::ToggleMute() {
+    pImpl->isMuted = !pImpl->isMuted;
+
+    if (pImpl->isMuted) {
+        // Mute music
+        pImpl->savedMusicVolume = Mix_VolumeMusic(-1) / static_cast<float>(MIX_MAX_VOLUME);
+        Mix_VolumeMusic(0);
+
+        // Don't change channel volumes here - we'll handle it in Play/PlayLoop
+    }
+    else {
+        // Unmute music
+        Mix_VolumeMusic(static_cast<int>(pImpl->savedMusicVolume * MIX_MAX_VOLUME));
+
+        // New sounds will play at normal volume automatically
+    }
+}
+bool SDLMixerSoundSystem::IsMuted() const {
+    return pImpl->isMuted;
 }
