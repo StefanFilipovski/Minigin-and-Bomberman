@@ -52,49 +52,50 @@ namespace dae
         m_State.reset(newState);
     }
 
-  
-
     void BombComponent::Update(float dt)
     {
+        if (m_MarkedForCleanup) return;  // Skip updates if marked for cleanup
+
         if (m_State)
             m_State->Update(*this, dt);
     }
 
     void BombComponent::Explode()
     {
-        if (m_Exploded) return;
+        // Prevent multiple explosions
+        if (m_Exploded || m_MarkedForCleanup) return;
         m_Exploded = true;
 
+        // Hide sprite immediately
         if (m_pSprite) {
             m_pSprite->Hide();
         }
 
+        // Disable our collision immediately
+        if (auto* cc = GetOwner()->GetComponent<CollisionComponent>()) {
+            cc->SetSize(0, 0);  // Make it 0 size
+            cc->SetResponder(nullptr);
+        }
+
         ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_BOMB_EXPLODE, 1.0f);
 
-        // Notify observers that this bomb has exploded
-        Event bombEvent{ GameEvents::BOMB_EXPLODED };
-        Notify(bombEvent);
-
-        // 0) undo the visual offset you applied at placement
-        constexpr float bombVisOffsetX = 8.f;  // must match your placement
+        // Calculate explosion center
+        constexpr float bombVisOffsetX = 8.f;
         constexpr float bombVisOffsetY = 8.f;
-
-        // 1) read the world‐position (currently includes visual offset)
         auto world3 = GetOwner()->GetTransform().GetWorldPosition();
-        // 2) subtract it to get back to grid‐space
         world3.x -= bombVisOffsetX;
         world3.y -= bombVisOffsetY;
 
-        // 3) compute the grid‐aligned center
         glm::vec2 center{
-          std::floor(world3.x / s_TileSize + 0.5f) * s_TileSize,
-          std::floor(world3.y / s_TileSize + 0.5f) * s_TileSize
+            std::floor(world3.x / s_TileSize + 0.5f) * s_TileSize,
+            std::floor(world3.y / s_TileSize + 0.5f) * s_TileSize
         };
 
-        // … the rest of your existing code stays exactly the same …
+        // Clear any existing blasts
         m_Blasts.clear();
         m_Blasts.reserve(1 + 4 * m_Range);
 
+        // Lambda to spawn blast
         auto spawnBlastAt = [&](const glm::vec2& pos, BlastResponder::Segment seg) {
             auto blast = std::make_shared<GameObject>();
             blast->AddComponent<TransformComponent>()
@@ -106,11 +107,12 @@ namespace dae
             cc.SetResponder(std::make_unique<BlastResponder>(seg));
             m_pScene->Add(blast);
             m_Blasts.push_back(blast);
-            return blast;
             };
 
+        // Spawn center blast
         spawnBlastAt(center, BlastResponder::Segment::Center);
 
+        // Spawn directional blasts
         constexpr glm::vec2 dirs[4] = { {1,0},{-1,0},{0,1},{0,-1} };
         for (auto dir : dirs)
         {
@@ -120,15 +122,18 @@ namespace dae
                 cursor += s_TileSize * dir;
                 SDL_Rect box{ int(cursor.x), int(cursor.y),
                               int(s_TileSize), int(s_TileSize) };
-                CollisionComponent* hit = nullptr;
-                for (auto* c : CollisionManager::GetInstance().GetComponents())
-                {
-                    auto* resp = c->GetResponder();
 
-                    // Check if responder is null (destroyed wall)
-                    if (!resp) {
-                        continue;
-                    }
+                CollisionComponent* hit = nullptr;
+
+                // Make a copy of components to avoid iterator issues
+                auto components = CollisionManager::GetInstance().GetComponents();
+
+                for (auto* c : components)
+                {
+                    if (!c) continue;
+
+                    auto* resp = c->GetResponder();
+                    if (!resp) continue;
 
                     if (!dynamic_cast<StaticWallResponder*>(resp) &&
                         !dynamic_cast<DestructibleWallResponder*>(resp))
@@ -151,23 +156,27 @@ namespace dae
                     break;
                 }
 
-                auto seg = (i == m_Range
-                    ? BlastResponder::Segment::End
-                    : BlastResponder::Segment::Middle);
+                auto seg = (i == m_Range ? BlastResponder::Segment::End : BlastResponder::Segment::Middle);
                 spawnBlastAt(cursor, seg);
             }
         }
-        
 
+        // Transition to hide state
         TransitionTo(new BombHideState());
-        CollisionManager::GetInstance().CheckCollisions();
+
+        // Notify AFTER everything is set up
+        Event bombEvent{ GameEvents::BOMB_EXPLODED };
+        Notify(bombEvent);
+
+        // Schedule collision check for next frame
+        // Don't do it immediately to avoid issues
     }
 
     void BombComponent::ForceExplode()
     {
-        if (!m_Exploded) {
-            Explode();  // This should hide the sprite
+        if (!m_Exploded && m_State) {
+            // Transition directly to explosion
+            Explode();
         }
     }
-
 }

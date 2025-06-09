@@ -14,6 +14,7 @@ namespace dae {
             std::move(grid), gridSize, tileSize, gridOffsetY)
         , m_DirDist(0, 3)
     {
+        
         InitializeAnimation();
     }
 

@@ -37,6 +37,9 @@
 #include "GameController.h"
 #include "ServiceLocator.h"
 #include "MuteCommand.h"
+#include "ScoreComponent.h"
+#include "GameOverManager.h"
+#include "ScoreManager.h"
 
 namespace dae {
 
@@ -120,6 +123,15 @@ namespace dae {
             grassBg->AddComponent<RenderComponent>().SetTexture("GrassBackground.tga");
             scene.Add(grassBg);
         }
+
+        
+        auto scoreGO = std::make_shared<GameObject>();
+        scoreGO->AddComponent<TransformComponent>().SetLocalPosition(10.f, 10.f, 0.f);
+        auto& scoreComp = scoreGO->AddComponent<ScoreComponent>();
+        scoreComp.Initialize();
+
+        scene.Add(scoreGO);
+        
 
         //static ScoreObserver scoreObserver; // tracks kills & score
 
@@ -234,10 +246,11 @@ namespace dae {
                     cc.SetSize(collSize, collSize);
                     cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
                     cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&mc));
-
+                    mc.AddObserver(&ScoreManager::GetInstance());
 
                     scene.Add(enemyGO);
                     break;
+
                 }
                 case 'P': {
                     constexpr float pxOff = 7.5f, pyOff = 5.f;
@@ -311,6 +324,7 @@ namespace dae {
                     cc.SetSize(collSize, collSize);
                     cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
                     cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&oc));
+                    oc.AddObserver(&ScoreManager::GetInstance());
 
                     scene.Add(enemyGO);
                     break;
@@ -338,6 +352,7 @@ namespace dae {
                     cc.SetSize(collSize, collSize);
                     cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
                     cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&dc));
+                    dc.AddObserver(&ScoreManager::GetInstance());
 
                     scene.Add(enemyGO);
                     break;
@@ -363,6 +378,7 @@ namespace dae {
                     cc.SetSize(collSize, collSize);
                     cc.SetOffset(-spriteOffset + baseOff, -spriteOffset + baseOff);
                     cc.SetResponder(std::make_unique<EnemyCollisionResponder>(&bc));
+                    bc.AddObserver(&ScoreManager::GetInstance());
 
                     scene.Add(enemyGO);
                     break;

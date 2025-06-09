@@ -33,6 +33,9 @@ namespace dae {
         bool IsExploded() const { return m_Exploded; }
         void ForceExplode();
 
+        void MarkForCleanup() { m_MarkedForCleanup = true; }
+        bool IsMarkedForCleanup() const { return m_MarkedForCleanup; }
+
     private:
         // allow these two state‐classes access to private members
         friend struct BombFuseState;
@@ -48,8 +51,11 @@ namespace dae {
         // --- runtime timers & flags ---
         float                              m_Timer{ 0.f };
         bool                               m_Exploded{ false };
+        bool                               m_IsExploding{ false }; // Add this to prevent double explosion
         bool                               m_HidePending{ false };
         float                              m_HideTimer{ 0.f };
+        bool                               m_MarkedForCleanup{ false };
+
         // --- blast storage & rendering ---
         std::vector<std::shared_ptr<GameObject>> m_Blasts;
         SpriteSheetComponent* m_pSprite{ nullptr };

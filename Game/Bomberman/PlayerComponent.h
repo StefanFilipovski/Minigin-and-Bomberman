@@ -98,6 +98,7 @@ namespace dae {
         // Bomb management
         int m_MaxActiveBombs{ 1 };
         int m_ActiveBombCount{ 0 };
+        bool m_NeedsBombCleanup{ false };
 
         // Power-up states
         bool m_HasDetonator{ false };
@@ -108,6 +109,5 @@ namespace dae {
         float m_FootstepTimer{ 0.0f };
         float m_FootstepInterval{ 0.5f }; // Adjust this value to change speed
         int m_FootstepChannel{ -1 };
-
     };
 }

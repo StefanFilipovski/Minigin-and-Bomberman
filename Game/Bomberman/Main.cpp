@@ -45,6 +45,7 @@
 #include "SDLMixerSoundSystem.h"
 #include "LevelManager.h"
 #include "SoundIds.h"
+#include "HighScoreManager.h"
 
 
 struct HitLogger : public dae::Observer {
@@ -58,22 +59,12 @@ struct HitLogger : public dae::Observer {
 
 void load()
 {
+    // Load high scores at startup
+    dae::HighScoreManager::GetInstance().LoadHighScores();
 
-  /*  dae::LevelLoader loader;*/
-    // Adjust the relative path to where your level file is located.
-    /*loader.LoadLevel("../Data/level1.txt", "Level 1");*/
-
-    ////test damage keys
-    //input.BindCommand(SDL_SCANCODE_H, KeyState::Down, InputDeviceType::Keyboard,
-    //    std::make_unique<dae::LambdaCommand>([&pc]() { pc.TakeDamage(1); }), 1);
-    //input.BindCommand(SDL_SCANCODE_D, KeyState::Down, InputDeviceType::Keyboard,
-    //    std::make_unique<dae::LambdaCommand>([&pc]() { pc.TakeDamage(pc.GetHealth()); }), 1);
-
+    // Initialize and load first level
     dae::LevelManager::GetInstance().Initialize();
-
-    // Load first level
     dae::LevelManager::GetInstance().LoadLevel(0);
-  
 }
 
 

@@ -18,6 +18,7 @@ namespace dae {
             std::move(grid), gridSize, tileSize, gridOffsetY)
         , m_ChaseRange(chaseRange)
     {
+       
         InitializeAnimation();
        
     }

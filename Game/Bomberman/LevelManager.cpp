@@ -7,6 +7,7 @@
 #include "InputManager.h"
 #include "Scene.h"
 #include <iostream>
+#include "GameOverManager.h"
 
 namespace dae {
     void LevelManager::Initialize()
@@ -49,14 +50,17 @@ namespace dae {
 
         // Set as active scene
         SceneManager::GetInstance().SetActiveScene(sceneName);
+
+
     }
 
     void LevelManager::LoadNextLevel()
     {
         if (IsLastLevel()) {
             // Game complete - for now just restart
-            std::cout << "Game Complete! Restarting..." << std::endl;
-            LoadLevel(0);
+             // Game complete!
+            std::cout << "Game Complete! All levels finished!" << std::endl;
+            GameOverManager::GetInstance().TriggerGameOver();
         }
         else {
             LoadLevel(m_CurrentLevel + 1);

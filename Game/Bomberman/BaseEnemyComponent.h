@@ -63,12 +63,11 @@ namespace dae {
         float m_Speed;
         float m_MoveInterval;
         float m_MoveTimer;
-        int m_ScoreValue;
         Direction m_CurrentDir;
         bool m_JustSpawned;
         bool m_IsDead;
         glm::vec3 m_LastValidPos;
-
+        int m_ScoreValue{ 100 };
         // Grid navigation
         std::vector<std::vector<bool>> m_Grid;
         glm::ivec2 m_GridSize;

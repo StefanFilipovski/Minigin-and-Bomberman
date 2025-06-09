@@ -13,6 +13,7 @@ namespace dae {
         : BaseEnemyComponent(owner, speed, moveInterval, 400, // 400 points for Doll
             std::move(grid), gridSize, tileSize, gridOffsetY)
     {
+      
         InitializeAnimation();
     }
 

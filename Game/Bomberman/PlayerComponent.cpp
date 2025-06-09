@@ -14,6 +14,9 @@
 #include "CollisionComponent.h"
 #include "Scene.h"
 #include <SoundIds.h>
+#include "BombCollisionResponder.h"
+#include "GameOverManager.h"
+
 namespace dae {
 
     PlayerComponent::PlayerComponent(GameObject* owner)
@@ -51,6 +54,21 @@ namespace dae {
 
         if (!m_IsDead) {
             MoveCurrent(dt);
+
+            // Handle footstep timing
+            if (!m_MovementDirs.empty()) {
+                m_FootstepTimer += dt;
+                if (m_FootstepTimer >= m_FootstepInterval) {
+                    m_FootstepTimer = 0.0f;
+                    // Play footstep sound once
+                    ServiceLocator::GetSoundSystem().Play(
+                        dae::SoundId::SOUND_FOOTSTEPS, 0.5f
+                    );
+                }
+            }
+            else {
+                m_FootstepTimer = 0.0f;
+            }
         }
         else {
             // hide after death anim finishes
@@ -61,18 +79,25 @@ namespace dae {
             }
         }
 
-        if (!m_MovementDirs.empty()) {
-            m_FootstepTimer += dt;
-            if (m_FootstepTimer >= m_FootstepInterval) {
-                m_FootstepTimer = 0.0f;
-                // Play footstep sound once
-                ServiceLocator::GetSoundSystem().Play(
-                    dae::SoundId::SOUND_FOOTSTEPS, 0.5f
-                );
+        // Clean up exploded bombs at a safe time
+        if (m_NeedsBombCleanup) {
+            m_NeedsBombCleanup = false;
+
+            // Create a new vector with only valid bombs
+            std::vector<BombComponent*> validBombs;
+
+            for (auto* bomb : m_ActiveBombs) {
+                if (bomb && !bomb->IsExploded() && !bomb->IsMarkedForCleanup()) {
+                    validBombs.push_back(bomb);
+                }
             }
-        }
-        else {
-            m_FootstepTimer = 0.0f;
+
+            // Calculate how many we removed
+            auto removed = m_ActiveBombs.size() - validBombs.size();
+            m_ActiveBombCount = std::max(0, m_ActiveBombCount - static_cast<int>(removed));
+
+            // Replace with the valid bombs
+            m_ActiveBombs = std::move(validBombs);
         }
     }
 
@@ -92,11 +117,8 @@ namespace dae {
                 SpriteSheetComponent::AnimationState::Death,
                 3, 6, 2, 0, 6, 0.15f, false
             );
-
-            if (m_FootstepChannel >= 0) {
-                ServiceLocator::GetSoundSystem().StopChannel(m_FootstepChannel);
-                m_FootstepChannel = -1;
-            }
+            // Trigger game over
+            GameOverManager::GetInstance().TriggerGameOver();
         }
         else {
             m_IsInvulnerable = true;
@@ -169,25 +191,17 @@ namespace dae {
         if (m_justSpawned) {
             m_justSpawned = false;
         }
-       
     }
 
     void PlayerComponent::UpdateSpriteState()
     {
         if (m_MovementDirs.empty()) {
-            // Stop footsteps when not moving
-            if (m_FootstepChannel >= 0) {
-                ServiceLocator::GetSoundSystem().StopChannel(m_FootstepChannel);
-                m_FootstepChannel = -1;
-            }
-
             m_Sprite->SetIdleFrame(
                 SpriteSheetComponent::AnimationState::Idle,
                 3, 6, 0, 4
             );
             return;
         }
-            
 
         constexpr float FD = 0.15f;
         switch (m_MovementDirs.back()) {
@@ -217,7 +231,6 @@ namespace dae {
             break;
         }
     }
-   
 
     void PlayerComponent::PlaceBomb(Scene& scene)
     {
@@ -254,18 +267,22 @@ namespace dae {
         auto& bc = bombGO->AddComponent<BombComponent>();
         bc.Init("BombSpritesheet.tga", 3, 1, 0.2f, m_BombRange, /*fuse=*/2.f, scene);
 
+        // Add collision to the bomb so it can be hit by blasts
+        auto& bombCollision = bombGO->AddComponent<CollisionComponent>();
+        bombCollision.SetSize(s_TileSize * 0.8f, s_TileSize * 0.8f);
+        bombCollision.SetOffset(s_TileSize * 0.1f, s_TileSize * 0.1f);
+        bombCollision.SetResponder(std::make_unique<BombCollisionResponder>(&bc));
+
         // Subscribe to bomb events
         bc.AddObserver(this);
 
         // Track bomb for detonator
         m_ActiveBombs.push_back(&bc);
-
         m_ActiveBombCount++;
 
         scene.Add(bombGO);
 
         ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_BOMB_PLACE, 0.8f);
-
     }
 
     void PlayerComponent::DetonateOldestBomb()
@@ -274,49 +291,28 @@ namespace dae {
             return;
         }
 
-        // Clean up any null or deleted bombs first
-        m_ActiveBombs.erase(
-            std::remove_if(m_ActiveBombs.begin(), m_ActiveBombs.end(),
-                [](BombComponent* bomb) {
-                    return !bomb || bomb->IsMarkedForDeletion() || bomb->IsExploded();
-                }),
-            m_ActiveBombs.end()
-        );
-
-        // Find and detonate the first valid bomb
+        // Find the first non-exploded bomb
+        BombComponent* bombToDetonate = nullptr;
         for (auto* bomb : m_ActiveBombs) {
-            if (bomb && !bomb->IsExploded() && !bomb->IsMarkedForDeletion()) {
-                bomb->ForceExplode();
-                break;  // Only detonate one bomb
+            if (bomb && !bomb->IsExploded()) {
+                bombToDetonate = bomb;
+                break;
             }
+        }
+
+        if (bombToDetonate) {
+            // This will trigger chain reactions if other bombs are nearby
+            bombToDetonate->ForceExplode();
+            m_NeedsBombCleanup = true;
         }
     }
 
     void PlayerComponent::OnNotify(const Event& event)
     {
         if (event.id == GameEvents::BOMB_EXPLODED) {
-            if (m_ActiveBombCount > 0) {
-                m_ActiveBombCount--;
-            }
-
-            // Create a new vector with only valid bombs
-            std::vector<BombComponent*> validBombs;
-            for (auto* bomb : m_ActiveBombs) {
-                if (bomb && !bomb->IsExploded()) {
-                    validBombs.push_back(bomb);
-                }
-            }
-
-            m_ActiveBombs.erase(
-                std::remove_if(m_ActiveBombs.begin(), m_ActiveBombs.end(),
-                    [](BombComponent* bomb) {
-                        return !bomb || bomb->IsMarkedForDeletion() || bomb->IsExploded();
-                    }),
-                m_ActiveBombs.end()
-            );
-        
+            // Just mark that we need to clean up bombs
+            m_NeedsBombCleanup = true;
         }
     }
 
 } // namespace dae
-

@@ -42,6 +42,10 @@
     <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="MuteCommand.cpp" />
+    <ClCompile Include="BombCollisionResponder.cpp" />
+    <ClCompile Include="HighScoreManager.cpp" />
+    <ClCompile Include="GameOverManager.cpp" />
+    <ClCompile Include="ScoreManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -86,5 +90,9 @@
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="MuteCommand.h" />
+    <ClInclude Include="BombCollisionResponder.h" />
+    <ClInclude Include="HighScoreManager.h" />
+    <ClInclude Include="GameOverManager.h" />
+    <ClInclude Include="ScoreManager.h" />
   </ItemGroup>
 </Project>

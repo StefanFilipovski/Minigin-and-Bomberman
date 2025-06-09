@@ -38,6 +38,8 @@ namespace dae {
         assert(m_Transform && m_Sprite && "Enemy needs Transform + SpriteSheetComponent");
 
         m_LastValidPos = m_Transform->GetLocalPosition();
+        // Debug print
+        std::cout << "BaseEnemyComponent created with score: " << m_ScoreValue << std::endl;
     }
 
     void BaseEnemyComponent::Update(float dt)
@@ -174,6 +176,7 @@ namespace dae {
     {
         if (m_IsDead) return;
         m_IsDead = true;
+        std::cout << "Enemy dying with score value: " << m_ScoreValue << std::endl; // Debug
 
         ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_ENEMY_DIE, 0.6f);
 
@@ -186,7 +189,10 @@ namespace dae {
         }
 
         // Notify observers with score value
-        Event deathEvent{ GameEvents::ENEMY_DIED };
+        Event deathEvent;
+        deathEvent.id = GameEvents::ENEMY_DIED;
+        deathEvent.data = m_ScoreValue; // Use the enemy's score value
+        std::cout << "Sending death event with score: " << deathEvent.data << std::endl; // Debug
         Notify(deathEvent);
     }
 
