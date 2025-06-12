@@ -13,6 +13,7 @@
 #include "Scene.h"
 #include "DelayedLevelLoader.h"
 #include <RenderComponent.h>
+#include "DelayedNameEntryLoader.h"
 
 namespace dae {
     void StartScreenLoader::LoadStartScreen(const std::string& sceneName)
@@ -27,24 +28,22 @@ namespace dae {
 
         // Stop any existing music and play title screen music
         ServiceLocator::GetSoundSystem().StopMusic();
-        ServiceLocator::GetSoundSystem().PlayMusic("Bomberman (NES) Music - Title Screen.ogg", 0.6f); // Adjust filename and volume as needed
+        ServiceLocator::GetSoundSystem().PlayMusic("Bomberman (NES) Music - Title Screen.ogg", 0.6f);
 
-        // Create background (optional - you can add a background texture if desired)
+        // Create background
         auto background = std::make_shared<GameObject>();
         background->AddComponent<TransformComponent>().SetLocalPosition(0.f, 0.f, 0.f);
-        // Uncomment if you have a background texture:
-        // background->AddComponent<RenderComponent>().SetTexture("TitleBackground.tga");
         scene.Add(background);
 
-        // Title image (replace "BOMBERMAN" text with texture)
+        // Title image
         auto titleGO = std::make_shared<GameObject>();
-        titleGO->AddComponent<TransformComponent>().SetLocalPosition(200.f, 10.f, 0.f); // Centered position
-        titleGO->AddComponent<RenderComponent>().SetTexture("BombermanTitle.tga"); // Your title texture
+        titleGO->AddComponent<TransformComponent>().SetLocalPosition(155.f, 0.f, 0.f);
+        titleGO->AddComponent<RenderComponent>().SetTexture("BombermanTitle.tga");
         scene.Add(titleGO);
 
         // "Press SPACE to start" text - centered
         auto startTextGO = std::make_shared<GameObject>();
-        startTextGO->AddComponent<TransformComponent>().SetLocalPosition(155.f, 160.f, 0.f);
+        startTextGO->AddComponent<TransformComponent>().SetLocalPosition(150.f, 150.f, 0.f);
         auto font = ResourceManager::GetInstance().LoadFont("PublicPixel-rv0pA.ttf", 16);
         startTextGO->AddComponent<TextComponent>(font, "Press SPACE to start");
         scene.Add(startTextGO);
@@ -70,19 +69,19 @@ namespace dae {
         detonatorControls->AddComponent<TextComponent>(font, "C - Detonate bomb");
         scene.Add(detonatorControls);
 
-        // Create the delayed level loader
+        // Create the delayed name entry loader
         auto delayedLoaderGO = std::make_shared<GameObject>();
-        auto& delayedLoader = delayedLoaderGO->AddComponent<DelayedLevelLoader>();
+        auto& delayedLoader = delayedLoaderGO->AddComponent<DelayedNameEntryLoader>();
         scene.Add(delayedLoaderGO);
 
-        // Input binding that uses the delayed loader
+        // Input binding that goes to name entry screen
         InputManager::GetInstance().BindCommand(
             SDL_SCANCODE_SPACE,
             KeyState::Down,
             InputDeviceType::Keyboard,
             std::make_unique<LambdaCommand>([&delayedLoader]() {
-                std::cout << "Space pressed - starting game..." << std::endl;
-                delayedLoader.TriggerLevelLoad();
+                std::cout << "Space pressed - going to name entry..." << std::endl;
+                delayedLoader.TriggerNameEntryLoad();
                 }),
             -1
         );
@@ -93,3 +92,4 @@ namespace dae {
         std::cout << "Start screen loaded successfully." << std::endl;
     }
 }
+

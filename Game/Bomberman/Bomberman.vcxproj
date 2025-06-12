@@ -167,6 +167,7 @@
     <ClCompile Include="CharacterMoveComponent.cpp" />
     <ClCompile Include="DeathCommand.cpp" />
     <ClCompile Include="DelayedLevelLoader.cpp" />
+    <ClCompile Include="DelayedNameEntryLoader.cpp" />
     <ClCompile Include="DelayedStartScreenLoader.cpp" />
     <ClCompile Include="DestructibleWallResponder.cpp" />
     <ClCompile Include="DetonatorCommand.cpp" />
@@ -185,6 +186,7 @@
     <ClCompile Include="LambdaCommand.cpp" />
     <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="LevelManager.cpp" />
+    <ClCompile Include="LevelSkipCommand.cpp" />
     <ClCompile Include="LivesDisplay.cpp" />
     <ClCompile Include="LivesDisplayComponent.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -192,9 +194,11 @@
     <ClCompile Include="MoveCommand.cpp" />
     <ClCompile Include="MoveDirCommand.cpp" />
     <ClCompile Include="MuteCommand.cpp" />
+    <ClCompile Include="NameEntryScreenLoader.cpp" />
     <ClCompile Include="OnealComponent.cpp" />
     <ClCompile Include="PlayerComponent.cpp" />
     <ClCompile Include="PlayerManager.cpp" />
+    <ClCompile Include="PlayerNameManager.cpp" />
     <ClCompile Include="PointsDisplay.cpp" />
     <ClCompile Include="PointsSubject.cpp" />
     <ClCompile Include="PowerUpCollisionResponder.cpp" />
@@ -220,6 +224,7 @@
     <ClInclude Include="CharacterMoveComponent.h" />
     <ClInclude Include="DeathCommand.h" />
     <ClInclude Include="DelayedLevelLoader.h" />
+    <ClInclude Include="DelayedNameEntryLoader.h" />
     <ClInclude Include="DelayedStartScreenLoader.h" />
     <ClInclude Include="DestructibleWallResponder.h" />
     <ClInclude Include="DetonatorCommand.h" />
@@ -239,15 +244,18 @@
     <ClInclude Include="LambdaCommand.h" />
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="LevelManager.h" />
+    <ClInclude Include="LevelSkipCommand.h" />
     <ClInclude Include="LivesDisplay.h" />
     <ClInclude Include="LivesDisplayComponent.h" />
     <ClInclude Include="MinvoComponent.h" />
     <ClInclude Include="MoveCommand.h" />
     <ClInclude Include="MoveDirCommand.h" />
     <ClInclude Include="MuteCommand.h" />
+    <ClInclude Include="NameEntryScreenLoader.h" />
     <ClInclude Include="OnealComponent.h" />
     <ClInclude Include="PlayerComponent.h" />
     <ClInclude Include="PlayerManager.h" />
+    <ClInclude Include="PlayerNameManager.h" />
     <ClInclude Include="PointsDisplay.h" />
     <ClInclude Include="PointsSubject.h" />
     <ClInclude Include="PowerUpCollisionResponder.h" />

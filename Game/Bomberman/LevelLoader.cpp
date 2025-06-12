@@ -41,6 +41,7 @@
 #include "GameOverManager.h"
 #include "ScoreManager.h"
 #include "LivesDisplayComponent.h"
+#include "LevelSkipCommand.h"
 
 namespace dae {
 
@@ -305,6 +306,9 @@ namespace dae {
                     auto& input = InputManager::GetInstance();
                     input.BindCommand(SDL_SCANCODE_F2, KeyState::Down, InputDeviceType::Keyboard,
                         std::make_unique<dae::MuteCommand>(), -1);
+                    input.BindCommand(
+                        SDL_SCANCODE_F1, KeyState::Down, InputDeviceType::Keyboard,
+                        std::make_unique<LevelSkipCommand>(), pid);
                     auto bindKey = [&](SDL_Scancode k, PlayerComponent::Direction d) {
                         input.BindCommand(k, KeyState::Down, InputDeviceType::Keyboard,
                             std::make_unique<MoveDirCommand>(&pc, d, true), pid);

@@ -3,17 +3,20 @@
 #include "HighScoreManager.h"
 #include "GameOverScreenLoader.h"
 #include <iostream>
+#include "PlayerNameManager.h"
 
 namespace dae {
     void GameOverManager::TriggerGameOver()
     {
         int finalScore = ScoreManager::GetInstance().GetScore();
-        std::cout << "Game Over! Final Score: " << finalScore << std::endl;
+        std::string playerName = PlayerNameManager::GetInstance().GetPlayerName();
 
-        // Handle high scores (keep your existing logic)
+        std::cout << "Game Over! Player: " << playerName << " - Final Score: " << finalScore << std::endl;
+
+        // Handle high scores using the player's entered name
         if (HighScoreManager::GetInstance().IsHighScore(finalScore)) {
-            std::cout << "New High Score!" << std::endl;
-            HighScoreManager::GetInstance().AddHighScore("AAA", finalScore);
+            std::cout << "New High Score for " << playerName << "!" << std::endl;
+            HighScoreManager::GetInstance().AddHighScore(playerName, finalScore);
         }
 
         // Display high scores to console (keep your existing logic)
@@ -23,7 +26,7 @@ namespace dae {
             std::cout << i + 1 << ". " << highScores[i].name << " - " << highScores[i].score << std::endl;
         }
 
-        // Load the game over screen instead of main menu
+        // Load the game over screen
         GameOverScreenLoader loader;
         loader.LoadGameOverScreen();
     }

@@ -28,19 +28,14 @@ namespace dae {
                 m_HighScores.push_back(entry);
             }
             file.close();
+            std::cout << "Loaded " << m_HighScores.size() << " high scores from file." << std::endl;
+        }
+        else {
+            std::cout << "No existing high score file found - starting with empty list." << std::endl;
         }
 
-        // Ensure we have default high scores if file doesn't exist
-        if (m_HighScores.empty()) {
-            // Add default high scores
-            m_HighScores = {
-                {"AAA", 10000},
-                {"BBB", 8000},
-                {"CCC", 6000},
-                {"DDD", 4000},
-                {"EEE", 2000}
-            };
-        }
+        // DO NOT add default high scores - start with empty list
+        // Players will earn their place on the leaderboard!
     }
 
     void HighScoreManager::SaveHighScores()
@@ -61,17 +56,23 @@ namespace dae {
                 file.write(reinterpret_cast<const char*>(&entry.score), sizeof(entry.score));
             }
             file.close();
+            std::cout << "Saved " << m_HighScores.size() << " high scores to file." << std::endl;
         }
     }
 
     bool HighScoreManager::IsHighScore(int score) const
     {
+        // If we have fewer than max scores, any score qualifies
         if (m_HighScores.size() < MAX_HIGH_SCORES) return true;
+
+        // Otherwise, score must beat the lowest high score
         return score > m_HighScores.back().score;
     }
 
     void HighScoreManager::AddHighScore(const std::string& name, int score)
     {
+        std::cout << "Adding high score: " << name << " - " << score << std::endl;
+
         m_HighScores.push_back({ name, score });
 
         // Sort by score (descending)

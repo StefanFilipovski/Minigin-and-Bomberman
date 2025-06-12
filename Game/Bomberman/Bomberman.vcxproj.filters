@@ -52,6 +52,10 @@
     <ClCompile Include="GameOverScreenLoader.cpp" />
     <ClCompile Include="DelayedLevelLoader.cpp" />
     <ClCompile Include="DelayedStartScreenLoader.cpp" />
+    <ClCompile Include="NameEntryScreenLoader.cpp" />
+    <ClCompile Include="PlayerNameManager.cpp" />
+    <ClCompile Include="DelayedNameEntryLoader.cpp" />
+    <ClCompile Include="LevelSkipCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -106,5 +110,9 @@
     <ClInclude Include="GameOverScreenLoader.h" />
     <ClInclude Include="DelayedLevelLoader.h" />
     <ClInclude Include="DelayedStartScreenLoader.h" />
+    <ClInclude Include="NameEntryScreenLoader.h" />
+    <ClInclude Include="PlayerNameManager.h" />
+    <ClInclude Include="DelayedNameEntryLoader.h" />
+    <ClInclude Include="LevelSkipCommand.h" />
   </ItemGroup>
 </Project>
