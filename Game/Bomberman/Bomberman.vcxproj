@@ -179,6 +179,7 @@
     <ClCompile Include="GameActor.cpp" />
     <ClCompile Include="GameActorCommand.cpp" />
     <ClCompile Include="GameController.cpp" />
+    <ClCompile Include="GameModeSelector.cpp" />
     <ClCompile Include="GameOverManager.cpp" />
     <ClCompile Include="GameOverScreenLoader.cpp" />
     <ClCompile Include="HighScoreManager.cpp" />
@@ -196,6 +197,11 @@
     <ClCompile Include="MuteCommand.cpp" />
     <ClCompile Include="NameEntryScreenLoader.cpp" />
     <ClCompile Include="OnealComponent.cpp" />
+    <ClCompile Include="Player2BalloonComponent.cpp" />
+    <ClCompile Include="Player2BombCommand.cpp" />
+    <ClCompile Include="Player2CollisionResponder.cpp" />
+    <ClCompile Include="Player2DetonatorCommand.cpp" />
+    <ClCompile Include="Player2MoveDirCommand.cpp" />
     <ClCompile Include="PlayerComponent.cpp" />
     <ClCompile Include="PlayerManager.cpp" />
     <ClCompile Include="PlayerNameManager.cpp" />
@@ -210,6 +216,8 @@
     <ClCompile Include="StartScreenLoader.cpp" />
     <ClCompile Include="StaticWallResponder.cpp" />
     <ClCompile Include="UpDownMoveComponent.cpp" />
+    <ClCompile Include="VersusGameController.cpp" />
+    <ClCompile Include="VersusGameLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -237,6 +245,7 @@
     <ClInclude Include="GameActorCommand.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameEvents.h" />
+    <ClInclude Include="GameModeSelector.h" />
     <ClInclude Include="GameOverManager.h" />
     <ClInclude Include="GameOverScreenLoader.h" />
     <ClInclude Include="HighScoreManager.h" />
@@ -253,6 +262,11 @@
     <ClInclude Include="MuteCommand.h" />
     <ClInclude Include="NameEntryScreenLoader.h" />
     <ClInclude Include="OnealComponent.h" />
+    <ClInclude Include="Player2BalloonComponent.h" />
+    <ClInclude Include="Player2BombCommand.h" />
+    <ClInclude Include="Player2CollisionResponder.h" />
+    <ClInclude Include="Player2DetonatorCommand.h" />
+    <ClInclude Include="Player2MoveDirCommand.h" />
     <ClInclude Include="PlayerComponent.h" />
     <ClInclude Include="PlayerManager.h" />
     <ClInclude Include="PlayerNameManager.h" />
@@ -268,6 +282,8 @@
     <ClInclude Include="StartScreenLoader.h" />
     <ClInclude Include="StaticWallResponder.h" />
     <ClInclude Include="UpDownMoveComponent.h" />
+    <ClInclude Include="VersusGameController.h" />
+    <ClInclude Include="VersusGameLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

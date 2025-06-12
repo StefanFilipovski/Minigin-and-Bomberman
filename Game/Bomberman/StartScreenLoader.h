@@ -7,3 +7,4 @@ namespace dae {
         void LoadStartScreen(const std::string& sceneName = "StartScreen");
     };
 }
+

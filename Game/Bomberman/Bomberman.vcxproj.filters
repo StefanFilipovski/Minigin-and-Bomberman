@@ -56,6 +56,14 @@
     <ClCompile Include="PlayerNameManager.cpp" />
     <ClCompile Include="DelayedNameEntryLoader.cpp" />
     <ClCompile Include="LevelSkipCommand.cpp" />
+    <ClCompile Include="GameModeSelector.cpp" />
+    <ClCompile Include="VersusGameLoader.cpp" />
+    <ClCompile Include="Player2BalloonComponent.cpp" />
+    <ClCompile Include="VersusGameController.cpp" />
+    <ClCompile Include="Player2CollisionResponder.cpp" />
+    <ClCompile Include="Player2BombCommand.cpp" />
+    <ClCompile Include="Player2DetonatorCommand.cpp" />
+    <ClCompile Include="Player2MoveDirCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -114,5 +122,13 @@
     <ClInclude Include="PlayerNameManager.h" />
     <ClInclude Include="DelayedNameEntryLoader.h" />
     <ClInclude Include="LevelSkipCommand.h" />
+    <ClInclude Include="GameModeSelector.h" />
+    <ClInclude Include="VersusGameLoader.h" />
+    <ClInclude Include="Player2BalloonComponent.h" />
+    <ClInclude Include="VersusGameController.h" />
+    <ClInclude Include="Player2CollisionResponder.h" />
+    <ClInclude Include="Player2BombCommand.h" />
+    <ClInclude Include="Player2DetonatorCommand.h" />
+    <ClInclude Include="Player2MoveDirCommand.h" />
   </ItemGroup>
 </Project>

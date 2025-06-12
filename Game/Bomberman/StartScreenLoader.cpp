@@ -3,17 +3,14 @@
 #include "GameObject.h"
 #include "TransformComponent.h"
 #include "TextComponent.h"
+#include "RenderComponent.h"
 #include "ResourceManager.h"
 #include "InputManager.h"
 #include "LambdaCommand.h"
-#include "LevelManager.h"
-#include "ScoreManager.h"
 #include "ServiceLocator.h"
+#include "GameModeSelector.h"
 #include <SDL.h>
 #include "Scene.h"
-#include "DelayedLevelLoader.h"
-#include <RenderComponent.h>
-#include "DelayedNameEntryLoader.h"
 
 namespace dae {
     void StartScreenLoader::LoadStartScreen(const std::string& sceneName)
@@ -37,51 +34,95 @@ namespace dae {
 
         // Title image
         auto titleGO = std::make_shared<GameObject>();
-        titleGO->AddComponent<TransformComponent>().SetLocalPosition(155.f, 0.f, 0.f);
+        titleGO->AddComponent<TransformComponent>().SetLocalPosition(155.f, 20.f, 0.f);
         titleGO->AddComponent<RenderComponent>().SetTexture("BombermanTitle.tga");
         scene.Add(titleGO);
 
-        // "Press SPACE to start" text - centered
-        auto startTextGO = std::make_shared<GameObject>();
-        startTextGO->AddComponent<TransformComponent>().SetLocalPosition(150.f, 150.f, 0.f);
+        // Game mode selection
         auto font = ResourceManager::GetInstance().LoadFont("PublicPixel-rv0pA.ttf", 16);
-        startTextGO->AddComponent<TextComponent>(font, "Press SPACE to start");
-        scene.Add(startTextGO);
 
-        // Controls info - centered and spaced nicely
+        // "Story Mode" option
+        auto storyModeGO = std::make_shared<GameObject>();
+        storyModeGO->AddComponent<TransformComponent>().SetLocalPosition(100.f, 120.f, 0.f);
+        auto& storyText = storyModeGO->AddComponent<TextComponent>(font, "> Story Mode");
+        scene.Add(storyModeGO);
+
+        // "Versus Mode" option  
+        auto versusModeGO = std::make_shared<GameObject>();
+        versusModeGO->AddComponent<TransformComponent>().SetLocalPosition(100.f, 140.f, 0.f);
+        auto& versusText = versusModeGO->AddComponent<TextComponent>(font, "  Versus Mode");
+        scene.Add(versusModeGO);
+
+        // Instructions
+        auto instructGO = std::make_shared<GameObject>();
+        instructGO->AddComponent<TransformComponent>().SetLocalPosition(70.f, 170.f, 0.f);
+        instructGO->AddComponent<TextComponent>(font, "UP/DOWN to select, SPACE to confirm");
+        scene.Add(instructGO);
+
+        // Controls info
         auto controlsTitle = std::make_shared<GameObject>();
-        controlsTitle->AddComponent<TransformComponent>().SetLocalPosition(110.f, 190.f, 0.f);
+        controlsTitle->AddComponent<TransformComponent>().SetLocalPosition(110.f, 200.f, 0.f);
         controlsTitle->AddComponent<TextComponent>(font, "CONTROLS:");
         scene.Add(controlsTitle);
 
         auto moveControls = std::make_shared<GameObject>();
-        moveControls->AddComponent<TransformComponent>().SetLocalPosition(80.f, 210.f, 0.f);
-        moveControls->AddComponent<TextComponent>(font, "Arrow keys - Move");
+        moveControls->AddComponent<TransformComponent>().SetLocalPosition(60.f, 220.f, 0.f);
+        moveControls->AddComponent<TextComponent>(font, "P1: Arrows + X(bomb) + C(detonate)");
         scene.Add(moveControls);
 
-        auto bombControls = std::make_shared<GameObject>();
-        bombControls->AddComponent<TransformComponent>().SetLocalPosition(80.f, 230.f, 0.f);
-        bombControls->AddComponent<TextComponent>(font, "X - Place bomb");
-        scene.Add(bombControls);
+        auto player2Controls = std::make_shared<GameObject>();
+        player2Controls->AddComponent<TransformComponent>().SetLocalPosition(80.f, 240.f, 0.f);
+        player2Controls->AddComponent<TextComponent>(font, "P2: WASD + Q(bomb) + E(detonate)");
+        scene.Add(player2Controls);
 
-        auto detonatorControls = std::make_shared<GameObject>();
-        detonatorControls->AddComponent<TransformComponent>().SetLocalPosition(80.f, 250.f, 0.f);
-        detonatorControls->AddComponent<TextComponent>(font, "C - Detonate bomb");
-        scene.Add(detonatorControls);
+        // Create game mode selector
+        auto selectorGO = std::make_shared<GameObject>();
+        auto& selector = selectorGO->AddComponent<GameModeSelector>();
+        scene.Add(selectorGO);
 
-        // Create the delayed name entry loader
-        auto delayedLoaderGO = std::make_shared<GameObject>();
-        auto& delayedLoader = delayedLoaderGO->AddComponent<DelayedNameEntryLoader>();
-        scene.Add(delayedLoaderGO);
+        // Input bindings for mode selection
+        InputManager::GetInstance().BindCommand(
+            SDL_SCANCODE_UP,
+            KeyState::Down,
+            InputDeviceType::Keyboard,
+            std::make_unique<LambdaCommand>([&selector, &storyText, &versusText]() {
+                selector.MoveUp();
+                if (selector.GetSelectedMode() == GameMode::Story) {
+                    storyText.SetText("> Story Mode");
+                    versusText.SetText("  Versus Mode");
+                }
+                else {
+                    storyText.SetText("  Story Mode");
+                    versusText.SetText("> Versus Mode");
+                }
+                }),
+            -1
+        );
 
-        // Input binding that goes to name entry screen
+        InputManager::GetInstance().BindCommand(
+            SDL_SCANCODE_DOWN,
+            KeyState::Down,
+            InputDeviceType::Keyboard,
+            std::make_unique<LambdaCommand>([&selector, &storyText, &versusText]() {
+                selector.MoveDown();
+                if (selector.GetSelectedMode() == GameMode::Story) {
+                    storyText.SetText("> Story Mode");
+                    versusText.SetText("  Versus Mode");
+                }
+                else {
+                    storyText.SetText("  Story Mode");
+                    versusText.SetText("> Versus Mode");
+                }
+                }),
+            -1
+        );
+
         InputManager::GetInstance().BindCommand(
             SDL_SCANCODE_SPACE,
             KeyState::Down,
             InputDeviceType::Keyboard,
-            std::make_unique<LambdaCommand>([&delayedLoader]() {
-                std::cout << "Space pressed - going to name entry..." << std::endl;
-                delayedLoader.TriggerNameEntryLoad();
+            std::make_unique<LambdaCommand>([&selector]() {
+                selector.TriggerSelection();
                 }),
             -1
         );
@@ -92,4 +133,3 @@ namespace dae {
         std::cout << "Start screen loaded successfully." << std::endl;
     }
 }
-

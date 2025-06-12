@@ -58,7 +58,7 @@ void dae::Renderer::Render() const
 	DebugUIManager::GetInstance().RenderUI();
 
 	// 2) debug‐draw all collider boxes
-	CollisionManager::GetInstance().DebugDraw(m_renderer);
+	/*CollisionManager::GetInstance().DebugDraw(m_renderer);*/
 
 	ImGui::SetNextWindowPos(ImVec2(200, 20));
 	ImGui::Render();
