@@ -101,26 +101,41 @@ namespace dae {
         }
     }
 
-    int PlayerComponent::GetHealth() const { return m_health; }
+    int PlayerComponent::GetHealth() const {
+        return m_Lives; // Return lives instead of health
+    }
 
     void PlayerComponent::TakeDamage(int dmg)
     {
+        (void)dmg;
+
         if (m_IsDead || m_IsInvulnerable) return;
-        m_health -= dmg;
-        std::cout << "Player took " << dmg << " damage, health now " << m_health << "\n";
+
+        // Each hit removes one life directly
+        m_Lives--;
+
+        std::cout << "Player hit! Lives remaining: " << m_Lives << "\n";
         ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_PLAYER_HIT, 1.0f);
-        Notify({ GameEvents::PLAYER_HIT });
-        if (m_health <= 0) {
+
+        // Notify observers (like LivesDisplayComponent)
+        Notify({ GameEvents::PLAYER_HIT, m_Lives });
+
+        if (m_Lives <= 0) {
+            // Out of lives - player dies and game over
             m_IsDead = true;
+            ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_PLAYER_DIE, 1.0f);
             Notify({ GameEvents::PLAYER_DIED });
+
             m_Sprite->ChangeAnimation(
                 SpriteSheetComponent::AnimationState::Death,
                 3, 6, 2, 0, 6, 0.15f, false
             );
-            // Trigger game over
+
+            // Trigger game over after a short delay
             GameOverManager::GetInstance().TriggerGameOver();
         }
         else {
+            // Still have lives - just become invulnerable temporarily
             m_IsInvulnerable = true;
             m_InvulTimer = m_InvulDuration;
             m_FlashTimer = m_FlashInterval;

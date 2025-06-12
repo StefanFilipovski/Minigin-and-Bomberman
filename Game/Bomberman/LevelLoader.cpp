@@ -40,6 +40,7 @@
 #include "ScoreComponent.h"
 #include "GameOverManager.h"
 #include "ScoreManager.h"
+#include "LivesDisplayComponent.h"
 
 namespace dae {
 
@@ -132,6 +133,8 @@ namespace dae {
 
         scene.Add(scoreGO);
         
+        std::shared_ptr<GameObject> livesDisplayGO = nullptr;
+
 
         //static ScoreObserver scoreObserver; // tracks kills & score
 
@@ -268,8 +271,30 @@ namespace dae {
                     pcc.SetOffset(off - pxOff, off - pyOff);
                     auto& pc = playerGO->AddComponent<PlayerComponent>();
                     pc.BeginMove();
-                    auto& lives = playerGO->AddComponent<LivesDisplay>(3);
-                    pc.AddObserver(&lives);
+
+                    // Set player lives to 3 (fresh start each level)
+                    pc.SetLives(3);
+
+                    // Create Lives Display GameObject (top right) if not already created
+                    if (!livesDisplayGO) {
+                        const float screenWidth = 256.f;
+                        const float livesTextWidth = 80.f;
+                        livesDisplayGO = std::make_shared<GameObject>();
+                        livesDisplayGO->AddComponent<TransformComponent>().SetLocalPosition(
+                            screenWidth - livesTextWidth + 50.f,
+                            10.f,
+                            0.f
+                        );
+
+                        // Setup Lives Display Component - start with 3 lives
+                        auto& livesDisplay = livesDisplayGO->AddComponent<LivesDisplayComponent>(3);
+                        livesDisplay.Initialize();
+
+                        // Make player observe the lives display (for hit/death events)
+                        pc.AddObserver(&livesDisplay);
+
+                        scene.Add(livesDisplayGO);
+                    }
 
                     // Register player with PlayerManager
                     constexpr int pid = 0;
@@ -293,7 +318,6 @@ namespace dae {
                     input.BindCommand(
                         SDL_SCANCODE_X, KeyState::Down, InputDeviceType::Keyboard,
                         std::make_unique<BombCommand>(&pc, &scene), pid);
-                    // Add detonator command on C key
                     input.BindCommand(
                         SDL_SCANCODE_C, KeyState::Down, InputDeviceType::Keyboard,
                         std::make_unique<DetonatorCommand>(&pc), pid);

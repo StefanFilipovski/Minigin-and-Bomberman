@@ -12,6 +12,7 @@ namespace dae {
         GameObject* GetPlayer(int playerIndex = 0) const;
         GameObject* GetClosestPlayer(const glm::vec3& position) const;
         void ClearPlayers();
+        int GetPlayerCount() const { return static_cast<int>(m_Players.size()); }
 
     private:
         friend class Singleton<PlayerManager>;

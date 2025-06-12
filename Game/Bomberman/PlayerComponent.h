@@ -69,6 +69,10 @@ namespace dae {
             }
         }
 
+        int GetLives() const { return m_Lives; }
+        void SetLives(int lives) { m_Lives = lives; }
+        bool IsOutOfLives() const { return m_Lives <= 0; }
+
     private:
         // Core loop
         void MoveCurrent(float dt);
@@ -82,6 +86,7 @@ namespace dae {
 
         // Health
         int   m_health{ 3 };
+        int m_Lives{ 3 };
         bool  m_IsDead{ false };
 
         // Component refs

@@ -46,27 +46,31 @@
 #include "LevelManager.h"
 #include "SoundIds.h"
 #include "HighScoreManager.h"
+#include "StartScreenLoader.h"
 
 
-struct HitLogger : public dae::Observer {
-    void OnNotify(const dae::Event& ev) override {
-        if (ev.id == GameEvents::PLAYER_HIT)
-            std::cout << "[Logger] Player was hit!\n";
-        else if (ev.id == GameEvents::PLAYER_DIED)
-            std::cout << "[Logger] Player has died.\n";
-    }
-};
+//
+//struct HitLogger : public dae::Observer {
+//    void OnNotify(const dae::Event& ev) override {
+//        if (ev.id == GameEvents::PLAYER_HIT)
+//            std::cout << "[Logger] Player was hit!\n";
+//        else if (ev.id == GameEvents::PLAYER_DIED)
+//            std::cout << "[Logger] Player has died.\n";
+//    }
+//};
 
 void load()
 {
     // Load high scores at startup
     dae::HighScoreManager::GetInstance().LoadHighScores();
 
-    // Initialize and load first level
+    // Initialize level manager
     dae::LevelManager::GetInstance().Initialize();
-    dae::LevelManager::GetInstance().LoadLevel(0);
-}
 
+    // Load start screen instead of going directly to level 1
+    dae::StartScreenLoader startLoader;
+    startLoader.LoadStartScreen();
+}
 
 
 int main(int, char* [])
@@ -76,7 +80,7 @@ int main(int, char* [])
 
         auto soundSystem = std::make_unique<SDLMixerSoundSystem>("../Data/");
         // Load all sound effects
-        soundSystem->Load(dae::SoundId::SOUND_PLAYER_HIT, "PlayerHit.wav");
+        soundSystem->Load(dae::SoundId::SOUND_PLAYER_HIT, "bomberhit.wav");
         soundSystem->Load(dae::SoundId::SOUND_BOMB_PLACE, "placebomb.wav");
         soundSystem->Load(dae::SoundId::SOUND_BOMB_EXPLODE, "explode.wav");
         soundSystem->Load(dae::SoundId::SOUND_WALL_DESTROY, "WallDestroy.wav");

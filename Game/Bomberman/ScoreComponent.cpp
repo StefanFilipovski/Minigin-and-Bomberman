@@ -10,7 +10,7 @@ namespace dae {
         : Component(owner)
     {
         // Load font
-        m_Font = ResourceManager::GetInstance().LoadFont("law-of-the-west.otf", 16);
+        m_Font = ResourceManager::GetInstance().LoadFont("PublicPixel-rv0pA.ttf", 16);
     }
 
     void ScoreComponent::Initialize()

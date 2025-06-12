@@ -46,6 +46,12 @@
     <ClCompile Include="HighScoreManager.cpp" />
     <ClCompile Include="GameOverManager.cpp" />
     <ClCompile Include="ScoreManager.cpp" />
+    <ClCompile Include="LivesDisplayComponent.cpp" />
+    <ClCompile Include="RestartChecker.cpp" />
+    <ClCompile Include="StartScreenLoader.cpp" />
+    <ClCompile Include="GameOverScreenLoader.cpp" />
+    <ClCompile Include="DelayedLevelLoader.cpp" />
+    <ClCompile Include="DelayedStartScreenLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -94,5 +100,11 @@
     <ClInclude Include="HighScoreManager.h" />
     <ClInclude Include="GameOverManager.h" />
     <ClInclude Include="ScoreManager.h" />
+    <ClInclude Include="LivesDisplayComponent.h" />
+    <ClInclude Include="RestartChecker.h" />
+    <ClInclude Include="StartScreenLoader.h" />
+    <ClInclude Include="GameOverScreenLoader.h" />
+    <ClInclude Include="DelayedLevelLoader.h" />
+    <ClInclude Include="DelayedStartScreenLoader.h" />
   </ItemGroup>
 </Project>
