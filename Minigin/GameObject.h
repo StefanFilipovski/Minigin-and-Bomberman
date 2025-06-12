@@ -53,21 +53,25 @@ namespace dae
             return *rawPtr;
         }
 
-
-
         template <typename T>
         T* GetComponent() const
         {
+            // Safety check for deleted object
+            if (m_markedForDeletion) {
+                return nullptr;
+            }
+
             for (const auto& comp : m_pComponents)
             {
-                if (auto casted = dynamic_cast<T*>(comp.get()))
-                {
-                    return casted;
+                if (comp && !comp->IsMarkedForDeletion()) {
+                    if (auto casted = dynamic_cast<T*>(comp.get()))
+                    {
+                        return casted;
+                    }
                 }
             }
             return nullptr;
         }
-
 
         // **Fix: Mark component for deletion instead of removing immediately**
         template <typename T>
@@ -75,15 +79,20 @@ namespace dae
         {
             for (auto& comp : m_pComponents)
             {
-                if (dynamic_cast<T*>(comp.get()) != nullptr)  
+                if (dynamic_cast<T*>(comp.get()) != nullptr)
                 {
-                    comp->MarkForDeletion(); 
+                    comp->MarkForDeletion();
                 }
             }
         }
 
-           
+        // SAFE version that doesn't throw
+        TransformComponent* GetTransformSafe()
+        {
+            return GetComponent<TransformComponent>();
+        }
 
+        // Original version - only use when you KNOW transform exists
         TransformComponent& GetTransform()
         {
             TransformComponent* transform = GetComponent<TransformComponent>();
@@ -93,14 +102,13 @@ namespace dae
             }
             return *transform;
         }
-                     
 
         void RemoveAllComponents(); //Helper for removal of components
         void MarkForDeletion() { m_markedForDeletion = true; }
         bool IsMarkedForDeletion() const { return m_markedForDeletion; }
 
         void SetParent(GameObject* parent, bool keepWorldPosition = true);
-        
+
         GameObject* GetParent() const
         {
             if (!this)
@@ -108,11 +116,11 @@ namespace dae
                 std::cerr << "Error: GetParent() called on nullptr GameObject!" << std::endl;
                 return nullptr;
             }
-            return m_pParent;  
+            return m_pParent;
         }
-              
+
         const std::vector<GameObject*>& GetChildren() const { return m_Children; }
-        
+
         // Non-copyable, non-movable
         GameObject(const GameObject& other) = delete;
         GameObject(GameObject&& other) = delete;
@@ -120,14 +128,10 @@ namespace dae
         GameObject& operator=(GameObject&& other) = delete;
 
     private:
-        
         std::vector<std::unique_ptr<Component>> m_pComponents;
         bool m_markedForDeletion = false;
 
-        std::vector<GameObject*> m_Children;  // Fix: Use raw pointers instead of shared_ptr
-
+        std::vector<GameObject*> m_Children;
         GameObject* m_pParent = nullptr;
-
-      
     };
 }

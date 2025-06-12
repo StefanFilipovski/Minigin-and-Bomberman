@@ -13,23 +13,23 @@ namespace dae
 
     GameObject::~GameObject()
     {
+        // Clear components first to break circular dependencies
+        m_pComponents.clear();
+
+        // Then handle parent/child relationships
         if (m_pParent)
         {
-            // Remove 'this' from the parent's children vector.
-            auto& siblings = m_pParent->m_Children; 
+            auto& siblings = m_pParent->m_Children;
             siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
         }
 
-
         for (auto* child : m_Children)
         {
-            child->m_pParent = nullptr;  
+            child->m_pParent = nullptr;
         }
         m_Children.clear();
 
         DebugUIManager::GetInstance().RemoveGameObject(this);
-        /*std::cerr << "Destroying GameObject: " << this << std::endl;*/
-
     }
 
 

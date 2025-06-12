@@ -16,6 +16,8 @@
 #include <SoundIds.h>
 #include "BombCollisionResponder.h"
 #include "GameOverManager.h"
+#include "LivesManager.h"
+#include "GameState.h"
 
 namespace dae {
 
@@ -34,8 +36,24 @@ namespace dae {
         m_lastValidPosition = m_Transform->GetLocalPosition();
     }
 
+    PlayerComponent::~PlayerComponent()
+    {
+        // Clean up bomb references on destruction
+        m_ActiveBombs.clear();
+    }
+
     void PlayerComponent::Update(float dt)
     {
+        // Don't update during transitions
+        if (GameStateManager::GetState() != GameState::Playing) {
+            return;
+        }
+
+        // Safety check
+        if (!GetOwner() || GetOwner()->IsMarkedForDeletion()) {
+            return;
+        }
+
         // Invul + blink
         if (m_IsInvulnerable) {
             m_InvulTimer -= dt;
@@ -60,7 +78,6 @@ namespace dae {
                 m_FootstepTimer += dt;
                 if (m_FootstepTimer >= m_FootstepInterval) {
                     m_FootstepTimer = 0.0f;
-                    // Play footstep sound once
                     ServiceLocator::GetSoundSystem().Play(
                         dae::SoundId::SOUND_FOOTSTEPS, 0.5f
                     );
@@ -71,11 +88,26 @@ namespace dae {
             }
         }
         else {
-            // hide after death anim finishes
-            if (m_Sprite->GetFrameCount() > 0 &&
-                m_Sprite->GetCurrentFrame() == m_Sprite->GetFrameCount() - 1)
-            {
-                m_Sprite->Hide();
+            // Handle death animation
+            if (!m_DeathAnimationComplete && m_Sprite) {
+                try {
+                    int frameCount = m_Sprite->GetFrameCount();
+                    int currentFrame = m_Sprite->GetCurrentFrame();
+
+                    if (frameCount > 0 && currentFrame >= 0 && currentFrame == frameCount - 1) {
+                        m_DeathAnimationComplete = true;
+                        m_Sprite->Hide();
+
+                        // Make sure we're not already being deleted
+                        if (!GetOwner()->IsMarkedForDeletion()) {
+                            Notify({ GameEvents::PLAYER_DIED });
+                        }
+                    }
+                }
+                catch (const std::exception& e) {
+                    std::cerr << "Error in death animation: " << e.what() << std::endl;
+                    m_DeathAnimationComplete = true;
+                }
             }
         }
 
@@ -87,7 +119,8 @@ namespace dae {
             std::vector<BombComponent*> validBombs;
 
             for (auto* bomb : m_ActiveBombs) {
-                if (bomb && !bomb->IsExploded() && !bomb->IsMarkedForCleanup()) {
+                if (bomb && bomb->GetOwner() && !bomb->GetOwner()->IsMarkedForDeletion() &&
+                    !bomb->IsExploded() && !bomb->IsMarkedForCleanup()) {
                     validBombs.push_back(bomb);
                 }
             }
@@ -105,22 +138,42 @@ namespace dae {
 
     void PlayerComponent::TakeDamage(int dmg)
     {
+        (void)dmg; // Mark as unused
+
         if (m_IsDead || m_IsInvulnerable) return;
-        m_health -= dmg;
-        std::cout << "Player took " << dmg << " damage, health now " << m_health << "\n";
+
+        std::cout << "Player hit!\n";
         ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_PLAYER_HIT, 1.0f);
+
+        // Get current lives before the hit
+        int currentLives = LivesManager::GetInstance().GetLives();
+
+        // Notify about hit (this decreases lives)
         Notify({ GameEvents::PLAYER_HIT });
-        if (m_health <= 0) {
+
+        // Check if this was the killing blow
+        if (currentLives <= 1) { // Will be 0 after the hit
             m_IsDead = true;
-            Notify({ GameEvents::PLAYER_DIED });
-            m_Sprite->ChangeAnimation(
-                SpriteSheetComponent::AnimationState::Death,
-                3, 6, 2, 0, 6, 0.15f, false
-            );
-            // Trigger game over
-            GameOverManager::GetInstance().TriggerGameOver();
+            m_DeathAnimationComplete = false;  // Reset the flag
+
+            // Clear bomb references immediately
+            m_ActiveBombs.clear();
+            m_ActiveBombCount = 0;
+
+            ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_PLAYER_DIE, 1.0f);
+
+            // Start death animation
+            if (m_Sprite && !GetOwner()->IsMarkedForDeletion()) {
+                m_Sprite->ChangeAnimation(
+                    SpriteSheetComponent::AnimationState::Death,
+                    3, 6, 2, 0, 6, 0.15f, false
+                );
+            }
+
+            // Don't notify about death here - wait for animation to complete
         }
         else {
+            // Just got hit, become invulnerable
             m_IsInvulnerable = true;
             m_InvulTimer = m_InvulDuration;
             m_FlashTimer = m_FlashInterval;
@@ -130,7 +183,8 @@ namespace dae {
 
     void PlayerComponent::OnMovementPressed(Direction dir)
     {
-        if (m_IsDead) return;
+        if (m_IsDead || GameStateManager::GetState() != GameState::Playing) return;
+
         constexpr float offsetX = 8.5f, offsetY = 5.f;
         auto wp = GetOwner()->GetTransform().GetWorldPosition();
         wp.x -= offsetX; wp.y -= offsetY;
@@ -195,6 +249,8 @@ namespace dae {
 
     void PlayerComponent::UpdateSpriteState()
     {
+        if (!m_Sprite) return;
+
         if (m_MovementDirs.empty()) {
             m_Sprite->SetIdleFrame(
                 SpriteSheetComponent::AnimationState::Idle,
@@ -234,6 +290,11 @@ namespace dae {
 
     void PlayerComponent::PlaceBomb(Scene& scene)
     {
+        // Check game state
+        if (GameStateManager::GetState() != GameState::Playing) {
+            return;
+        }
+
         // Check if we can place a bomb
         if (!CanPlaceBomb()) {
             return; // Already at max bombs
@@ -294,7 +355,8 @@ namespace dae {
         // Find the first non-exploded bomb
         BombComponent* bombToDetonate = nullptr;
         for (auto* bomb : m_ActiveBombs) {
-            if (bomb && !bomb->IsExploded()) {
+            if (bomb && bomb->GetOwner() && !bomb->GetOwner()->IsMarkedForDeletion() &&
+                !bomb->IsExploded()) {
                 bombToDetonate = bomb;
                 break;
             }

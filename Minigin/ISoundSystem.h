@@ -18,4 +18,5 @@ struct ISoundSystem {
 	// Mute functions
 	virtual void ToggleMute() = 0;
 	virtual bool IsMuted() const = 0;
+	virtual void StopAllSounds() = 0;
 };

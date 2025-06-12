@@ -23,7 +23,17 @@ namespace dae {
         if (event.id == GameEvents::ENEMY_DIED) {
             m_EnemyCount--;
             if (m_EnemyCount <= 0 && m_CurrentScene && !m_ExitSpawned) {
-                SpawnExitIfNeeded(m_CurrentScene);
+                // Delay spawn slightly to ensure we're not mid-collision-check
+                SDL_AddTimer(100, // 100ms delay
+                    [](Uint32, void* param) -> Uint32 {
+                        auto* mgr = static_cast<EnemyManager*>(param);
+                        if (mgr && mgr->m_CurrentScene) {
+                            mgr->SpawnExitIfNeeded(mgr->m_CurrentScene);
+                        }
+                        return 0;
+                    },
+                    this
+                );
             }
         }
     }
@@ -52,7 +62,7 @@ namespace dae {
 
         auto& cc = exitGO->AddComponent<CollisionComponent>();
         cc.SetSize(16.f, 16.f);
-        cc.SetResponder(std::make_unique<ExitResponder>(exitGO.get())); 
+        cc.SetResponder(std::make_unique<ExitResponder>(exitGO.get()));
 
         scene->Add(exitGO);
     }
@@ -62,5 +72,10 @@ namespace dae {
         m_EnemyCount = 0;
         m_ExitSpawned = false;
         m_CurrentScene = nullptr;
+    }
+
+    Scene* EnemyManager::GetCurrentScene() const
+    {
+        return m_CurrentScene;
     }
 }

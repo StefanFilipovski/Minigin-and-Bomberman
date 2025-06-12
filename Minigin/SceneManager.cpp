@@ -1,5 +1,6 @@
 ﻿#include "SceneManager.h"
 #include "Scene.h"
+#include <iostream>
 
 void dae::SceneManager::Update(float deltaTime)
 {
@@ -27,31 +28,44 @@ dae::Scene& dae::SceneManager::CreateScene(const std::string& name)
 
 void dae::SceneManager::RemoveScene(const std::string& name)
 {
-    // If this is the active scene, clear the pointer first
-    if (m_ActiveScene && m_ActiveScene->GetName() == name) {
-        m_ActiveScene = nullptr;
-    }
+    auto it = std::find_if(m_scenes.begin(), m_scenes.end(),
+        [&name](const std::shared_ptr<Scene>& scene) {
+            return scene->GetName() == name;
+        });
 
-    // Remove the scene
-    m_scenes.erase(
-        std::remove_if(m_scenes.begin(), m_scenes.end(),
-            [&name](const std::shared_ptr<Scene>& scene) {
-                return scene->GetName() == name;
-            }),
-        m_scenes.end()
-    );
+    if (it != m_scenes.end()) {
+        // If this is the active scene, clear the active scene pointer
+        if (m_ActiveScene == it->get()) {
+            m_ActiveScene = nullptr;
+        }
+
+        // Remove all game objects from the scene first
+        (*it)->RemoveAll();
+
+        // Then remove the scene
+        m_scenes.erase(it);
+    }
 }
 
 void dae::SceneManager::SetActiveScene(const std::string& name)
 {
-    m_ActiveScene = nullptr;
-    for (auto& scene : m_scenes)
-    {
-        if (scene->GetName() == name)
-        {
-            m_ActiveScene = scene.get();
-            break;
-        }
+    // Allow setting to null
+    if (name.empty()) {
+        m_ActiveScene = nullptr;
+        return;
+    }
+
+    auto it = std::find_if(m_scenes.begin(), m_scenes.end(),
+        [&name](const std::shared_ptr<Scene>& scene) {
+            return scene && scene->GetName() == name;
+        });
+
+    if (it != m_scenes.end()) {
+        m_ActiveScene = it->get();
+    }
+    else {
+        std::cerr << "Scene not found: " << name << std::endl;
+        m_ActiveScene = nullptr;
     }
 }
 
@@ -71,4 +85,19 @@ dae::Scene* dae::SceneManager::GetScene(const std::string& name) const
         return it->get();
     }
     return nullptr;
+}
+
+void dae::SceneManager::RemoveAllScenes()
+{
+    // Clear active scene pointer first
+    m_ActiveScene = nullptr;
+
+    // Clear all scenes - this will trigger their destructors
+    m_scenes.clear();
+}
+
+// Overload for nullptr
+void dae::SceneManager::SetActiveScene(std::nullptr_t)
+{
+    m_ActiveScene = nullptr;
 }

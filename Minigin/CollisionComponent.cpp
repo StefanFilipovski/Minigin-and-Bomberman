@@ -8,14 +8,15 @@ namespace dae {
     CollisionComponent::CollisionComponent(GameObject* owner)
         : Component(owner)
     {
-        // might want to initialize size from the RenderComponent
-        // or from some default value.
-
-        dae::CollisionManager::GetInstance().Register(this);
+        CollisionManager::GetInstance().Register(this);
     }
 
     CollisionComponent::~CollisionComponent()
     {
+        // Clear responder first to prevent any callbacks during destruction
+        m_responder.reset();
+
+        // Unregister from collision manager
         CollisionManager::GetInstance().Unregister(this);
     }
 
@@ -33,27 +34,48 @@ namespace dae {
 
     SDL_Rect CollisionComponent::GetBoundingBox() const
     {
-        // We assume that the owner has a TransformComponent.
-        // The TransformComponent provides the object's world position.
-        const auto& pos = GetOwner()->GetTransform().GetWorldPosition();
+        // Multiple safety checks
+        if (!GetOwner()) {
+            return SDL_Rect{ 0, 0, 0, 0 };
+        }
 
-        // Create an SDL_Rect for the collision box.
-        SDL_Rect rect;
-        rect.x = static_cast<int>(pos.x + m_offset.x);
-        rect.y = static_cast<int>(pos.y + m_offset.y);
-        rect.w = static_cast<int>(m_width);
-        rect.h = static_cast<int>(m_height);
-        return rect;
+        // Check if owner is marked for deletion
+        if (GetOwner()->IsMarkedForDeletion()) {
+            return SDL_Rect{ 0, 0, 0, 0 };
+        }
+
+        // Get transform component safely - use the safe method
+        auto* transform = GetOwner()->GetTransformSafe();
+        if (!transform) {
+            // This object doesn't have a transform - return empty rect
+            return SDL_Rect{ 0, 0, 0, 0 };
+        }
+
+        try {
+            const auto& pos = transform->GetWorldPosition();
+
+            SDL_Rect rect;
+            rect.x = static_cast<int>(pos.x + m_offset.x);
+            rect.y = static_cast<int>(pos.y + m_offset.y);
+            rect.w = static_cast<int>(m_width);
+            rect.h = static_cast<int>(m_height);
+            return rect;
+        }
+        catch (...) {
+            // Return empty rect if any exception occurs
+            return SDL_Rect{ 0, 0, 0, 0 };
+        }
     }
 
     void CollisionComponent::Update(float deltaTime)
     {
         (void)deltaTime;
-        // In this example the collision data (size and offset) remain constant.
-        // If needed update the collision box here based on dynamic properties.
     }
+
     void CollisionComponent::SetResponder(std::unique_ptr<CollisionResponder> responder)
     {
         m_responder = std::move(responder);
     }
+
+    
 }

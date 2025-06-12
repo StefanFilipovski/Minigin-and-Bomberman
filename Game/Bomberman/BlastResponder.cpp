@@ -3,6 +3,7 @@
 #include "DestructibleWallResponder.h"
 #include "BaseEnemyComponent.h"
 #include "PlayerComponent.h"
+#include "CollisionComponent.h"
 
 namespace dae {
 
@@ -16,25 +17,28 @@ namespace dae {
         if (!other)
             return;
 
-        // If the other object has a destructible‐wall responder, trigger it
-        if (auto* dwr = other->GetComponent<DestructibleWallResponder>())
-        {
-            dwr->OnCollide(other);
-        }
+        // Safety check
+        if (other->IsMarkedForDeletion())
+            return;
+
+        // We don't handle destructible walls here anymore
+        // They're handled during the explosion setup
 
         // Check for any enemy component derived from BaseEnemyComponent
         if (auto* enemy = other->GetComponent<BaseEnemyComponent>())
         {
-            enemy->Die();
+            if (!enemy->IsDead()) {
+                enemy->Die();
+            }
         }
 
-        // Player takes damage (no invulnerability here)
+        // Player takes damage
         if (auto* player = other->GetComponent<PlayerComponent>())
         {
             player->TakeDamage(1);
         }
 
-        // Static walls will simply block further explosion raycasts
+        // Note: We don't check for bombs here because BombCollisionResponder handles that
     }
 
 } // namespace dae

@@ -43,6 +43,10 @@ namespace dae {
         bool IsGridPositionWalkable(int row, int col) const;
         std::vector<Direction> GetWalkableDirections() const;
 
+        // Deactivation for cleanup
+        void Deactivate();
+        bool IsActive() const { return m_IsActive; }
+
     protected:
         // Pure virtual - each enemy implements its own AI
         virtual void UpdateAI(float dt) = 0;
@@ -51,7 +55,7 @@ namespace dae {
 
         // Movement execution
         void MoveInDirection(Direction dir, float distance);
-        
+
         // Smarter direction selection
         Direction GetOppositeDirection(Direction dir) const;
         Direction ChooseSmartDirection(const std::vector<Direction>& availableDirs, Direction currentDir) const;
@@ -66,8 +70,10 @@ namespace dae {
         Direction m_CurrentDir;
         bool m_JustSpawned;
         bool m_IsDead;
+        bool m_IsActive;
         glm::vec3 m_LastValidPos;
         int m_ScoreValue{ 100 };
+
         // Grid navigation
         std::vector<std::vector<bool>> m_Grid;
         glm::ivec2 m_GridSize;

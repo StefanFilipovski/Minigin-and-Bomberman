@@ -3,6 +3,7 @@
 #include "PlayerManager.h"
 #include <algorithm>
 #include <iostream>
+#include "GameState.h"
 
 namespace dae {
 
@@ -43,6 +44,15 @@ namespace dae {
 
     void OnealComponent::UpdateAI(float dt)
     {
+        // Safety check
+        if (!m_IsActive || GameStateManager::GetState() != GameState::Playing) {
+            return;
+        }
+
+        if (m_Grid.empty()) {
+            return;
+        }
+
         // Handle death display timer
         if (m_ShowingDeath) {
             m_DeathTimer += dt;

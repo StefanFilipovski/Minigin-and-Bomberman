@@ -10,44 +10,106 @@ namespace dae {
 
     void CollisionManager::Register(CollisionComponent* comp)
     {
-        m_collisionComponents.push_back(comp);
+        if (comp && std::find(m_collisionComponents.begin(), m_collisionComponents.end(), comp) == m_collisionComponents.end()) {
+            m_collisionComponents.push_back(comp);
+        }
     }
 
     void CollisionManager::Unregister(CollisionComponent* comp)
     {
-        m_collisionComponents.erase(
-            std::remove(m_collisionComponents.begin(), m_collisionComponents.end(), comp),
-            m_collisionComponents.end()
-        );
+        // Mark for deferred removal if we're currently checking collisions
+        if (m_IsCheckingCollisions) {
+            m_componentsToRemove.push_back(comp);
+        }
+        else {
+            m_collisionComponents.erase(
+                std::remove(m_collisionComponents.begin(), m_collisionComponents.end(), comp),
+                m_collisionComponents.end()
+            );
+        }
     }
 
     void CollisionManager::CheckCollisions()
     {
-        const auto& comps = m_collisionComponents;
-        const size_t count = comps.size();
+        m_IsCheckingCollisions = true;
+
+        // Create a copy to avoid issues with components being removed during iteration
+        std::vector<CollisionComponent*> componentsCopy = m_collisionComponents;
+
+        const size_t count = componentsCopy.size();
         for (size_t i = 0; i < count; ++i)
         {
-            // Compute A’s box once
-            const SDL_Rect rectA = comps[i]->GetBoundingBox();
+            auto* compA = componentsCopy[i];
+            if (!compA || !compA->GetOwner()) {
+                continue;
+            }
+
+            // Compute A's box once
+            SDL_Rect rectA;
+            try {
+                rectA = compA->GetBoundingBox();
+            }
+            catch (...) {
+                continue; // Skip if we can't get bounding box
+            }
 
             for (size_t j = i + 1; j < count; ++j)
             {
-                const SDL_Rect rectB = comps[j]->GetBoundingBox();
+                auto* compB = componentsCopy[j];
+                if (!compB || !compB->GetOwner()) {
+                    continue;
+                }
+
+                SDL_Rect rectB;
+                try {
+                    rectB = compB->GetBoundingBox();
+                }
+                catch (...) {
+                    continue; // Skip if we can't get bounding box
+                }
 
                 if (AABBIntersect(rectA, rectB))
                 {
                     // Notify both responders (if present)
-                    if (auto* rA = comps[i]->GetResponder())
-                        rA->OnCollide(comps[j]->GetOwner());
-                    if (auto* rB = comps[j]->GetResponder())
-                        rB->OnCollide(comps[i]->GetOwner());
+                    try {
+                        if (auto* rA = compA->GetResponder()) {
+                            rA->OnCollide(compB->GetOwner());
+                        }
+                    }
+                    catch (...) {
+                        // Ignore exceptions from responders
+                    }
+
+                    try {
+                        if (auto* rB = compB->GetResponder()) {
+                            rB->OnCollide(compA->GetOwner());
+                        }
+                    }
+                    catch (...) {
+                        // Ignore exceptions from responders
+                    }
                 }
             }
         }
+
+        m_IsCheckingCollisions = false;
+
+        // Process deferred removals
+        for (auto* comp : m_componentsToRemove) {
+            m_collisionComponents.erase(
+                std::remove(m_collisionComponents.begin(), m_collisionComponents.end(), comp),
+                m_collisionComponents.end()
+            );
+        }
+        m_componentsToRemove.clear();
     }
 
     void CollisionManager::DebugDraw(SDL_Renderer* renderer) const
     {
+        if (!renderer) {
+            return;
+        }
+
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
 
         // Grab the floating‐point camera offset
@@ -59,21 +121,31 @@ namespace dae {
 
         for (auto* comp : m_collisionComponents)
         {
-            // Get the world‐space box
-            SDL_Rect r = comp->GetBoundingBox();
+            if (!comp || !comp->GetOwner()) {
+                continue;
+            }
 
-            // Subtract the integer offset
-            r.x -= offX;
-            r.y -= offY;
+            try {
+                // Get the world‐space box
+                SDL_Rect r = comp->GetBoundingBox();
 
-            SDL_RenderDrawRect(renderer, &r);
+                // Subtract the integer offset
+                r.x -= offX;
+                r.y -= offY;
+
+                SDL_RenderDrawRect(renderer, &r);
+            }
+            catch (...) {
+                // Skip drawing if there's any issue
+            }
         }
     }
 
     void CollisionManager::Clear()
     {
+        m_IsCheckingCollisions = false;
+        m_componentsToRemove.clear();
         m_collisionComponents.clear();
     }
-
 
 } // namespace dae

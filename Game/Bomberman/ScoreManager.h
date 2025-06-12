@@ -10,10 +10,11 @@ namespace dae {
         void OnNotify(const Event& event) override;
 
         int GetScore() const { return m_TotalScore; }
-        void ResetScore() { m_TotalScore = 0; UpdateDisplay(); }
+        void ResetScore();
         void AddScore(int points);
 
-        void SetScoreDisplay(ScoreComponent* display) { m_CurrentDisplay = display; }
+        void SetScoreDisplay(ScoreComponent* display);
+        ScoreComponent* GetScoreDisplay() const { return m_CurrentDisplay; }
 
     private:
         friend class Singleton<ScoreManager>;

@@ -6,24 +6,21 @@ namespace dae {
     class TextComponent;
     class Font;
 
-    class ScoreComponent : public Component {
+    class LivesDisplayComponent : public Component {
     public:
-        explicit ScoreComponent(GameObject* owner);
-        ~ScoreComponent() override;
+        explicit LivesDisplayComponent(GameObject* owner);
+        ~LivesDisplayComponent() override;
 
         void Initialize(); // Call this after adding to GameObject
-        void Update(float deltaTime) override;
-        void SetScore(int score);  // Just updates display
+        void SetLives(int lives);  // Just updates display
+        void PerformInit();
+        void Update(float deltaTime);
 
     private:
-        void PerformInit();
-
         TextComponent* m_TextComponent{ nullptr };
         std::shared_ptr<Font> m_Font;
         bool m_NeedsInit{ false };
         bool m_Initialized{ false };
         bool m_NeedsRefresh{ false };
-        float m_InitTimer{ 0.0f };
-        int m_LastDisplayedScore{ -1 };  // Track last displayed score
     };
 }

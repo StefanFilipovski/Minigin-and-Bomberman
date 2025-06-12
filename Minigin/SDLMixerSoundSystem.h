@@ -10,6 +10,7 @@ public:
     int PlayLoop(sound_id id, float volume) override;
     void StopChannel(int channel) override;
     void Load(sound_id id, const std::string& filename);
+    void StopAllSounds() override;
 
     // Music functions
     void PlayMusic(const std::string& filename, float volume = 1.0f) override;

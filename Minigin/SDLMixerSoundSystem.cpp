@@ -172,6 +172,19 @@ void SDLMixerSoundSystem::Load(sound_id id, const std::string& filename) {
     pImpl->LoadSound(id, filename);
 }
 
+void SDLMixerSoundSystem::StopAllSounds() {
+   
+    Mix_HaltChannel(-1);
+
+    // Clear any pending play requests
+    {
+        std::lock_guard<std::mutex> lk(pImpl->mtx);
+        // Clear the queue
+        std::queue<PlayRequest> empty;
+        std::swap(pImpl->requests, empty);
+    }
+}
+
 void SDLMixerSoundSystem::PlayMusic(const std::string& filename, float volume) {
     // Stop current music if any
     if (pImpl->currentMusic) {

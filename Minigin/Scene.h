@@ -20,13 +20,18 @@ namespace dae
 		void Render() const;
 		const std::string& GetName() const { return m_name; }
 
+		void SetActive(bool active) { m_IsActive = active; }
+		bool IsActive() const { return m_IsActive; }
+
 		Scene(const Scene& other) = delete;
 		Scene(Scene&& other) = delete;
 		Scene& operator=(const Scene& other) = delete;
 		Scene& operator=(Scene&& other) = delete;
 
 	private:
+		bool m_IsActive{ true };
 		std::string m_name;
 		std::vector<std::shared_ptr<GameObject>> m_objects; 
+		std::vector<std::shared_ptr<GameObject>> m_pendingObjects;
 	};
 }

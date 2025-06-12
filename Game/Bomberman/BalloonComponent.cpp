@@ -1,5 +1,6 @@
 ﻿#include "BalloonComponent.h"
 #include "GameObject.h"
+#include "GameState.h"
 
 namespace dae {
 
@@ -37,6 +38,16 @@ namespace dae {
 
     void BalloonComponent::UpdateAI(float dt)
     {
+        // Safety check - don't update if inactive or transitioning
+        if (!m_IsActive || GameStateManager::GetState() != GameState::Playing) {
+            return;
+        }
+
+        // Check if grid is still valid
+        if (m_Grid.empty()) {
+            return;
+        }
+
         m_MoveTimer -= dt;
         if (m_MoveTimer <= 0.f) {
             ChooseRandomDirection();

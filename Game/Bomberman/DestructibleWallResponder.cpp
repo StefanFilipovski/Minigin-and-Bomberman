@@ -53,14 +53,20 @@ namespace dae {
 
             // Hide sprite after animation
             constexpr Uint32 hideDelayMs = 500;
-            SDL_AddTimer(hideDelayMs,
-                [](Uint32, void* param)->Uint32 {
-                    if (param) {
-                        static_cast<SpriteSheetComponent*>(param)->Hide();
-                    }
-                    return 0;
-                },
-                m_pSheet);
+            if (m_pOwner) {
+                // Mark the owner for deletion after animation
+                SDL_AddTimer(hideDelayMs,
+                    [](Uint32, void* param)->Uint32 {
+                        if (param) {
+                            auto* owner = static_cast<GameObject*>(param);
+                            if (!owner->IsMarkedForDeletion()) {
+                                owner->MarkForDeletion();
+                            }
+                        }
+                        return 0;
+                    },
+                    m_pOwner);
+            }
 
             // Disable collision so players can walk through
             if (m_pCollider) {

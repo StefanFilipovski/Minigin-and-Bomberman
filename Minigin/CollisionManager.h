@@ -8,7 +8,6 @@ namespace dae {
 
     class CollisionComponent;
 
-  
     class CollisionManager final : public Singleton<CollisionManager>
     {
     public:
@@ -32,6 +31,8 @@ namespace dae {
         ~CollisionManager() = default;
 
         std::vector<CollisionComponent*> m_collisionComponents;
+        std::vector<CollisionComponent*> m_componentsToRemove;
+        bool m_IsCheckingCollisions{ false };
     };
 
-} 
+}

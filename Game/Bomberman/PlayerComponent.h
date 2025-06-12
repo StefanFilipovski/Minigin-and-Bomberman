@@ -17,7 +17,7 @@ namespace dae {
         enum class Direction { Left, Right, Up, Down };
 
         explicit PlayerComponent(GameObject* owner);
-        ~PlayerComponent() override = default;
+        ~PlayerComponent();
 
         // Called every frame
         void Update(float deltaTime) override;
@@ -109,5 +109,9 @@ namespace dae {
         float m_FootstepTimer{ 0.0f };
         float m_FootstepInterval{ 0.5f }; // Adjust this value to change speed
         int m_FootstepChannel{ -1 };
+
+        bool m_DeathAnimationComplete{ false };
+
+
     };
 }

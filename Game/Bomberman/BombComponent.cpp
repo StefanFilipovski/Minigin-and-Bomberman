@@ -63,8 +63,15 @@ namespace dae
     void BombComponent::Explode()
     {
         // Prevent multiple explosions
-        if (m_Exploded || m_MarkedForCleanup) return;
+        if (m_Exploded || m_MarkedForCleanup || m_IsExploding) return;
         m_Exploded = true;
+        m_IsExploding = true;
+
+        // Safety check - ensure our owner is valid
+        if (!GetOwner() || GetOwner()->IsMarkedForDeletion()) {
+            m_IsExploding = false;
+            return;
+        }
 
         // Hide sprite immediately
         if (m_pSprite) {
@@ -79,10 +86,18 @@ namespace dae
 
         ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_BOMB_EXPLODE, 1.0f);
 
+        // Get transform using the SAFE method
+        auto* transform = GetOwner()->GetTransformSafe();
+        if (!transform) {
+            std::cerr << "BombComponent::Explode - Bomb has no transform!" << std::endl;
+            m_IsExploding = false;
+            return;
+        }
+
         // Calculate explosion center
         constexpr float bombVisOffsetX = 8.f;
         constexpr float bombVisOffsetY = 8.f;
-        auto world3 = GetOwner()->GetTransform().GetWorldPosition();
+        auto world3 = transform->GetWorldPosition();
         world3.x -= bombVisOffsetX;
         world3.y -= bombVisOffsetY;
 
@@ -95,22 +110,40 @@ namespace dae
         m_Blasts.clear();
         m_Blasts.reserve(1 + 4 * m_Range);
 
-        // Lambda to spawn blast
+        // Lambda to spawn blast - ensure transform is added first
         auto spawnBlastAt = [&](const glm::vec2& pos, BlastResponder::Segment seg) {
-            auto blast = std::make_shared<GameObject>();
-            blast->AddComponent<TransformComponent>()
-                .SetLocalPosition(pos.x, pos.y, 0.f);
-            auto& rc = blast->AddComponent<RenderComponent>();
-            rc.SetTexture("RedSquare.tga");
-            auto& cc = blast->AddComponent<CollisionComponent>();
-            cc.SetSize(s_TileSize, s_TileSize);
-            cc.SetResponder(std::make_unique<BlastResponder>(seg));
-            m_pScene->Add(blast);
-            m_Blasts.push_back(blast);
+            try {
+                auto blast = std::make_shared<GameObject>();
+
+                // CRITICAL: Add TransformComponent first
+                blast->AddComponent<TransformComponent>().SetLocalPosition(pos.x, pos.y, 0.f);
+
+                // Then add render component
+                blast->AddComponent<RenderComponent>().SetTexture("RedSquare.tga");
+
+                // Finally add collision
+                auto& cc = blast->AddComponent<CollisionComponent>();
+                cc.SetSize(s_TileSize, s_TileSize);
+                cc.SetResponder(std::make_unique<BlastResponder>(seg));
+
+                // Add to scene and track
+                m_pScene->Add(blast);
+                m_Blasts.push_back(blast);
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Failed to spawn blast: " << e.what() << std::endl;
+            }
             };
 
         // Spawn center blast
         spawnBlastAt(center, BlastResponder::Segment::Center);
+
+        // Structure to store walls to destroy
+        struct WallToDestroy {
+            GameObject* owner;
+            DestructibleWallResponder* responder;
+        };
+        std::vector<WallToDestroy> wallsToDestroy;
 
         // Spawn directional blasts
         constexpr glm::vec2 dirs[4] = { {1,0},{-1,0},{0,1},{0,-1} };
@@ -123,42 +156,79 @@ namespace dae
                 SDL_Rect box{ int(cursor.x), int(cursor.y),
                               int(s_TileSize), int(s_TileSize) };
 
-                CollisionComponent* hit = nullptr;
+                bool hitStatic = false;
+                GameObject* hitObject = nullptr;
+                DestructibleWallResponder* destructibleHit = nullptr;
 
                 // Make a copy of components to avoid iterator issues
                 auto components = CollisionManager::GetInstance().GetComponents();
 
                 for (auto* c : components)
                 {
-                    if (!c) continue;
+                    if (!c || !c->GetOwner()) continue;
+                    if (c->GetOwner()->IsMarkedForDeletion()) continue;
 
                     auto* resp = c->GetResponder();
                     if (!resp) continue;
 
-                    if (!dynamic_cast<StaticWallResponder*>(resp) &&
-                        !dynamic_cast<DestructibleWallResponder*>(resp))
-                        continue;
+                    SDL_Rect cBox = c->GetBoundingBox();
+                    // Check if bounding box is valid (not empty)
+                    if (cBox.w == 0 || cBox.h == 0) continue;
 
-                    if (AABBIntersect(box, c->GetBoundingBox()))
+                    // Check for walls
+                    if (dynamic_cast<StaticWallResponder*>(resp))
                     {
-                        hit = c;
-                        break;
+                        if (AABBIntersect(box, cBox))
+                        {
+                            hitStatic = true;
+                            break;
+                        }
+                    }
+                    else if (auto* dwr = dynamic_cast<DestructibleWallResponder*>(resp))
+                    {
+                        if (AABBIntersect(box, cBox))
+                        {
+                            hitObject = c->GetOwner();
+                            destructibleHit = dwr;
+                            break;
+                        }
                     }
                 }
 
-                if (hit && hit->GetResponder() && dynamic_cast<StaticWallResponder*>(hit->GetResponder()))
+                // If hit static wall, stop
+                if (hitStatic)
                     break;
 
-                if (hit && hit->GetResponder())
+                // If hit destructible wall, mark for destruction
+                if (destructibleHit && hitObject)
                 {
-                    if (auto* d = dynamic_cast<DestructibleWallResponder*>(hit->GetResponder()))
-                        d->OnCollide(nullptr);
-                    break;
+                    wallsToDestroy.push_back({ hitObject, destructibleHit });
+                    // Place blast on the wall
+                    spawnBlastAt(cursor, BlastResponder::Segment::End);
+                    break;  // Stop after destructible wall
                 }
 
+                // No wall hit, place blast
                 auto seg = (i == m_Range ? BlastResponder::Segment::End : BlastResponder::Segment::Middle);
                 spawnBlastAt(cursor, seg);
             }
+        }
+
+        // Schedule wall destruction for next frame to avoid iterator issues
+        if (!wallsToDestroy.empty()) {
+            SDL_AddTimer(1, // 1ms delay
+                [](Uint32, void* param) -> Uint32 {
+                    auto* walls = static_cast<std::vector<WallToDestroy>*>(param);
+                    for (const auto& wall : *walls) {
+                        if (wall.owner && !wall.owner->IsMarkedForDeletion() && wall.responder) {
+                            wall.responder->OnCollide(nullptr);
+                        }
+                    }
+                    delete walls;
+                    return 0;
+                },
+                new std::vector<WallToDestroy>(wallsToDestroy)
+            );
         }
 
         // Transition to hide state
@@ -168,13 +238,12 @@ namespace dae
         Event bombEvent{ GameEvents::BOMB_EXPLODED };
         Notify(bombEvent);
 
-        // Schedule collision check for next frame
-        // Don't do it immediately to avoid issues
+        m_IsExploding = false;
     }
 
     void BombComponent::ForceExplode()
     {
-        if (!m_Exploded && m_State) {
+        if (!m_Exploded && !m_IsExploding && m_State) {
             // Transition directly to explosion
             Explode();
         }

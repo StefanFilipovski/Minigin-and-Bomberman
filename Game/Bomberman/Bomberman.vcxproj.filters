@@ -46,6 +46,11 @@
     <ClCompile Include="HighScoreManager.cpp" />
     <ClCompile Include="GameOverManager.cpp" />
     <ClCompile Include="ScoreManager.cpp" />
+    <ClCompile Include="LivesManager.cpp" />
+    <ClCompile Include="LivesDisplayComponent.cpp" />
+    <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="MainMenuScene.cpp" />
+    <ClCompile Include="SceneCleanupManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -94,5 +99,10 @@
     <ClInclude Include="HighScoreManager.h" />
     <ClInclude Include="GameOverManager.h" />
     <ClInclude Include="ScoreManager.h" />
+    <ClInclude Include="LivesManager.h" />
+    <ClInclude Include="LivesDisplayComponent.h" />
+    <ClInclude Include="GameState.h" />
+    <ClInclude Include="MainMenuScene.h" />
+    <ClInclude Include="SceneCleanupManager.h" />
   </ItemGroup>
 </Project>

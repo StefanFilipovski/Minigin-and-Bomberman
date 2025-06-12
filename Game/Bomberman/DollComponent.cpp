@@ -1,5 +1,6 @@
 #include "DollComponent.h"
 #include "GameObject.h"
+#include "GameState.h"
 
 namespace dae {
 
@@ -36,6 +37,15 @@ namespace dae {
 
     void DollComponent::UpdateAI(float dt)
     {
+        // Safety check
+        if (!m_IsActive || GameStateManager::GetState() != GameState::Playing) {
+            return;
+        }
+
+        if (m_Grid.empty()) {
+            return;
+        }
+
         m_MoveTimer -= dt;
 
         // Check if we need a new direction

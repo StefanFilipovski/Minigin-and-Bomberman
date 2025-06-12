@@ -11,6 +11,6 @@ namespace dae {
         constexpr sound_id SOUND_POWERUP_PICKUP = 5;
         constexpr sound_id SOUND_PLAYER_DIE = 6;
         constexpr sound_id SOUND_LEVEL_COMPLETE = 7;
-        constexpr sound_id SOUND_FOOTSTEPS = 8;  // Add this
+        constexpr sound_id SOUND_FOOTSTEPS = 8; 
     }
 }

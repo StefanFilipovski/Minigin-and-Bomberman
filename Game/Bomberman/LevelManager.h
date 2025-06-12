@@ -11,12 +11,12 @@ namespace dae {
         void LoadNextLevel();
         void ResetToFirstLevel();
 
-        // Add these methods
-        void QueueLevelTransition() { m_TransitionQueued = true; }
+        void QueueLevelTransition();
         void ProcessPendingTransition();
 
         int GetCurrentLevel() const { return m_CurrentLevel; }
         bool IsLastLevel() const { return m_CurrentLevel >= (int)m_LevelFiles.size() - 1; }
+        bool IsTransitioning() const { return m_IsTransitioning; }
 
     private:
         friend class Singleton<LevelManager>;
@@ -24,6 +24,7 @@ namespace dae {
 
         std::vector<std::string> m_LevelFiles;
         int m_CurrentLevel{ 0 };
-        bool m_TransitionQueued{ false };  // Add this
+        bool m_TransitionQueued{ false };
+        bool m_IsTransitioning{ false };  // Add this flag
     };
 }

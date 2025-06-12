@@ -6,6 +6,7 @@
 #include <CollisionComponent.h>
 #include <ServiceLocator.h>
 #include <SoundIds.h>
+#include "GameState.h"
 
 namespace dae {
 
@@ -31,6 +32,7 @@ namespace dae {
         , m_CurrentDir(Direction::Down)
         , m_JustSpawned(true)
         , m_IsDead(false)
+        , m_IsActive(true)
         , m_Rng(std::random_device{}())
     {
         m_Transform = &owner->GetTransform();
@@ -38,15 +40,30 @@ namespace dae {
         assert(m_Transform && m_Sprite && "Enemy needs Transform + SpriteSheetComponent");
 
         m_LastValidPos = m_Transform->GetLocalPosition();
-        // Debug print
         std::cout << "BaseEnemyComponent created with score: " << m_ScoreValue << std::endl;
     }
 
     void BaseEnemyComponent::Update(float dt)
     {
+        // Don't update if we're in any transition state
+        if (GameStateManager::IsTransitioning()) {
+            return;
+        }
+
+        // Safety checks
+        if (!m_IsActive || !GetOwner() || GetOwner()->IsMarkedForDeletion()) {
+            return;
+        }
+
+        // Additional check for valid grid
+        if (m_Grid.empty() || m_GridSize.x <= 0 || m_GridSize.y <= 0) {
+            return;
+        }
+
         if (m_IsDead) {
-            if (m_Sprite->GetCurrentFrame() == m_Sprite->GetFrameCount() - 1) {
+            if (m_Sprite && m_Sprite->GetCurrentFrame() == m_Sprite->GetFrameCount() - 1) {
                 m_Sprite->Hide();
+                GetOwner()->MarkForDeletion();
             }
             return;
         }
@@ -56,6 +73,20 @@ namespace dae {
 
         if (m_JustSpawned) {
             m_JustSpawned = false;
+        }
+    }
+
+    void BaseEnemyComponent::Deactivate()
+    {
+        m_IsActive = false;
+        m_IsDead = true;
+
+        // Clear grid to prevent access
+        m_Grid.clear();
+
+        // Disable collision
+        if (auto* collision = GetOwner()->GetComponent<CollisionComponent>()) {
+            collision->SetResponder(nullptr);
         }
     }
 
@@ -117,8 +148,24 @@ namespace dae {
 
     bool BaseEnemyComponent::IsGridPositionWalkable(int row, int col) const
     {
-        if (row < 0 || row >= m_GridSize.y) return false;
-        if (col < 0 || col >= m_GridSize.x) return false;
+        // Extra safety checks
+        if (m_Grid.empty() || m_GridSize.x <= 0 || m_GridSize.y <= 0) {
+            return false;
+        }
+
+        if (row < 0 || row >= m_GridSize.y || col < 0 || col >= m_GridSize.x) {
+            return false;
+        }
+
+        // Bounds check for the actual vector
+        if (row >= static_cast<int>(m_Grid.size())) {
+            return false;
+        }
+
+        if (m_Grid[row].empty() || col >= static_cast<int>(m_Grid[row].size())) {
+            return false;
+        }
+
         return m_Grid[row][col];
     }
 
@@ -174,9 +221,17 @@ namespace dae {
 
     void BaseEnemyComponent::Die()
     {
-        if (m_IsDead) return;
+        if (m_IsDead || !m_IsActive) return;
+
+        // Safety check
+        if (!GetOwner() || GetOwner()->IsMarkedForDeletion()) {
+            return;
+        }
+
         m_IsDead = true;
-        std::cout << "Enemy dying with score value: " << m_ScoreValue << std::endl; // Debug
+        m_IsActive = false;
+
+        std::cout << "Enemy dying with score value: " << m_ScoreValue << std::endl;
 
         ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_ENEMY_DIE, 0.6f);
 
@@ -188,11 +243,10 @@ namespace dae {
             collision->SetResponder(nullptr);
         }
 
-        // Notify observers with score value
+        // Immediate notification - no delay needed if we're careful
         Event deathEvent;
         deathEvent.id = GameEvents::ENEMY_DIED;
-        deathEvent.data = m_ScoreValue; // Use the enemy's score value
-        std::cout << "Sending death event with score: " << deathEvent.data << std::endl; // Debug
+        deathEvent.data = m_ScoreValue;
         Notify(deathEvent);
     }
 

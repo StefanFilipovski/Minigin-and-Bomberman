@@ -13,6 +13,7 @@ namespace dae {
         void OnNotify(const Event& event) override;
         void SpawnExitIfNeeded(Scene* scene);
         void ClearLevel();
+        Scene* GetCurrentScene() const;
         void SetCurrentScene(Scene* scene) { m_CurrentScene = scene; } 
 
         int GetEnemyCount() const { return m_EnemyCount; }
@@ -24,5 +25,6 @@ namespace dae {
         int m_EnemyCount{ 0 };
         Scene* m_CurrentScene{ nullptr };
         bool m_ExitSpawned{ false };
+        std::vector<Event> m_PendingNotifications;
     };
 }

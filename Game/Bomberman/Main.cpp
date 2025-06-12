@@ -47,15 +47,15 @@
 #include "SoundIds.h"
 #include "HighScoreManager.h"
 
-
-struct HitLogger : public dae::Observer {
-    void OnNotify(const dae::Event& ev) override {
-        if (ev.id == GameEvents::PLAYER_HIT)
-            std::cout << "[Logger] Player was hit!\n";
-        else if (ev.id == GameEvents::PLAYER_DIED)
-            std::cout << "[Logger] Player has died.\n";
-    }
-};
+//
+//struct HitLogger : public dae::Observer {
+//    void OnNotify(const dae::Event& ev) override {
+//        if (ev.id == GameEvents::PLAYER_HIT)
+//            std::cout << "[Logger] Player was hit!\n";
+//        else if (ev.id == GameEvents::PLAYER_DIED)
+//            std::cout << "[Logger] Player has died.\n";
+//    }
+//};
 
 void load()
 {
@@ -76,7 +76,7 @@ int main(int, char* [])
 
         auto soundSystem = std::make_unique<SDLMixerSoundSystem>("../Data/");
         // Load all sound effects
-        soundSystem->Load(dae::SoundId::SOUND_PLAYER_HIT, "PlayerHit.wav");
+        soundSystem->Load(dae::SoundId::SOUND_PLAYER_HIT, "hitbomberman.wav");
         soundSystem->Load(dae::SoundId::SOUND_BOMB_PLACE, "placebomb.wav");
         soundSystem->Load(dae::SoundId::SOUND_BOMB_EXPLODE, "explode.wav");
         soundSystem->Load(dae::SoundId::SOUND_WALL_DESTROY, "WallDestroy.wav");

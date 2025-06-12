@@ -40,6 +40,8 @@
 #include "ScoreComponent.h"
 #include "GameOverManager.h"
 #include "ScoreManager.h"
+#include "LivesDisplayComponent.h"
+#include "LivesManager.h"
 
 namespace dae {
 
@@ -59,6 +61,10 @@ namespace dae {
         }
         file.close();
 
+        if (mapRows.empty()) {
+            std::cerr << "Level file is empty: " << filename << "\n";
+            return;
+        }
 
 
 
@@ -74,6 +80,7 @@ namespace dae {
         rm.LoadTexture("BalloomSpritesheet.tga");
         rm.LoadTexture("OnealSpritesheet.tga");
         rm.LoadTexture("MinvoSpritesheet.tga");
+        rm.LoadTexture("DollSpritesheet.tga");
         rm.LoadTexture("PowerUpBomb.tga");
         rm.LoadTexture("PowerUpDetonator.tga");
         rm.LoadTexture("PowerUpFlame.tga");
@@ -125,13 +132,37 @@ namespace dae {
         }
 
         
-        auto scoreGO = std::make_shared<GameObject>();
-        scoreGO->AddComponent<TransformComponent>().SetLocalPosition(10.f, 10.f, 0.f);
-        auto& scoreComp = scoreGO->AddComponent<ScoreComponent>();
-        scoreComp.Initialize();
+        // Add score display
+        {
+            auto scoreGO = std::make_shared<GameObject>();
+            auto& transform = scoreGO->AddComponent<TransformComponent>();
+            transform.SetLocalPosition(10.f, 10.f, 0.f);
 
-        scene.Add(scoreGO);
-        
+            // Create the score component
+            auto& scoreComp = scoreGO->AddComponent<ScoreComponent>();
+
+            // Add to scene FIRST
+            scene.Add(scoreGO);
+
+            // Initialize AFTER adding to scene
+            scoreComp.Initialize();
+        }
+
+        // Add lives display
+        {
+            auto livesGO = std::make_shared<GameObject>();
+            auto& transform = livesGO->AddComponent<TransformComponent>();
+            transform.SetLocalPosition(500.f, 10.f, 0.f);
+
+            // Create the lives component
+            auto& livesComp = livesGO->AddComponent<LivesDisplayComponent>();
+
+            // Add to scene FIRST
+            scene.Add(livesGO);
+
+            // Initialize AFTER adding to scene
+            livesComp.Initialize();
+        }
 
         //static ScoreObserver scoreObserver; // tracks kills & score
 
@@ -270,6 +301,7 @@ namespace dae {
                     pc.BeginMove();
                     auto& lives = playerGO->AddComponent<LivesDisplay>(3);
                     pc.AddObserver(&lives);
+                    pc.AddObserver(&LivesManager::GetInstance());
 
                     // Register player with PlayerManager
                     constexpr int pid = 0;
