@@ -41,9 +41,9 @@ namespace dae {
         // Create exit at a random walkable position
         auto exitGO = std::make_shared<GameObject>();
 
-        // Place at grid position (10, 10) for example
-        float x = 10 * 16.f; // tile 10
-        float y = 10 * 16.f + 64.f; // tile 10 + UI offset
+        
+        float x = 10 * 16.f; 
+        float y = 10 * 16.f + 64.f; 
 
         exitGO->AddComponent<TransformComponent>()
             .SetLocalPosition(x, y, 0.f);

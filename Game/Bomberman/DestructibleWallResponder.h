@@ -21,7 +21,7 @@ namespace dae {
 
     private:
         GameObject* m_pOwner;
-        Scene* m_pScene;  // Store scene reference
+        Scene* m_pScene;  
         SpriteSheetComponent* m_pSheet{ nullptr };
         CollisionComponent* m_pCollider{ nullptr };
         bool m_Started{ false };

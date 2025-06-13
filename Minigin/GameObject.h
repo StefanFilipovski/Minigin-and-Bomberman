@@ -124,7 +124,7 @@ namespace dae
         std::vector<std::unique_ptr<Component>> m_pComponents;
         bool m_markedForDeletion = false;
 
-        std::vector<GameObject*> m_Children;  // Fix: Use raw pointers instead of shared_ptr
+        std::vector<GameObject*> m_Children;  
 
         GameObject* m_pParent = nullptr;
 

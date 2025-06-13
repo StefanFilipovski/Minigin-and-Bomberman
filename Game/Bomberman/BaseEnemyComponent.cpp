@@ -192,7 +192,7 @@ namespace dae {
         Event deathEvent;
         deathEvent.id = GameEvents::ENEMY_DIED;
         deathEvent.data = m_ScoreValue; // Use the enemy's score value
-        std::cout << "Sending death event with score: " << deathEvent.data << std::endl; // Debug
+        std::cout << "Sending death event with score: " << deathEvent.data << std::endl; 
         Notify(deathEvent);
     }
 

@@ -35,7 +35,7 @@ namespace dae {
         }
 
         // DO NOT add default high scores - start with empty list
-        // Players will earn their place on the leaderboard!
+       
     }
 
     void HighScoreManager::SaveHighScores()

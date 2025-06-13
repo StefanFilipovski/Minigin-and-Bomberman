@@ -10,7 +10,7 @@ namespace dae {
     struct Event {
         EventID id;
         int data{ 0 };
-        // You can optionally add additional payload data here.
+        
     };
 
     class Observer {

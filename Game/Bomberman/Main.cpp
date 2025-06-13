@@ -19,18 +19,9 @@
 #include "RenderComponent.h"
 #include "TransformComponent.h"
 #include "GameObject.h"
-#include "FPSCounter.h"
-#include "CharacterMoveComponent.h"
-#include "UpDownMoveComponent.h"
-#include "GameActor.h"
 #include "InputManager.h"
-#include "GameActorCommand.cpp"
-#include "MoveCommand.h"
 #include "LivesDisplay.h"
-#include "DeathCommand.h"
 #include "PointsDisplay.h"
-#include "PointsSubject.h"
-#include "AddPointsCommand.h"
 #include <DebugUIManager.h>
 #include "SpriteSheetComponent.h"
 #include "CollisionManager.h"  
@@ -49,15 +40,7 @@
 #include "StartScreenLoader.h"
 
 
-//
-//struct HitLogger : public dae::Observer {
-//    void OnNotify(const dae::Event& ev) override {
-//        if (ev.id == GameEvents::PLAYER_HIT)
-//            std::cout << "[Logger] Player was hit!\n";
-//        else if (ev.id == GameEvents::PLAYER_DIED)
-//            std::cout << "[Logger] Player has died.\n";
-//    }
-//};
+
 
 void load()
 {

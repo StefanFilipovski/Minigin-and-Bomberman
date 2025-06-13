@@ -33,13 +33,6 @@ namespace dae {
 
             ServiceLocator::GetSoundSystem().Play(dae::SoundId::SOUND_POWERUP_PICKUP, 0.9f);
 
-
-            // 4) (Optional) You can also hide the sprite or disable rendering here,
-            //    if Collect(...) doesn't already do that.
-
-            // --- NO MarkForDeletion() here! ---
-            // Deletion will happen later, once your Scene/System sees IsCollected()==true
-            // and runs its “end-of-frame cleanup” pass. 
         }
     }
 }

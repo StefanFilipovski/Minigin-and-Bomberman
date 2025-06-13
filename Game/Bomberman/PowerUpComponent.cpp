@@ -49,8 +49,6 @@ namespace dae {
         if (auto* transform = &GetOwner()->GetTransform()) {
             transform->SetLocalPosition(-1000.f, -1000.f, 0.f);
         }
-
-        // Mark for cleanup
-       /* GetOwner()->MarkForDeletion();*/
+                
     }
 }

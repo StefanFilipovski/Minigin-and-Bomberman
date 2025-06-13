@@ -41,26 +41,26 @@ namespace dae {
         friend struct BombFuseState;
         friend struct BombHideState;
 
-        // --- state machine pointer ---
+        //state machine pointer
         std::unique_ptr<IBombState>        m_State{ nullptr };
 
-        // --- explosion config ---
+        //explosion config
         int                                m_Range{ 1 };
         float                              m_FuseTime{ 0.f };
 
-        // --- runtime timers & flags ---
+        // runtime timers & flags
         float                              m_Timer{ 0.f };
         bool                               m_Exploded{ false };
-        bool                               m_IsExploding{ false }; // Add this to prevent double explosion
+        bool                               m_IsExploding{ false }; 
         bool                               m_HidePending{ false };
         float                              m_HideTimer{ 0.f };
         bool                               m_MarkedForCleanup{ false };
 
-        // --- blast storage & rendering ---
+        // blast storage & rendering
         std::vector<std::shared_ptr<GameObject>> m_Blasts;
         SpriteSheetComponent* m_pSprite{ nullptr };
 
-        // --- where to spawn blasts ---
+        // where to spawn blasts 
         Scene* m_pScene{ nullptr };
     };
 } // namespace dae

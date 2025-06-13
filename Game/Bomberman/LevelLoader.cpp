@@ -137,7 +137,7 @@ namespace dae {
         std::shared_ptr<GameObject> livesDisplayGO = nullptr;
 
 
-        //static ScoreObserver scoreObserver; // tracks kills & score
+       
 
         // 7) Spawn map objects
         for (int r = 0; r < rows; ++r) {
@@ -147,7 +147,7 @@ namespace dae {
                 float y = r * tileSize + uiOffsetY;
 
                 switch (tile) {
-                case 'W': {
+                case 'W': { // static walls
                     auto wall = std::make_shared<GameObject>();
                     wall->AddComponent<TransformComponent>().SetLocalPosition(x, y, 0.f);
                     wall->AddComponent<RenderComponent>().SetTexture("StaticWall.tga");
@@ -157,7 +157,7 @@ namespace dae {
                     scene.Add(wall);
                     break;
                 }
-                case 'B': {
+                case 'B': { // Breakable walls
                     constexpr float spriteOffset = 8.f;
 
                     // Random power-up generation
@@ -197,7 +197,7 @@ namespace dae {
                         auto& cc = powerUp->AddComponent<CollisionComponent>();
 
                         // Make the collision box smaller than the tile
-                        float powerUpCollisionSize = tileSize * 0.6f; // 60% of tile size
+                        float powerUpCollisionSize = tileSize * 0.6f; 
                         cc.SetSize(powerUpCollisionSize, powerUpCollisionSize);
 
                         // Center the collision box
@@ -256,7 +256,7 @@ namespace dae {
                     break;
 
                 }
-                case 'P': {
+                case 'P': {//player
                     constexpr float pxOff = 7.5f, pyOff = 5.f;
                     auto playerGO = std::make_shared<GameObject>();
                     playerGO->AddComponent<TransformComponent>()

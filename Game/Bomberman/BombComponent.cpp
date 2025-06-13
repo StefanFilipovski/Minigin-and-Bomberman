@@ -1,11 +1,6 @@
-﻿// BombComponent.cpp
-#include "BombComponent.h"
-
-// state classes
+﻿#include "BombComponent.h"
 #include "BombFuseState.h"
 #include "BombHideState.h"
-
-// your existing headers
 #include "SpriteSheetComponent.h"
 #include "TransformComponent.h"
 #include "RenderComponent.h"

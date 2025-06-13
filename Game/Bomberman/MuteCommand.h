@@ -9,7 +9,7 @@ namespace dae {
         void Execute() override {
             ServiceLocator::GetSoundSystem().ToggleMute();
 
-            // Optional: Print mute status
+            
             if (ServiceLocator::GetSoundSystem().IsMuted()) {
                 std::cout << "Sound muted\n";
             }

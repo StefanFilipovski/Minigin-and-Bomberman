@@ -225,7 +225,7 @@ void SDLMixerSoundSystem::ToggleMute() {
         pImpl->savedMusicVolume = Mix_VolumeMusic(-1) / static_cast<float>(MIX_MAX_VOLUME);
         Mix_VolumeMusic(0);
 
-        // Don't change channel volumes here - we'll handle it in Play/PlayLoop
+        // Don't change channel volumes here, handle it in Play/PlayLoop
     }
     else {
         // Unmute music

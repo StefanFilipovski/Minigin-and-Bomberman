@@ -9,7 +9,7 @@
 
 namespace dae
 {
-    // Private Implementation (Pimpl)
+   
     class Gamepad::GamepadImpl
     {
     public:
@@ -43,14 +43,14 @@ namespace dae
         delete m_pImpl;
     }
 
-    // Move constructor
+   
     Gamepad::Gamepad(Gamepad&& other) noexcept
         : m_PlayerIndex(other.m_PlayerIndex), m_pImpl(other.m_pImpl)
     {
         other.m_pImpl = nullptr;
     }
 
-    // Move assignment operator
+    
     Gamepad& Gamepad::operator=(Gamepad&& other) noexcept
     {
         if (this != &other)

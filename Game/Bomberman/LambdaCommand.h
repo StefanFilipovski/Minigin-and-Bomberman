@@ -1,4 +1,3 @@
-// LambdaCommand.h
 #pragma once
 #include "Command.h"
 #include <functional>

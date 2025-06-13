@@ -155,7 +155,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AddPointsCommand.cpp" />
     <ClCompile Include="BalloonComponent.cpp" />
     <ClCompile Include="BaseEnemyComponent.cpp" />
     <ClCompile Include="BlastResponder.cpp" />
@@ -164,12 +163,10 @@
     <ClCompile Include="BombComponent.cpp" />
     <ClCompile Include="BombFuseState.cpp" />
     <ClCompile Include="BombHideState.cpp" />
-    <ClCompile Include="CharacterMoveComponent.cpp" />
     <ClCompile Include="CoopExitResponder.cpp" />
     <ClCompile Include="CoopGameController.cpp" />
     <ClCompile Include="CoopGameLoader.cpp" />
     <ClCompile Include="CoopLevelManager.cpp" />
-    <ClCompile Include="DeathCommand.cpp" />
     <ClCompile Include="DelayedCoopGameLoader.cpp" />
     <ClCompile Include="DelayedLevelLoader.cpp" />
     <ClCompile Include="DelayedNameEntryLoader.cpp" />
@@ -180,14 +177,10 @@
     <ClCompile Include="EnemyCollisionResponder.cpp" />
     <ClCompile Include="EnemyManager.cpp" />
     <ClCompile Include="ExitResponder.cpp" />
-    <ClCompile Include="FPSCounter.cpp" />
-    <ClCompile Include="GameActor.cpp" />
-    <ClCompile Include="GameActorCommand.cpp" />
     <ClCompile Include="GameController.cpp" />
     <ClCompile Include="GameModeSelector.cpp" />
     <ClCompile Include="GameOverManager.cpp" />
     <ClCompile Include="GameOverScreenLoader.cpp" />
-    <ClCompile Include="GamepadMoveCommand.cpp" />
     <ClCompile Include="GamepadMovementComponent.cpp" />
     <ClCompile Include="HighScoreManager.cpp" />
     <ClCompile Include="IBombState.cpp" />
@@ -199,7 +192,6 @@
     <ClCompile Include="LivesDisplayComponent.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MinvoComponent.cpp" />
-    <ClCompile Include="MoveCommand.cpp" />
     <ClCompile Include="MoveDirCommand.cpp" />
     <ClCompile Include="MuteCommand.cpp" />
     <ClCompile Include="NameEntryScreenLoader.cpp" />
@@ -213,7 +205,6 @@
     <ClCompile Include="PlayerManager.cpp" />
     <ClCompile Include="PlayerNameManager.cpp" />
     <ClCompile Include="PointsDisplay.cpp" />
-    <ClCompile Include="PointsSubject.cpp" />
     <ClCompile Include="PowerUpCollisionResponder.cpp" />
     <ClCompile Include="PowerUpComponent.cpp" />
     <ClCompile Include="RestartChecker.cpp" />
@@ -222,12 +213,10 @@
     <ClCompile Include="SpriteSheetComponent.cpp" />
     <ClCompile Include="StartScreenLoader.cpp" />
     <ClCompile Include="StaticWallResponder.cpp" />
-    <ClCompile Include="UpDownMoveComponent.cpp" />
     <ClCompile Include="VersusGameController.cpp" />
     <ClCompile Include="VersusGameLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AddPointsCommand.h" />
     <ClInclude Include="BalloonComponent.h" />
     <ClInclude Include="BaseEnemyComponent.h" />
     <ClInclude Include="BlastResponder.h" />
@@ -236,12 +225,10 @@
     <ClInclude Include="BombComponent.h" />
     <ClInclude Include="BombFuseState.h" />
     <ClInclude Include="BombHideState.h" />
-    <ClInclude Include="CharacterMoveComponent.h" />
     <ClInclude Include="CoopExitResponder.h" />
     <ClInclude Include="CoopGameController.h" />
     <ClInclude Include="CoopGameLoader.h" />
     <ClInclude Include="CoopLevelManager.h" />
-    <ClInclude Include="DeathCommand.h" />
     <ClInclude Include="DelayedCoopGameLoader.h" />
     <ClInclude Include="DelayedLevelLoader.h" />
     <ClInclude Include="DelayedNameEntryLoader.h" />
@@ -252,15 +239,11 @@
     <ClInclude Include="EnemyCollisionResponder.h" />
     <ClInclude Include="EnemyManager.h" />
     <ClInclude Include="ExitResponder.h" />
-    <ClInclude Include="FPSCounter.h" />
-    <ClInclude Include="GameActor.h" />
-    <ClInclude Include="GameActorCommand.h" />
     <ClInclude Include="GameController.h" />
     <ClInclude Include="GameEvents.h" />
     <ClInclude Include="GameModeSelector.h" />
     <ClInclude Include="GameOverManager.h" />
     <ClInclude Include="GameOverScreenLoader.h" />
-    <ClInclude Include="GamepadMoveCommand.h" />
     <ClInclude Include="GamepadMovementComponent.h" />
     <ClInclude Include="HighScoreManager.h" />
     <ClInclude Include="IBombState.h" />
@@ -271,7 +254,6 @@
     <ClInclude Include="LivesDisplay.h" />
     <ClInclude Include="LivesDisplayComponent.h" />
     <ClInclude Include="MinvoComponent.h" />
-    <ClInclude Include="MoveCommand.h" />
     <ClInclude Include="MoveDirCommand.h" />
     <ClInclude Include="MuteCommand.h" />
     <ClInclude Include="NameEntryScreenLoader.h" />
@@ -285,7 +267,6 @@
     <ClInclude Include="PlayerManager.h" />
     <ClInclude Include="PlayerNameManager.h" />
     <ClInclude Include="PointsDisplay.h" />
-    <ClInclude Include="PointsSubject.h" />
     <ClInclude Include="PowerUpCollisionResponder.h" />
     <ClInclude Include="PowerUpComponent.h" />
     <ClInclude Include="PowerUpType.h" />
@@ -295,7 +276,6 @@
     <ClInclude Include="SpriteSheetComponent.h" />
     <ClInclude Include="StartScreenLoader.h" />
     <ClInclude Include="StaticWallResponder.h" />
-    <ClInclude Include="UpDownMoveComponent.h" />
     <ClInclude Include="VersusGameController.h" />
     <ClInclude Include="VersusGameLoader.h" />
   </ItemGroup>

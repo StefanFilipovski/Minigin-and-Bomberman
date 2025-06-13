@@ -13,7 +13,7 @@ namespace dae {
         glm::ivec2 gridSize,
         float tileSize,
         float gridOffsetY)
-        : BaseEnemyComponent(owner, speed, moveInterval, 800, // 800 points for Minvo (highest value)
+        : BaseEnemyComponent(owner, speed, moveInterval, 800, // 800 points for Minvo
             std::move(grid), gridSize, tileSize, gridOffsetY)
         , m_ChaseRange(chaseRange)
     {
@@ -77,7 +77,6 @@ namespace dae {
             }
             else {
                 // Can't move directly, try to find best path
-                // Minvo is smart - will try to move around obstacles
                 std::vector<Direction> alternatives;
 
                 if (chaseDir == Direction::Left || chaseDir == Direction::Right) {

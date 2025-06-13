@@ -37,9 +37,9 @@ namespace dae {
             m_GameEnded = true;
             m_EndTimer = 0.0f;
 
-            std::cout << "=== GAME OVER ===" << std::endl;
+           /* std::cout << "=== GAME OVER ===" << std::endl;
             std::cout << "Co-op game ended!" << std::endl;
-            std::cout << "Returning to start screen in " << m_DelayTime << " seconds..." << std::endl;
+            std::cout << "Returning to start screen in " << m_DelayTime << " seconds..." << std::endl;*/
         }
         else if (event.id == GameEvents::ENEMY_DIED && !m_GameEnded) {
             // Check if all enemies are dead and spawn exit if needed

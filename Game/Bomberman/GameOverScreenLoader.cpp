@@ -52,13 +52,13 @@ namespace dae {
         const auto& highScores = HighScoreManager::GetInstance().GetHighScores();
 
         if (!highScores.empty()) {
-            // High scores title - centered
+            // High scores title 
             auto highScoreTitle = std::make_shared<GameObject>();
             highScoreTitle->AddComponent<TransformComponent>().SetLocalPosition(105.f, 140.f, 0.f);
             highScoreTitle->AddComponent<TextComponent>(font, "HIGH SCORES:");
             scene.Add(highScoreTitle);
 
-            // Display top 3 high scores - centered
+            // Display top 3 high scores 
             for (size_t i = 0; i < std::min(size_t(3), highScores.size()); ++i) {
                 auto scoreLineGO = std::make_shared<GameObject>();
                 scoreLineGO->AddComponent<TransformComponent>().SetLocalPosition(85.f, 160.f + (i * 20.f), 0.f);
@@ -67,20 +67,20 @@ namespace dae {
                 scene.Add(scoreLineGO);
             }
 
-            // Instructions to continue - positioned after high scores
+            // Instructions to continue
             auto instructGO = std::make_shared<GameObject>();
             instructGO->AddComponent<TransformComponent>().SetLocalPosition(85.f, 240.f, 0.f);
             instructGO->AddComponent<TextComponent>(font, "Press SPACE to continue");
             scene.Add(instructGO);
         }
         else {
-            // No high scores yet - show encouraging message
+            // No high scores yet
             auto noScoresGO = std::make_shared<GameObject>();
             noScoresGO->AddComponent<TransformComponent>().SetLocalPosition(70.f, 140.f, 0.f);
             noScoresGO->AddComponent<TextComponent>(font, "Be the first to set a high score!");
             scene.Add(noScoresGO);
 
-            // Instructions to continue - positioned higher since no high scores
+            // Instructions to continue
             auto instructGO = std::make_shared<GameObject>();
             instructGO->AddComponent<TransformComponent>().SetLocalPosition(85.f, 180.f, 0.f);
             instructGO->AddComponent<TextComponent>(font, "Press SPACE to continue");

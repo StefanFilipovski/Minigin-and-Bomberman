@@ -124,7 +124,7 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		// Render the scene
 		renderer.Render();
 		
-		// Frame limiting (prevents high CPU usage)
+		// Frame limiting 
 		const auto sleepTime = currentTime + std::chrono::milliseconds(16) - std::chrono::high_resolution_clock::now();
 		std::this_thread::sleep_for(sleepTime);
 	}

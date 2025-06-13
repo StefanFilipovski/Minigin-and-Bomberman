@@ -11,7 +11,7 @@ namespace dae {
         void LoadNextLevel();
         void ResetToFirstLevel();
 
-        // Add these methods
+      
         void QueueLevelTransition() { m_TransitionQueued = true; }
         void ProcessPendingTransition();
 
@@ -24,6 +24,6 @@ namespace dae {
 
         std::vector<std::string> m_LevelFiles;
         int m_CurrentLevel{ 0 };
-        bool m_TransitionQueued{ false };  // Add this
+        bool m_TransitionQueued{ false };  
     };
 }

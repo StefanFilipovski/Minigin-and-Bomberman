@@ -35,12 +35,12 @@ namespace dae {
 
         // Title image
         auto titleGO = std::make_shared<GameObject>();
-        titleGO->AddComponent<TransformComponent>().SetLocalPosition(155.f, 20.f, 0.f);
+        titleGO->AddComponent<TransformComponent>().SetLocalPosition(260.f, 20.f, 0.f);
         titleGO->AddComponent<RenderComponent>().SetTexture("BombermanTitle.tga");
         scene.Add(titleGO);
 
         // Game mode selection
-        auto font = ResourceManager::GetInstance().LoadFont("PublicPixel-rv0pA.ttf", 16);
+        auto font = ResourceManager::GetInstance().LoadFont("PublicPixel-rv0pA.ttf", 13);
 
         // "Story Mode" option
         auto storyModeGO = std::make_shared<GameObject>();

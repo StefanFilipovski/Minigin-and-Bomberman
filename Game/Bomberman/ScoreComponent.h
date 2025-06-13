@@ -10,7 +10,7 @@ namespace dae {
     public:
         explicit ScoreComponent(GameObject* owner);
 
-        void Initialize(); // Call this after adding to GameObject
+        void Initialize(); 
         void SetScore(int score);  // Just updates display
 
     private:

@@ -43,15 +43,15 @@ namespace dae {
             if (currentScene != nullptr) {
                 std::cout << "Active scene detected - doing safer cleanup..." << std::endl;
 
-                // 1. First clear input bindings (stops new events)
+               
                 std::cout << "Clearing input bindings first..." << std::endl;
                 InputManager::GetInstance().ClearAllBindings();
 
-                // 2. Stop all sounds
+          
                 std::cout << "Stopping music..." << std::endl;
                 ServiceLocator::GetSoundSystem().StopMusic();
 
-                // 3. Clear managers in safer order (enemies first, then players, then collision)
+               
                 std::cout << "Clearing EnemyManager..." << std::endl;
                 EnemyManager::GetInstance().ClearLevel();
 
@@ -61,11 +61,11 @@ namespace dae {
                 std::cout << "Clearing CollisionManager..." << std::endl;
                 CollisionManager::GetInstance().Clear();
 
-                // 4. Give the scene a chance to clean up before replacing it
+             
                 std::cout << "Letting scene cleanup..." << std::endl;
             }
             else {
-                // Still clear input bindings even for first load
+               
                 std::cout << "Clearing input bindings..." << std::endl;
                 InputManager::GetInstance().ClearAllBindings();
             }

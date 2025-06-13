@@ -51,7 +51,7 @@ namespace dae {
         const float uiOffsetY = tileSize * uiRows;
 
         // Load versus map (we'll use level1.txt for simplicity)
-        std::ifstream file("../Data/level1.txt");
+        std::ifstream file("../Data/versuslevel.txt");
         std::vector<std::string> mapRows;
         std::string line;
         while (std::getline(file, line)) {
@@ -189,6 +189,7 @@ namespace dae {
                         std::make_unique<Player2DetonatorCommand>(&p2c), 1);
                     break;
                 }
+
                 default:
                     break;
                 }

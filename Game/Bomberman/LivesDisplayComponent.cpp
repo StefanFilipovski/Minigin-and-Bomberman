@@ -11,7 +11,7 @@ namespace dae {
         , m_CurrentLives(initialLives)
         , m_MaxLives(initialLives)
     {
-        // Load font (same as ScoreComponent for consistency)
+        
         m_Font = ResourceManager::GetInstance().LoadFont("PublicPixel-rv0pA.ttf", 16);
     }
 

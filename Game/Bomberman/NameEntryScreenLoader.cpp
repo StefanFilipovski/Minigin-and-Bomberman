@@ -22,9 +22,7 @@ namespace dae {
 
         // Create the name entry scene
         auto& scene = SceneManager::GetInstance().CreateScene(sceneName);
-
-        // Keep title screen music playing
-        // ServiceLocator::GetSoundSystem() - don't stop music here
+            
 
         // Create background
         auto background = std::make_shared<GameObject>();

@@ -40,8 +40,6 @@ namespace dae {
         std::cout << "=== GAME OVER ===" << std::endl;
         std::cout << "PLAYER " << winner << " WINS!" << std::endl;
         std::cout << "Returning to start screen in " << m_EndDelay << " seconds..." << std::endl;
-
-        // In a full implementation, you'd create a winner display screen here
-        // For now, we just use console output and return to start screen
+               
     }
 }

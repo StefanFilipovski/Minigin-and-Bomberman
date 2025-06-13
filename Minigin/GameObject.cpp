@@ -93,11 +93,11 @@ namespace dae
 
     void dae::GameObject::SetParent(GameObject* parent, bool keepWorldPosition)
     {
-        // 1. Validate new parent (e.g., ensure it's not this, and optionally check for cycles)
+        // 1. Validate new parent 
         if (parent == this)
             return;
 
-        // Optionally, add a check to ensure 'parent' is not one of this object's descendants
+        
 
         // 2. If this GameObject already has a parent, remove it from that parent's children list.
         if (m_pParent)
