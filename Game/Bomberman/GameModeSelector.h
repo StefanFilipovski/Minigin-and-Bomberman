@@ -2,9 +2,13 @@
 #include "Component.h"
 
 namespace dae {
+    // Forward declaration
+    class DelayedCoopGameLoader;
+
     enum class GameMode {
         Story = 0,
-        Versus = 1
+        Coop = 1,
+        Versus = 2
     };
 
     class GameModeSelector : public Component {
@@ -19,6 +23,7 @@ namespace dae {
         void MoveUp();
         void MoveDown();
         void TriggerSelection();
+        void TriggerSelection(DelayedCoopGameLoader* coopLoader);
 
     private:
         GameMode m_SelectedMode{ GameMode::Story };

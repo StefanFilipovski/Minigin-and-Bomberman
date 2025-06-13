@@ -9,6 +9,7 @@
 #include "LambdaCommand.h"
 #include "ServiceLocator.h"
 #include "GameModeSelector.h"
+#include "DelayedCoopGameLoader.h"
 #include <SDL.h>
 #include "Scene.h"
 
@@ -43,35 +44,41 @@ namespace dae {
 
         // "Story Mode" option
         auto storyModeGO = std::make_shared<GameObject>();
-        storyModeGO->AddComponent<TransformComponent>().SetLocalPosition(100.f, 120.f, 0.f);
+        storyModeGO->AddComponent<TransformComponent>().SetLocalPosition(100.f, 110.f, 0.f);
         auto& storyText = storyModeGO->AddComponent<TextComponent>(font, "> Story Mode");
         scene.Add(storyModeGO);
 
+        // "Co-op Mode" option
+        auto coopModeGO = std::make_shared<GameObject>();
+        coopModeGO->AddComponent<TransformComponent>().SetLocalPosition(100.f, 130.f, 0.f);
+        auto& coopText = coopModeGO->AddComponent<TextComponent>(font, "  Co-op Mode");
+        scene.Add(coopModeGO);
+
         // "Versus Mode" option  
         auto versusModeGO = std::make_shared<GameObject>();
-        versusModeGO->AddComponent<TransformComponent>().SetLocalPosition(100.f, 140.f, 0.f);
+        versusModeGO->AddComponent<TransformComponent>().SetLocalPosition(100.f, 150.f, 0.f);
         auto& versusText = versusModeGO->AddComponent<TextComponent>(font, "  Versus Mode");
         scene.Add(versusModeGO);
 
         // Instructions
         auto instructGO = std::make_shared<GameObject>();
-        instructGO->AddComponent<TransformComponent>().SetLocalPosition(70.f, 170.f, 0.f);
+        instructGO->AddComponent<TransformComponent>().SetLocalPosition(70.f, 180.f, 0.f);
         instructGO->AddComponent<TextComponent>(font, "UP/DOWN to select, SPACE to confirm");
         scene.Add(instructGO);
 
         // Controls info
         auto controlsTitle = std::make_shared<GameObject>();
-        controlsTitle->AddComponent<TransformComponent>().SetLocalPosition(110.f, 200.f, 0.f);
+        controlsTitle->AddComponent<TransformComponent>().SetLocalPosition(110.f, 210.f, 0.f);
         controlsTitle->AddComponent<TextComponent>(font, "CONTROLS:");
         scene.Add(controlsTitle);
 
         auto moveControls = std::make_shared<GameObject>();
-        moveControls->AddComponent<TransformComponent>().SetLocalPosition(60.f, 220.f, 0.f);
+        moveControls->AddComponent<TransformComponent>().SetLocalPosition(60.f, 230.f, 0.f);
         moveControls->AddComponent<TextComponent>(font, "P1: Arrows + X(bomb) + C(detonate)");
         scene.Add(moveControls);
 
         auto player2Controls = std::make_shared<GameObject>();
-        player2Controls->AddComponent<TransformComponent>().SetLocalPosition(80.f, 240.f, 0.f);
+        player2Controls->AddComponent<TransformComponent>().SetLocalPosition(80.f, 250.f, 0.f);
         player2Controls->AddComponent<TextComponent>(font, "P2: WASD + Q(bomb) + E(detonate)");
         scene.Add(player2Controls);
 
@@ -80,20 +87,35 @@ namespace dae {
         auto& selector = selectorGO->AddComponent<GameModeSelector>();
         scene.Add(selectorGO);
 
+        // Create the delayed co-op game loader
+        auto delayedCoopLoaderGO = std::make_shared<GameObject>();
+        auto& delayedCoopLoader = delayedCoopLoaderGO->AddComponent<DelayedCoopGameLoader>();
+        scene.Add(delayedCoopLoaderGO);
+
         // Input bindings for mode selection
         InputManager::GetInstance().BindCommand(
             SDL_SCANCODE_UP,
             KeyState::Down,
             InputDeviceType::Keyboard,
-            std::make_unique<LambdaCommand>([&selector, &storyText, &versusText]() {
+            std::make_unique<LambdaCommand>([&selector, &storyText, &coopText, &versusText]() {
                 selector.MoveUp();
-                if (selector.GetSelectedMode() == GameMode::Story) {
+                // Update text display based on selected mode
+                switch (selector.GetSelectedMode()) {
+                case GameMode::Story:
                     storyText.SetText("> Story Mode");
+                    coopText.SetText("  Co-op Mode");
                     versusText.SetText("  Versus Mode");
-                }
-                else {
+                    break;
+                case GameMode::Coop:
                     storyText.SetText("  Story Mode");
+                    coopText.SetText("> Co-op Mode");
+                    versusText.SetText("  Versus Mode");
+                    break;
+                case GameMode::Versus:
+                    storyText.SetText("  Story Mode");
+                    coopText.SetText("  Co-op Mode");
                     versusText.SetText("> Versus Mode");
+                    break;
                 }
                 }),
             -1
@@ -103,15 +125,25 @@ namespace dae {
             SDL_SCANCODE_DOWN,
             KeyState::Down,
             InputDeviceType::Keyboard,
-            std::make_unique<LambdaCommand>([&selector, &storyText, &versusText]() {
+            std::make_unique<LambdaCommand>([&selector, &storyText, &coopText, &versusText]() {
                 selector.MoveDown();
-                if (selector.GetSelectedMode() == GameMode::Story) {
+                // Update text display based on selected mode
+                switch (selector.GetSelectedMode()) {
+                case GameMode::Story:
                     storyText.SetText("> Story Mode");
+                    coopText.SetText("  Co-op Mode");
                     versusText.SetText("  Versus Mode");
-                }
-                else {
+                    break;
+                case GameMode::Coop:
                     storyText.SetText("  Story Mode");
+                    coopText.SetText("> Co-op Mode");
+                    versusText.SetText("  Versus Mode");
+                    break;
+                case GameMode::Versus:
+                    storyText.SetText("  Story Mode");
+                    coopText.SetText("  Co-op Mode");
                     versusText.SetText("> Versus Mode");
+                    break;
                 }
                 }),
             -1
@@ -121,8 +153,8 @@ namespace dae {
             SDL_SCANCODE_SPACE,
             KeyState::Down,
             InputDeviceType::Keyboard,
-            std::make_unique<LambdaCommand>([&selector]() {
-                selector.TriggerSelection();
+            std::make_unique<LambdaCommand>([&selector, &delayedCoopLoader]() {
+                selector.TriggerSelection(&delayedCoopLoader);
                 }),
             -1
         );

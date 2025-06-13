@@ -165,7 +165,12 @@
     <ClCompile Include="BombFuseState.cpp" />
     <ClCompile Include="BombHideState.cpp" />
     <ClCompile Include="CharacterMoveComponent.cpp" />
+    <ClCompile Include="CoopExitResponder.cpp" />
+    <ClCompile Include="CoopGameController.cpp" />
+    <ClCompile Include="CoopGameLoader.cpp" />
+    <ClCompile Include="CoopLevelManager.cpp" />
     <ClCompile Include="DeathCommand.cpp" />
+    <ClCompile Include="DelayedCoopGameLoader.cpp" />
     <ClCompile Include="DelayedLevelLoader.cpp" />
     <ClCompile Include="DelayedNameEntryLoader.cpp" />
     <ClCompile Include="DelayedStartScreenLoader.cpp" />
@@ -182,6 +187,8 @@
     <ClCompile Include="GameModeSelector.cpp" />
     <ClCompile Include="GameOverManager.cpp" />
     <ClCompile Include="GameOverScreenLoader.cpp" />
+    <ClCompile Include="GamepadMoveCommand.cpp" />
+    <ClCompile Include="GamepadMovementComponent.cpp" />
     <ClCompile Include="HighScoreManager.cpp" />
     <ClCompile Include="IBombState.cpp" />
     <ClCompile Include="LambdaCommand.cpp" />
@@ -230,7 +237,12 @@
     <ClInclude Include="BombFuseState.h" />
     <ClInclude Include="BombHideState.h" />
     <ClInclude Include="CharacterMoveComponent.h" />
+    <ClInclude Include="CoopExitResponder.h" />
+    <ClInclude Include="CoopGameController.h" />
+    <ClInclude Include="CoopGameLoader.h" />
+    <ClInclude Include="CoopLevelManager.h" />
     <ClInclude Include="DeathCommand.h" />
+    <ClInclude Include="DelayedCoopGameLoader.h" />
     <ClInclude Include="DelayedLevelLoader.h" />
     <ClInclude Include="DelayedNameEntryLoader.h" />
     <ClInclude Include="DelayedStartScreenLoader.h" />
@@ -248,6 +260,8 @@
     <ClInclude Include="GameModeSelector.h" />
     <ClInclude Include="GameOverManager.h" />
     <ClInclude Include="GameOverScreenLoader.h" />
+    <ClInclude Include="GamepadMoveCommand.h" />
+    <ClInclude Include="GamepadMovementComponent.h" />
     <ClInclude Include="HighScoreManager.h" />
     <ClInclude Include="IBombState.h" />
     <ClInclude Include="LambdaCommand.h" />

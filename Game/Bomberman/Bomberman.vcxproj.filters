@@ -64,6 +64,13 @@
     <ClCompile Include="Player2BombCommand.cpp" />
     <ClCompile Include="Player2DetonatorCommand.cpp" />
     <ClCompile Include="Player2MoveDirCommand.cpp" />
+    <ClCompile Include="CoopGameController.cpp" />
+    <ClCompile Include="CoopLevelManager.cpp" />
+    <ClCompile Include="CoopGameLoader.cpp" />
+    <ClCompile Include="DelayedCoopGameLoader.cpp" />
+    <ClCompile Include="CoopExitResponder.cpp" />
+    <ClCompile Include="GamepadMoveCommand.cpp" />
+    <ClCompile Include="GamepadMovementComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddPointsCommand.h" />
@@ -130,5 +137,12 @@
     <ClInclude Include="Player2BombCommand.h" />
     <ClInclude Include="Player2DetonatorCommand.h" />
     <ClInclude Include="Player2MoveDirCommand.h" />
+    <ClInclude Include="CoopGameController.h" />
+    <ClInclude Include="CoopLevelManager.h" />
+    <ClInclude Include="CoopGameLoader.h" />
+    <ClInclude Include="DelayedCoopGameLoader.h" />
+    <ClInclude Include="CoopExitResponder.h" />
+    <ClInclude Include="GamepadMoveCommand.h" />
+    <ClInclude Include="GamepadMovementComponent.h" />
   </ItemGroup>
 </Project>
