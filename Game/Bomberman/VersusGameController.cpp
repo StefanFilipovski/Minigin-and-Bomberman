@@ -2,6 +2,10 @@
 #include "GameEvents.h"
 #include "StartScreenLoader.h"
 #include <iostream>
+#include "InputManager.h"
+#include "CollisionManager.h"
+#include "PlayerManager.h"
+#include "ServiceLocator.h"
 
 namespace dae {
     void VersusGameController::Update(float deltaTime)
@@ -9,6 +13,21 @@ namespace dae {
         if (m_GameEnded) {
             m_EndTimer += deltaTime;
             if (m_EndTimer >= m_EndDelay) {
+               
+                std::cout << "Cleaning up versus game before returning to start screen..." << std::endl;
+
+                // Clear input bindings first
+                InputManager::GetInstance().ClearAllBindings();
+
+                // Clear collision manager (this will stop the spam!)
+                CollisionManager::GetInstance().Clear();
+
+                // Clear other managers
+                PlayerManager::GetInstance().ClearPlayers();
+
+                // Stop music
+                ServiceLocator::GetSoundSystem().StopMusic();
+
                 // Return to start screen
                 std::cout << "Returning to start screen..." << std::endl;
                 StartScreenLoader loader;

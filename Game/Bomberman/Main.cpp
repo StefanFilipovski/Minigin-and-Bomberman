@@ -58,6 +58,7 @@ void load()
 
 int main(int, char* [])
 {
+
     try {
         dae::Minigin engine("../Data/");
 

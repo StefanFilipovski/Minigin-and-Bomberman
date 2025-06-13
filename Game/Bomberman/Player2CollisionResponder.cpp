@@ -20,7 +20,12 @@ namespace dae {
 
         // Check if the other object has a PlayerComponent
         if (auto* player = other->GetComponent<PlayerComponent>()) {
-            std::cout << "Player 2 (Balloon) collided with Player 1!" << std::endl;
+            
+            if (player->IsOutOfLives()) {
+                return; 
+            }
+
+           
             player->TakeDamage(1);
             return;
         }
@@ -28,7 +33,7 @@ namespace dae {
         // Check for blast/explosion damage (from bomb explosions)
         if (auto* cc = other->GetComponent<CollisionComponent>()) {
             if (auto* blastResponder = dynamic_cast<BlastResponder*>(cc->GetResponder())) {
-                std::cout << "Player 2 (Balloon) hit by explosion!" << std::endl;
+               
                 m_Player2->TakeDamage(1);
                 return;
             }
