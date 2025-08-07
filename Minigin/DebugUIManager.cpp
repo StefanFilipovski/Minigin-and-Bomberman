@@ -6,23 +6,7 @@
 
 namespace dae
 {
-    // Declare a static pointer outside the functions.
-    static DebugUIManager* s_instance = nullptr;
-
-    DebugUIManager& DebugUIManager::GetInstance()
-    {
-        if (!s_instance)
-            s_instance = new DebugUIManager();
-        return *s_instance;
-    }
-
-    // Shutdown function to clean up the singleton.
-    void DebugUIManager::Shutdown()
-    {
-        delete s_instance;
-        s_instance = nullptr;
-    }
-
+       
     void DebugUIManager::AddGameObject(GameObject* obj)
     {
         if (obj)

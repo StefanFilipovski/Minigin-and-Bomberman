@@ -23,20 +23,31 @@ namespace dae {
 
     void CollisionManager::CheckCollisions()
     {
+        // First, clean up any null pointers
+        m_collisionComponents.erase(
+            std::remove_if(m_collisionComponents.begin(), m_collisionComponents.end(),
+                [](CollisionComponent* comp) {
+                    return comp == nullptr || comp->IsMarkedForDeletion();
+                }),
+            m_collisionComponents.end()
+        );
+
         const auto& comps = m_collisionComponents;
         const size_t count = comps.size();
+
         for (size_t i = 0; i < count; ++i)
         {
-            // Compute A’s box once
             const SDL_Rect rectA = comps[i]->GetBoundingBox();
 
             for (size_t j = i + 1; j < count; ++j)
             {
+                // Check if these layers can collide (if you implemented layers)
+                // if (!comps[i]->CanCollideWith(comps[j])) continue;
+
                 const SDL_Rect rectB = comps[j]->GetBoundingBox();
 
                 if (AABBIntersect(rectA, rectB))
                 {
-                    // Notify both responders (if present)
                     if (auto* rA = comps[i]->GetResponder())
                         rA->OnCollide(comps[j]->GetOwner());
                     if (auto* rB = comps[j]->GetResponder())

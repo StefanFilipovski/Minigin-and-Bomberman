@@ -42,6 +42,8 @@ void dae::SceneManager::RemoveScene(const std::string& name)
     );
 }
 
+
+
 void dae::SceneManager::SetActiveScene(const std::string& name)
 {
     m_ActiveScene = nullptr;

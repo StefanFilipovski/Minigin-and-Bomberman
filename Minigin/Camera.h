@@ -4,33 +4,32 @@
 #include <vec2.hpp>
 
 namespace dae {
-
-  
     class GameObject;
 
-    class Camera : public Singleton<Camera> {
+    class Camera final : public Singleton<Camera> {
     public:
-        // Set the target to follow
         void SetTarget(std::shared_ptr<GameObject> target) { m_target = target; }
-        // Update camera position 
         void Update(float deltaTime);
-        // Get the current offset 
         glm::vec2 GetOffset() const { return m_offset; }
-        void SetScreenSize(int width, int height) { m_screenWidth = width; m_screenHeight = height; }
-        void SetDeadZone(float deadZoneX, float deadZoneY) { m_deadZoneX = deadZoneX; m_deadZoneY = deadZoneY; }
-        
+        void SetScreenSize(int width, int height) {
+            m_screenWidth = width;
+            m_screenHeight = height;
+        }
+        void SetDeadZone(float deadZoneX, float deadZoneY) {
+            m_deadZoneX = deadZoneX;
+            m_deadZoneY = deadZoneY;
+        }
+        void Clear() { m_target.reset(); }  // Addded cleanup
+
     private:
+        friend class Singleton<Camera>;
+        Camera() = default;
+
         glm::vec2 m_offset{ 0.f, 0.f };
-        std::shared_ptr<GameObject> m_target;
-        // Screen dimensions can be set from configuration or during initialization.
+        std::weak_ptr<GameObject> m_target;  // Changed to weak_ptr
         int m_screenWidth{ 640 };
         int m_screenHeight{ 280 };
-
-        // dead zone margins
-        float m_deadZoneX = 0.48f * m_screenWidth; 
-        float m_deadZoneY = /*0.45f **/ float(m_screenHeight);
-
-        // smoothing factors, etc.
+        float m_deadZoneX = 0.48f * m_screenWidth;
+        float m_deadZoneY = float(m_screenHeight);
     };
-
-} 
+}

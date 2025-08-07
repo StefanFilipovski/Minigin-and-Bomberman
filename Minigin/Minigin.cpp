@@ -13,6 +13,7 @@
 #include <thread>
 #include "CollisionManager.h"
 #include "Camera.h"
+#include "DebugUIManager.h"
 
 
 SDL_Window* g_window{};
@@ -74,6 +75,12 @@ dae::Minigin::Minigin(const std::string &dataPath)
 
 dae::Minigin::~Minigin()
 {
+	// Clean up singletons that hold references
+	CollisionManager::GetInstance().Clear();
+	Camera::GetInstance().Clear();
+	DebugUIManager::GetInstance().Clear();
+	SceneManager::GetInstance().RemoveAllScenes();  // Add this method
+
 	Renderer::GetInstance().Destroy();
 	SDL_DestroyWindow(g_window);
 	g_window = nullptr;

@@ -1,24 +1,23 @@
 #pragma once
 #include <vector>
 #include "GameObject.h"
+#include "Singleton.h"
 
 namespace dae
 {
-	class DebugUIManager
+	class DebugUIManager final : public Singleton<DebugUIManager>
 	{
 	public:
-		static DebugUIManager& GetInstance();
-		static void Shutdown();
-
+		
 		void AddGameObject(GameObject* obj);
 		void RemoveGameObject(GameObject* obj);
+		void Clear() { m_GameObjects.clear(); }  
 		void RenderUI();
 
 	private:
 		DebugUIManager() = default;
 		~DebugUIManager() = default;
-		DebugUIManager(const DebugUIManager&) = delete;
-		DebugUIManager& operator=(const DebugUIManager&) = delete;
+		friend class Singleton<DebugUIManager>;
 
 		std::vector<GameObject*> m_GameObjects;
 	};

@@ -1,5 +1,6 @@
 ﻿#include "TransformComponent.h"
 #include "GameObject.h"
+#include <iostream>
 
 dae::TransformComponent::TransformComponent(GameObject* owner)
     : Component(owner), m_LocalPosition(0.0f), m_WorldPosition(0.0f), m_PositionIsDirty(true)
@@ -9,30 +10,29 @@ dae::TransformComponent::TransformComponent(GameObject* owner)
         throw std::runtime_error("TransformComponent initialized with nullptr owner!");
     }
 
-    m_pOwner = owner;  
-    
+    // REMOVED: m_pOwner = owner;
+   
 }
 
 void dae::TransformComponent::SetLocalPosition(const glm::vec3& position)
 {
     m_LocalPosition = position;
-    MarkPositionDirty();  
-  
+    MarkPositionDirty();
 }
 
 void dae::TransformComponent::SetLocalPosition(float x, float y, float z)
 {
     m_LocalPosition = { x, y, z };
-    MarkPositionDirty();  
-    
+    MarkPositionDirty();
 }
-
 
 void dae::TransformComponent::MarkPositionDirty()
 {
     m_PositionIsDirty = true;
-    // Recursively mark all children's transforms as dirty
-    for (auto child : m_pOwner->GetChildren())
+
+    // CHANGED: Use GetOwner() instead of m_pOwner
+    // GetOwner() is inherited from Component base class
+    for (auto child : GetOwner()->GetChildren())
     {
         // Assuming every GameObject has a TransformComponent:
         child->GetTransform().MarkPositionDirty();
@@ -52,16 +52,17 @@ void dae::TransformComponent::UpdateWorldPosition()
 {
     if (m_PositionIsDirty)
     {
-        if (!m_pOwner)
+        // CHANGED: Use GetOwner() instead of m_pOwner
+        if (!GetOwner())
         {
             std::cerr << "Error: TransformComponent's owner is nullptr! at address " << this << std::endl;
             return;
         }
 
-        GameObject* parent = m_pOwner->GetParent();
+        // CHANGED: Use GetOwner() instead of m_pOwner
+        GameObject* parent = GetOwner()->GetParent();
         if (parent)
         {
-            
             // World position is parent's world position plus our local position.
             m_WorldPosition = parent->GetTransform().GetWorldPosition() + m_LocalPosition;
             // World scale is parent's world scale multiplied by our local scale.
@@ -76,5 +77,4 @@ void dae::TransformComponent::UpdateWorldPosition()
         m_PositionIsDirty = false;
     }
 }
-
 
