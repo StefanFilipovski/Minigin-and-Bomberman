@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Minigin", "Minigin\Minigin.vcxproj", "{41B0EC47-D48C-4B0F-951B-D98595FFAE0A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Bomberman", "Game\Bomberman\Bomberman.vcxproj", "{B6245A05-A895-44B8-9EF2-5AE43A623F03}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BurgerTime", "Game\BurgerTime\BurgerTime.vcxproj", "{B6245A05-A895-44B8-9EF2-5AE43A623F03}"
 	ProjectSection(ProjectDependencies) = postProject
 		{41B0EC47-D48C-4B0F-951B-D98595FFAE0A} = {41B0EC47-D48C-4B0F-951B-D98595FFAE0A}
 	EndProjectSection

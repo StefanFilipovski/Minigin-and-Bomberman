@@ -56,11 +56,11 @@ dae::Minigin::Minigin(const std::string &dataPath)
 	}
 
 	g_window = SDL_CreateWindow(
-		"Programming 4 assignment",
+		"BurgerTime",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		640,
-		272,
+		512,
+		448,
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr) 
@@ -79,7 +79,7 @@ dae::Minigin::~Minigin()
 	CollisionManager::GetInstance().Clear();
 	Camera::GetInstance().Clear();
 	DebugUIManager::GetInstance().Clear();
-	SceneManager::GetInstance().RemoveAllScenes();  // Add this method
+	SceneManager::GetInstance().RemoveAllScenes();  
 
 	Renderer::GetInstance().Destroy();
 	SDL_DestroyWindow(g_window);

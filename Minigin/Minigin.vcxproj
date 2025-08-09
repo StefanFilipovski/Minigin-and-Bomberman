@@ -198,6 +198,7 @@
     <ClInclude Include="..\3rdParty\imgui\imstb_truetype.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CollisionComponent.h" />
+    <ClInclude Include="CollisionLayer.h" />
     <ClInclude Include="CollisionManager.h" />
     <ClInclude Include="CollisionResponder.h" />
     <ClInclude Include="CollisionUtilities.h" />
